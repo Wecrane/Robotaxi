@@ -66,13 +66,13 @@
   2. Usb.c USB_Edgeboard_Timr: 掉线时清除sprintEnable+SpeedSet=0
 - **状态**：✅ 已完成（与P0-3联合修复，经2Agent审查）
 
-### P0-5 | 🚨 舵机掉线不回中（下位机）
+### P0-5 | 🚨 舵机掉线不回中（下位机） ✅ 已完成
 - **位置**：`Usb.c USB_Edgeboard_Timr()`
 - **症状**：上位机掉线后舵机保持最后一帧角度→车跑偏/原地转圈
 - **比赛影响**：无法控制方向
 - **工时**：1h
-- **修复**：掉线时执行 `SERVO_SetPwmValueCorrect(thresholdMiddle)` 回中
-- **状态**：⬜ 未开始
+- **修复**：掉线时执行 `SERVO_SetPwmValueCorrect(servoStr.thresholdMiddle)` 回中
+- **状态**：✅ 已完成（1Agent审查通过）
 
 ---
 

@@ -187,6 +187,7 @@ void USB_Edgeboard_Timr(void)
             icarStr.selfcheckEnable = false;
             icarStr.sprintEnable = false;			//[P0-4] 掉线时清除冲刺使能
             icarStr.SpeedSet = 0;					//[P0-4] 掉线时清零速度设定
+            SERVO_SetPwmValueCorrect(servoStr.thresholdMiddle);//[P0-5] 掉线时舵机回中
         }
         
         if(usbStr.inspectorEnable)
