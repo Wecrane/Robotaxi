@@ -86,13 +86,16 @@
 - **修复**：显式填充4字节心跳帧 [0x42][0x00][3][checksum]，新增USB_ADDR_HEART宏
 - **状态**：✅ 已完成
 
-### P1-2 | 🔴 lineArea 从未赋值→动态调速失效
-- **位置**：`center.cpp`
-- **症状**：lineArea=死代码，turnD=3.5过高→舵机抖动
+### P1-2 | 🔴 lineArea 从未赋值→动态调速失效 + turnD=3.5过高→舵机抖动 ✅ 已完成
+- **位置**：`center.cpp` / `params.hpp` / `config.json`
+- **症状**：lineArea=0死代码→动态速度公式退化；turnD=3.5→D项与P项1:1→舵机剧烈抖动
 - **比赛影响**：过弯不减速+抖动→冲出赛道 -5分
 - **工时**：2h
-- **修复**：lineArea正确赋值计算弯道面积；turnD降低至1.5-2.0
-- **状态**：⬜ 未开始
+- **修复**：
+  1. center.cpp：计算 lineArea = max(Left_last.x, Right_last.x)，弯道自动降速
+  2. params.hpp：turnD 3.5→1.5，D/P比从1:1降至1:3.7
+  3. config.json：turnD同步降至1.5 + 注释修正
+- **状态**：✅ 已完成（1Agent审查通过）
 
 ### P1-3 | 🔴 终点停车无距离测量
 - **位置**：`cross.cpp`

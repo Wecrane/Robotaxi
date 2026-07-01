@@ -53,6 +53,18 @@ void Center::fitting(shared_ptr<Params> &params)
             params->track->pointsEdgeRight.resize(validRowsRight);
         }
 
+        // [P1-2] 计算lineArea：有效车道线最远行号（动态速度公式输入）
+        // 取左右边缘最远行的max（保守策略：弯道中一侧早消失→行号大→速度降低）
+        {
+            int farthestLeft = ROWSIMAGE;
+            int farthestRight = ROWSIMAGE;
+            if (params->track->pointsEdgeLeft.size() > 0)
+                farthestLeft = params->track->pointsEdgeLeft[params->track->pointsEdgeLeft.size() - 1].x;
+            if (params->track->pointsEdgeRight.size() > 0)
+                farthestRight = params->track->pointsEdgeRight[params->track->pointsEdgeRight.size() - 1].x;
+            params->ctrl.lineArea = std::max(farthestLeft, farthestRight);
+        }
+
         if (params->track->pointsEdgeLeft.size() > 4 && params->track->pointsEdgeRight.size() > 4) // 通过双边缘有效点的差来判断赛道类型
         {
             v_center[0] = {
