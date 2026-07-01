@@ -47,6 +47,7 @@ private:
 #define USB_ADDR_CARCTRL 1 // 智能车速度+方向控制
 #define USB_ADDR_BUZZER 4  // 蜂鸣器音效控制
 #define USB_ADDR_LED 5     // LED灯效控制
+#define USB_ADDR_HEART 0x00 // 心跳信号
 #define USB_ADDR_KEY 0x10  // 按键信息
     /**
      * @brief 串口通信结构体
@@ -276,7 +277,14 @@ public:
      */
     void sendHeart()
     {
-        uint8_t buff[3];   // 多发送一个字节
-        transmit(buff, 3); // 发送数据
+        uint8_t buff[4];
+        uint8_t check = 0;
+        buff[0] = USB_FRAME_HEAD;   // 帧头 0x42
+        buff[1] = USB_ADDR_HEART;   // 地址 0x00（心跳）
+        buff[2] = 3;                // 帧长（HEAD之后: ADDR+LEN+checksum共3字节）
+        for (int i = 0; i < 3; i++)
+            check += buff[i];
+        buff[3] = check;            // 校验位
+        transmit(buff, 4);          // 发送4字节心跳帧
     }
 };
