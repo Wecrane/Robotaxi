@@ -97,13 +97,18 @@
   3. config.json：turnD同步降至1.5 + 注释修正
 - **状态**：✅ 已完成（1Agent审查通过）
 
-### P1-3 | 🔴 终点停车无距离测量
-- **位置**：`cross.cpp`
+### P1-3 | 🔴 终点停车无距离测量 ✅ 已完成
+- **位置**：`cross.cpp` + `params.hpp` + `icar.hpp` + `cross.hpp`
 - **症状**：斑马线触发STOP后 `exit(0)` 杀进程，无距离反馈→停车精度随机
 - **比赛影响**：停车>1.5m不给分；exit(0)裁判不认可 -5分
 - **工时**：4h
-- **修复**：编码器积分估算距离，距斑马线1.5m内刹车，不发exit(0)改为停车状态上报
-- **状态**：⬜ 未开始
+- **修复内容**：
+  1. `params.hpp`：Control新增 double odometry（编码器积分距离）+ bool crossFinishBuzzer（蜂鸣触发标志）
+  2. `icar.hpp`：running()每帧累加 odometry += speedFeedback * (1/30)，检测 crossFinishBuzzer 调用 BUZZER_FINISH
+  3. `cross.cpp`：STOP状态重写——清零odometry→怠速前进累计距离→1.5m刹车→速度归零确认→蜂鸣完赛→保持停车
+  4. `cross.hpp`：新增 buzzerDone 一次性标志防蜂鸣重复触发
+  5. 安全兜底：10秒超时强制刹车；非最后一圈行为不变
+- **状态**：✅ 已完成（1Agent审查+1项修正）
 
 ### P1-4 | 🔴 Slow慢行区无超时退出 ✅ 已完成
 - **位置**：`slow.cpp Step::ENABLE`

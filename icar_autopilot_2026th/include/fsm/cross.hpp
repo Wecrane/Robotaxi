@@ -58,6 +58,7 @@ private:
   int crossLostCount = 0;      // checkCrossPass用：复位crossPassed（>10帧）
   int crossLostStepCount = 0;  // ENABLE步用：触发STOP（>=3帧）
   int crossCount = 0;          // 累计检测到cross次数
+  bool buzzerDone = false;     // 蜂鸣完赛信号已触发（防止重复）
 
   void setStep(Step st);
 };

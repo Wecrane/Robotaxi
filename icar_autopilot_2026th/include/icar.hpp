@@ -489,6 +489,17 @@ public:
                        params->ctrl.speed, params->ctrl.speedFeedback);
         }
 
+        // 编码器距离积分（每帧累加，用于终点停车测距）
+        params->ctrl.odometry += params->ctrl.speedFeedback * (1.0 / 30.0);
+
+        // 终点停车完成蜂鸣通知
+        if (params->ctrl.crossFinishBuzzer)
+        {
+            params->ctrl.crossFinishBuzzer = false;
+            client->buzzerSound(client->BUZZER_FINISH);
+            printf("[Cross] Race finished! Buzzer sounded.\n");
+        }
+
         //[01] 视频源读取
         cv::Mat img;
         if (params->config.debug) // 综合显示调试UI窗口

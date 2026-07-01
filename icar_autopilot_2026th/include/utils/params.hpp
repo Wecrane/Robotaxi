@@ -78,6 +78,10 @@ struct Control
     float speedFeedback = 0.0f;   // 编码器反馈速度 m/s
     uint16_t errorCode = 0;       // 下位机故障码 bit0=舵机 bit4=编码器断线
     uint8_t selfcheckStep = 0;    // 自检当前步骤
+
+    // 终点停车测距（P1-3）
+    double odometry = 0.0;        // 编码器积分距离 m（cross STOP步清零后累加）
+    bool crossFinishBuzzer = false; // 终点停车完成→触发蜂鸣完赛信号
 };
 /**
  * @brief 控制器核心参数
