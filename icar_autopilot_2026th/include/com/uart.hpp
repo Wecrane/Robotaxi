@@ -28,6 +28,7 @@
 #include <stdint.h>               // 整型数据类
 #include <string.h>
 #include <thread>
+#include <atomic>
 
 using namespace LibSerial;
 using namespace std;
@@ -41,11 +42,15 @@ private:
 #define USB_FRAME_LENMAX 12 // USB通信帧最长字节长度
 
 // USB通信地址
-#define USB_ADDR_HEART 0   // 心跳信号，特指Boot
-#define USB_ADDR_CARCTRL 1 // 智能车速度+方向控制
-#define USB_ADDR_BUZZER 4  // 蜂鸣器音效控制
-#define USB_ADDR_LED 5     // LED灯效控制
-#define USB_ADDR_KEY 0x10  // 按键信息
+#define USB_ADDR_HEART 0     // 心跳信号，特指Boot
+#define USB_ADDR_CARCTRL 1   // 智能车速度+方向控制
+#define USB_ADDR_BUZZER 4    // 蜂鸣器音效控制
+#define USB_ADDR_LED 5       // LED灯效控制
+#define USB_ADDR_BATTERY 7   // 电池信息（下位机→上位机）
+#define USB_ADDR_SPEEDBACK 8 // 车速反馈（下位机→上位机）
+#define USB_ADDR_INSPECTOR 0x0A // 自检数据使能（上位机→下位机）
+#define USB_ADDR_SELFCHECK 0x0B // 自检状态（下位机→上位机）
+#define USB_ADDR_KEY 0x10    // 按键信息
 
 #define PWMSERVOMAX 1900 // 舵机PWM最大值（左）1840
 #define PWMSERVOMID 1500 // 舵机PWM中值 1520
@@ -129,6 +134,14 @@ public:
     bool killAll = false;  // 杀进程
     bool exitBoot = false; // 退出boot
     bool running = false;  // 运行状态
+
+    // 遥测数据（由dataTransform()解析下位机上报）
+    uint8_t batteryPercent = 0;    // 电池电量百分比 0~100
+    float batteryVoltage = 0.0f;   // 电池电压 V
+    float speedFeedback = 0.0f;    // 编码器反馈速度 m/s
+    uint16_t errorCode = 0;        // 下位机故障码 bit0=舵机 bit4=编码器断线
+    uint8_t selfcheckStep = 0;     // 自检当前步骤
+    std::atomic<bool> telemetryUpdated{false}; // 本周期有新遥测数据（跨线程安全）
 
     /**
      * @brief 蜂鸣器音效
@@ -361,6 +374,34 @@ public:
             }
             break;
 
+        case USB_ADDR_BATTERY: // 0x07 电池信息 [电量%][电压float32]
+            batteryPercent = serialStr.buffFinish[3];
+            Bit32Union bit32;
+            for (int i = 0; i < 4; i++)
+                bit32.buff[i] = serialStr.buffFinish[4 + i];
+            batteryVoltage = bit32.float32;
+            telemetryUpdated = true;
+            break;
+
+        case USB_ADDR_SPEEDBACK: // 0x08 车速反馈 [speed float32]
+            {
+                Bit32Union bit32;
+                for (int i = 0; i < 4; i++)
+                    bit32.buff[i] = serialStr.buffFinish[3 + i];
+                speedFeedback = bit32.float32;
+                telemetryUpdated = true;
+            }
+            break;
+
+        case USB_ADDR_SELFCHECK: // 0x0B 自检状态 [step][errorCode uint16]
+            selfcheckStep = serialStr.buffFinish[3];
+            Bit16Union bit16;
+            bit16.buff[0] = serialStr.buffFinish[4];
+            bit16.buff[1] = serialStr.buffFinish[5];
+            errorCode = bit16.uint16;
+            telemetryUpdated = true;
+            break;
+
         default:
             break;
         }
@@ -443,6 +484,27 @@ public:
 
         // 循环发送数据
         for (size_t i = 0; i < 6; i++)
+            transmitByte(buff[i]);
+    }
+
+    /**
+     * @brief 使能下位机遥测上报（发送0x0A指令）
+     *
+     */
+    void enableInspector()
+    {
+        if (!isOpen)
+            return;
+
+        uint8_t buff[4];
+        uint8_t check = 0;
+        buff[0] = USB_FRAME_HEAD;     // 帧头 0x42
+        buff[1] = USB_ADDR_INSPECTOR;  // 地址 0x0A
+        buff[2] = 4;                  // 帧长（需≥LENMIN=4，否则下位机丢弃）
+        for (int i = 0; i < 3; i++)
+            check += buff[i];
+        buff[3] = check;
+        for (size_t i = 0; i < 4; i++)
             transmitByte(buff[i]);
     }
 

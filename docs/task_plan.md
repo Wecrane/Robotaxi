@@ -121,13 +121,19 @@
 - **修复**：checkTimeout()中增加 `manualControl.returnAuto = true`，通知主循环结束手动接管
 - **状态**：✅ 已完成
 
-### P1-6 | 🔴 上位机不接收下位机遥测数据
-- **位置**：上位机通信层
+### P1-6 | 🔴 上位机不接收下位机遥测数据 ✅ 已完成
+- **位置**：上位机通信层 + 下位机Usb.c
 - **症状**：不读取电池电压/编码器速度/自检状态→纯盲开
 - **比赛影响**：低电量不告警、失速不知道、故障无视
 - **工时**：2h
-- **修复**：补全遥测帧解析，上位机读取并记录/告警
-- **状态**：⬜ 未开始
+- **修复内容**：
+  1. `uart.hpp`：dataTransform()新增0x07/0x08/0x0B帧解析，新增遥测公开字段+enableInspector()，字段改为atomic
+  2. `boot.cpp`：启动时发送0x0A使能遥测，主循环中格式化TELEM字符串通过TCP转发
+  3. `client.hpp`：接收线程解析TELEM字符串，新增遥测公开字段(atomic)
+  4. `params.hpp`：Control结构体新增batteryPercent/voltage/speedFeedback/errorCode/selfcheckStep
+  5. `icar.hpp`：running()帧首同步遥测，低电量(<20%)/编码器断线/失速时打印告警
+  6. `Usb.c`：周期性遥测循环新增USB_Edgeboard_Selfcheck()上报errorCode
+- **状态**：✅ 已完成（经2轮Agent审查+2项关键修正）
 
 ---
 

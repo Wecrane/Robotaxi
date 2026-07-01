@@ -32,6 +32,7 @@
 #include <cstdio>
 #include <unistd.h>
 #include <sys/types.h>
+#include <atomic>
 
 using namespace std;
 
@@ -95,6 +96,14 @@ public:
     ~Client() { closeClient(); };
     bool keypress = false; // 按键
 
+    // 遥测数据（由接收线程解析boot转发的TELEM字符串）
+    uint8_t batteryPercent = 0;    // 电池电量百分比 0~100
+    float batteryVoltage = 0.0f;   // 电池电压 V
+    float speedFeedback = 0.0f;    // 编码器反馈速度 m/s
+    uint16_t errorCode = 0;        // 下位机故障码
+    uint8_t selfcheckStep = 0;     // 自检当前步骤
+    std::atomic<bool> telemetryUpdated{false}; // 本周期有新遥测数据（跨线程安全）
+
     /**
      * @brief 蜂鸣器音效
      *
@@ -145,10 +154,28 @@ public:
         char buffer[1024] = {0};
         while (1) {
         int len = read(socketId, buffer, 1024);
+        if (len <= 0) continue;
 
-        std::string str(buffer);
+        std::string str(buffer, len);
         if (str.find("Keypress") != std::string::npos)//按键按下
             keypress = true;
+
+        // 解析遥测数据: TELEM:bat%,volt,speed,errorCode,step
+        if (str.find("TELEM:") != std::string::npos)
+        {
+            int bat = 0, ec = 0, step = 0;
+            float volt = 0.0f, spd = 0.0f;
+            if (sscanf(str.c_str(), "TELEM:%d,%f,%f,0x%04X,%d",
+                       &bat, &volt, &spd, &ec, &step) >= 4)
+            {
+                batteryPercent = (uint8_t)bat;
+                batteryVoltage = volt;
+                speedFeedback = spd;
+                errorCode = (uint16_t)ec;
+                selfcheckStep = (uint8_t)step;
+                telemetryUpdated = true;
+            }
+        }
       } });
         return true;
     }

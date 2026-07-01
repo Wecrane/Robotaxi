@@ -316,9 +316,11 @@ void USB_Edgeboard_Handle(void)
         Delay_Ms(1);
         USB_Edgeboard_ServoThreshold(3);
         Delay_Ms(1);
-        USB_Edgeboard_BatteryInfo();            //���͵����Ϣ
+        USB_Edgeboard_BatteryInfo();            //发送电池信息
         Delay_Ms(1);
-        USB_Edgeboard_CarSpeed();               //���ͳ���
+        USB_Edgeboard_CarSpeed();               //发送车速
+        Delay_Ms(1);
+        USB_Edgeboard_Selfcheck(icarStr.selfcheckStep); //发送自检状态（含errorCode）
         usbStr.counterSend = 0; 
     }
 }

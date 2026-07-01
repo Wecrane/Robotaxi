@@ -40,6 +40,8 @@ int main(int argc, char const *argv[])
         return -1;
 
     printf("Boot is running!\n");
+    server.uart.enableInspector(); // 使能下位机遥测上报
+
     while (1)
     {
         if (server.startApp)
@@ -50,6 +52,21 @@ int main(int argc, char const *argv[])
         }
         else
             server.uart.sendHeart(); // 发送心跳信号
+
+        // 转发遥测数据到上位机
+        if (server.startApp && server.uart.telemetryUpdated)
+        {
+            server.uart.telemetryUpdated = false;
+            char telemBuf[128];
+            snprintf(telemBuf, sizeof(telemBuf),
+                     "TELEM:%d,%.2f,%.2f,0x%04X,%d",
+                     server.uart.batteryPercent,
+                     server.uart.batteryVoltage,
+                     server.uart.speedFeedback,
+                     server.uart.errorCode,
+                     server.uart.selfcheckStep);
+            server.transmit(string(telemBuf));
+        }
 
         usleep(200 * 1000); // us延迟
 

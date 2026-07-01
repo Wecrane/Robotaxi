@@ -71,6 +71,13 @@ struct Control
     int countAcc = 500;           // 缓加速计数器
     int outlineCooldown = 0;      // outlineCheck冷却计数器（停车场出库后暂时禁用）
     bool yforkReset = false;      // Y型岔路复位标志（park退出时设置）
+
+    // 遥测数据（由下位机上报，icar.hpp帧首同步）
+    uint8_t batteryPercent = 0;   // 电池电量百分比 0~100
+    float batteryVoltage = 0.0f;  // 电池电压 V
+    float speedFeedback = 0.0f;   // 编码器反馈速度 m/s
+    uint16_t errorCode = 0;       // 下位机故障码 bit0=舵机 bit4=编码器断线
+    uint8_t selfcheckStep = 0;    // 自检当前步骤
 };
 /**
  * @brief 控制器核心参数

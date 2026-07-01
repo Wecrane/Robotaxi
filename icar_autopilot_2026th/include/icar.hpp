@@ -465,6 +465,30 @@ public:
      */
     void running()
     {
+        //[00] 同步下位机遥测数据
+        if (client->telemetryUpdated)
+        {
+            client->telemetryUpdated = false;
+            params->ctrl.batteryPercent = client->batteryPercent;
+            params->ctrl.batteryVoltage = client->batteryVoltage;
+            params->ctrl.speedFeedback = client->speedFeedback;
+            params->ctrl.errorCode = client->errorCode;
+            params->ctrl.selfcheckStep = client->selfcheckStep;
+
+            // 低电量告警
+            if (params->ctrl.batteryPercent > 0 && params->ctrl.batteryPercent < 20)
+                printf("[WARN] Low battery: %d%% %.2fV\n",
+                       params->ctrl.batteryPercent, params->ctrl.batteryVoltage);
+            // 编码器断线故障
+            if (params->ctrl.errorCode & 0x10)
+                printf("[ERROR] Encoder fault detected! errorCode=0x%04X\n",
+                       params->ctrl.errorCode);
+            // 失速检测：目标速度>0.3m/s但反馈为0
+            if (params->ctrl.speed > 0.3f && params->ctrl.speedFeedback <= 0.01f)
+                printf("[WARN] Stall detected! target=%.2f feedback=%.2f\n",
+                       params->ctrl.speed, params->ctrl.speedFeedback);
+        }
+
         //[01] 视频源读取
         cv::Mat img;
         if (params->config.debug) // 综合显示调试UI窗口
