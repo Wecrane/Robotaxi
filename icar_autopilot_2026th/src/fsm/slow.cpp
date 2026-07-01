@@ -6,9 +6,9 @@
  *                      (c) Copyright 2024; SaiShu.Lcc.; Leo; https://bjsstech.com
  *                                   版权所属[SASU-北京赛曙科技有限公司]
  *
- *            The code is for internal use only, not for commercial transactions(开源学习).
+ *            The code is for internal use only, not for commercial transactions(开源学�?.
  *            The code ADAPTS the corresponding hardware circuit board(智能汽车-ICAR),
- *            The specific details consult the professional(欢迎联系我们,代码持续更正，敬请关注相关开源渠道).
+ *            The specific details consult the professional(欢迎联系我们,代码持续更正，敬请关注相关开源渠�?.
  *********************************************************************************************************
  * @file slow.cpp
  * @author Leo (leo@saishukeji.com)
@@ -41,14 +41,11 @@ FsmSlow::~FsmSlow()
 }
 
 /**
- * @brief 检查状态切换
- *
- * @return FsmMode 切换后的状态
- */
+ * @brief 检查状态切�? *
+ * @return FsmMode 切换后的状�? */
 FsmMode FsmSlow::getMode()
 {
-    // 输出场景状态结果
-    if (!params->config.slow || !params->config.currentLapConfig->slow || step == Step::NONE)
+    // 输出场景状态结�?    if (!params->config.slow || !params->config.currentLapConfig->slow || step == Step::NONE)
         return FsmMode::NORMAL;
 
     return FsmMode::SLOW;
@@ -60,19 +57,17 @@ FsmMode FsmSlow::getMode()
  */
 void FsmSlow::run(Mat &img)
 {
-    if (!params->config.slow) // 该模式未开启
-        return;
+    if (!params->config.slow) // 该模式未开�?        return;
 
     switch (step)
     {
-    case Step::NONE: // AI标志检测
-
+    case Step::NONE: // AI标志检�?
         params->ctrl.slow = false; // 清除慢行标志
-        for (int i = 0; i < params->results.size(); i++)
+        for (int i = 0; i < params->resultsSnapshot.size(); i++)
         {
-            if (params->results[i].type == LABEL_LIMIT) // AI识别标志
+            if (params->resultsSnapshot[i].type == LABEL_LIMIT) // AI识别标志
             {
-                if (params->results[i].height < 100 && params->results[i].width < 80) // 标志位置过滤
+                if (params->resultsSnapshot[i].height < 100 && params->resultsSnapshot[i].width < 80) // 标志位置过滤
                 {
                     countRec++;
                     break;
@@ -82,8 +77,7 @@ void FsmSlow::run(Mat &img)
         if (countRec >= 2)
             setStep(Step::ENABLE);
 
-        if (countRec > 0) // 识别AI标志后开始场次计数
-        {
+        if (countRec > 0) // 识别AI标志后开始场次计�?        {
             countSes++;
             if (countSes >= 5)
             {
@@ -99,20 +93,20 @@ void FsmSlow::run(Mat &img)
         params->ctrl.slow = true; // 设置慢行标志
 
         bool seenUnlimit = false;
-        for (int i = 0; i < params->results.size(); i++)
+        for (int i = 0; i < params->resultsSnapshot.size(); i++)
         {
-            if (params->results[i].type == LABEL_LIMIT) // AI识别标志
+            if (params->resultsSnapshot[i].type == LABEL_LIMIT) // AI识别标志
             {
-                if (params->results[i].height < 100 && params->results[i].width < 80 &&
-                    (params->results[i].y + params->results[i].height) > ROWSIMAGE * 0.2) // 标志位置过滤
+                if (params->resultsSnapshot[i].height < 100 && params->resultsSnapshot[i].width < 80 &&
+                    (params->resultsSnapshot[i].y + params->resultsSnapshot[i].height) > ROWSIMAGE * 0.2) // 标志位置过滤
                 {
                     timeout = 0;
                 }
             }
-            if (params->results[i].type == LABEL_UNLIMIT) // AI识别标志
+            if (params->resultsSnapshot[i].type == LABEL_UNLIMIT) // AI识别标志
             {
-                if (params->results[i].height < 100 && params->results[i].width < 80 &&
-                    (params->results[i].y + params->results[i].height) > ROWSIMAGE * 0.2) // 标志位置过滤
+                if (params->resultsSnapshot[i].height < 100 && params->resultsSnapshot[i].width < 80 &&
+                    (params->resultsSnapshot[i].y + params->resultsSnapshot[i].height) > ROWSIMAGE * 0.2) // 标志位置过滤
                 {
                     countRec++;
                     seenUnlimit = true;
@@ -130,8 +124,7 @@ void FsmSlow::run(Mat &img)
             }
             else
             {
-                unlimitDelay++; // UNLIMIT消失，累计丢失帧数
-                if (unlimitDelay > 3)
+                unlimitDelay++; // UNLIMIT消失，累计丢失帧�?                if (unlimitDelay > 3)
                     setStep(Step::NONE);
             }
         }
@@ -167,15 +160,11 @@ void FsmSlow::show(Mat &img)
 }
 
 /**
- * @brief 设置新状态
- *
+ * @brief 设置新状�? *
  * @param step
  */
 void FsmSlow::setStep(Step st)
 {
     step = st;
-    countRec = 0;     // AI场景识别计数器
-    countSes = 0;     // 场次计数器
-    timeout = 0;      // 超时计数器
-    unlimitDelay = 0; // 解除限速延时计数器
+    countRec = 0;     // AI场景识别计数�?    countSes = 0;     // 场次计数�?    timeout = 0;      // 超时计数�?    unlimitDelay = 0; // 解除限速延时计数器
 }

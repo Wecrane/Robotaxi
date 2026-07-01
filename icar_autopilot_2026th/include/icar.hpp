@@ -216,6 +216,12 @@ private:
             return; // 手动接管期间跳过所有FSM检测
         }
 
+        // [修复] 统一快照AI推理结果，消除后续所有FSM与AI线程的数据竞争
+        {
+            std::lock_guard<std::mutex> lock(mtxRes);
+            params->resultsSnapshot = params->results;
+        }
+
         // 根据当前圈配置设置功能使能（覆盖全局配置）
         params->config.fork = params->config.currentLapConfig->fork;
         params->config.park = params->config.currentLapConfig->park;
@@ -319,18 +325,15 @@ private:
             if (alertLabel >= 0)
             {
                 bool targetFound = false;
+                for (auto &r : params->resultsSnapshot)
                 {
-                    std::lock_guard<std::mutex> lock(mtxRes);
-                    for (auto &r : params->results)
+                    bool posOk = (alertLabel == LABEL_LIMIT || alertLabel == LABEL_PARK)
+                                     ? (r.x > COLSIMAGE * 0.8 || r.x + r.width < COLSIMAGE * 0.2) // 左右两侧1/5
+                                     : (r.y + r.height) > ROWSIMAGE * 0.2;                        // 其他：底部4/5区域
+                    if (r.type == alertLabel && posOk)
                     {
-                        bool posOk = (alertLabel == LABEL_LIMIT || alertLabel == LABEL_PARK)
-                                         ? (r.x > COLSIMAGE * 0.8 || r.x + r.width < COLSIMAGE * 0.2) // 左右两侧1/5
-                                         : (r.y + r.height) > ROWSIMAGE * 0.2;                        // 其他：底部4/5区域
-                        if (r.type == alertLabel && posOk)
-                        {
-                            targetFound = true;
-                            break;
-                        }
+                        targetFound = true;
+                        break;
                     }
                 }
                 if (targetFound && params->alertCountdown <= 0)
@@ -344,38 +347,33 @@ private:
             }
         }
 
+        bool decelFound = false;
+        for (auto &r : params->resultsSnapshot)
         {
-            bool decelFound = false;
+            bool posOk = false;
+            if (r.type == LABEL_LIMIT || r.type == LABEL_PARK)
+                posOk = (r.x > COLSIMAGE * 0.8 || r.x + r.width < COLSIMAGE * 0.2); // 左右两侧1/5
+            else if (r.type == LABEL_CONE || r.type == LABEL_PERSON || r.type == LABEL_UNLIMIT)
+                posOk = (r.y + r.height) > ROWSIMAGE * 0.2; // 底部4/5区域
+            else if (r.type == LABEL_BUSY)
             {
-                std::lock_guard<std::mutex> lock(mtxRes);
-                for (auto &r : params->results)
-                {
-                    bool posOk = false;
-                    if (r.type == LABEL_LIMIT || r.type == LABEL_PARK)
-                        posOk = (r.x > COLSIMAGE * 0.8 || r.x + r.width < COLSIMAGE * 0.2); // 左右两侧1/5
-                    else if (r.type == LABEL_CONE || r.type == LABEL_PERSON || r.type == LABEL_UNLIMIT)
-                        posOk = (r.y + r.height) > ROWSIMAGE * 0.2; // 底部4/5区域
-                    else if (r.type == LABEL_BUSY)
-                    {
-                        if (params->config.currentLapConfig && params->config.currentLapConfig->busy)
-                            continue;
-                        posOk = (r.y + r.height) > ROWSIMAGE * 0.2;
-                    }
-                    else
-                        continue;
-
-                    if (posOk)
-                    {
-                        decelFound = true;
-                        break;
-                    }
-                }
+                if (params->config.currentLapConfig && params->config.currentLapConfig->busy)
+                    continue;
+                posOk = (r.y + r.height) > ROWSIMAGE * 0.2;
             }
-            if (decelFound)
-                params->alertDecelCount = 5;
-            else if (params->alertDecelCount > 0)
-                params->alertDecelCount--;
+            else
+                continue;
+
+            if (posOk)
+            {
+                decelFound = true;
+                break;
+            }
         }
+        if (decelFound)
+            params->alertDecelCount = 5;
+        else if (params->alertDecelCount > 0)
+            params->alertDecelCount--;
 
         if (params->mode != params->modeLast && params->alertCountdown <= 0)
         {

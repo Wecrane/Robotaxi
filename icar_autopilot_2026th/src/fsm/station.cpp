@@ -6,14 +6,13 @@
  *                      (c) Copyright 2024; SaiShu.Lcc.; Leo; https://bjsstech.com
  *                                   版权所属[SASU-北京赛曙科技有限公司]
  *
- *            The code is for internal use only, not for commercial transactions(开源学习).
+ *            The code is for internal use only, not for commercial transactions(开源学�?.
  *            The code ADAPTS the corresponding hardware circuit board(智能汽车-ICAR),
- *            The specific details consult the professional(欢迎联系我们,代码持续更正，敬请关注相关开源渠道).
+ *            The specific details consult the professional(欢迎联系我们,代码持续更正，敬请关注相关开源渠�?.
  *********************************************************************************************************
  * @file station.cpp
  * @author Leo (leo@saishukeji.com)
- * @brief 停靠站停车控制
- * @version 0.1
+ * @brief 停靠站停车控�? * @version 0.1
  * @date 2025-05-12
  *
  * @copyright Copyright (c) 2025
@@ -52,8 +51,7 @@ void FsmStation::run(Mat &img)
             int target = params->config.currentLapConfig->busyStopPoint;
             if (target > 1)
             {
-                busyEntryDelay = 60; // 跳过第一个框：等2秒再开始检测
-                stationBoxCounter = target - 1;
+                busyEntryDelay = 60; // 跳过第一个框：等2秒再开始检�?                stationBoxCounter = target - 1;
             }
         }
         printf("[Station] Manual takeover ended, reset counters\n");
@@ -77,15 +75,13 @@ void FsmStation::run(Mat &img)
     {
     case Step::NONE:
     {
-        // 施工区进入后等4秒再开始检测（让车走过前面N个框）
-        if (params->busyZone && busyEntryDelay > 0)
+        // 施工区进入后�?秒再开始检测（让车走过前面N个框�?        if (params->busyZone && busyEntryDelay > 0)
         {
             busyEntryDelay--;
             break;
         }
 
-        // 施工区未启用停车或busyStopPoint为0时跳过检测
-        if (params->busyZone && (!params->config.currentLapConfig->busyStopEnable ||
+        // 施工区未启用停车或busyStopPoint�?时跳过检�?        if (params->busyZone && (!params->config.currentLapConfig->busyStopEnable ||
                                  params->config.currentLapConfig->busyStopPoint == 0))
             break;
 
@@ -96,8 +92,7 @@ void FsmStation::run(Mat &img)
             stationBoxCounted = false;
         }
 
-        // 停车后冷却期内不检测
-        if (cooldown > 0)
+        // 停车后冷却期内不检�?        if (cooldown > 0)
         {
             cooldown--;
             break;
@@ -106,7 +101,7 @@ void FsmStation::run(Mat &img)
         if (pressTimer > 0)
         {
             pressTimer++;
-            // 施工区第一个框1.3s(40帧)，第二个目标框0.6s(20帧)，左岔路1.1s(33帧)，其他0.6s(19帧)
+            // 施工区第一个框1.3s(40�?，第二个目标�?.6s(20�?，左岔路1.1s(33�?，其�?.6s(19�?
             int pressThreshold = 19;
             if (params->busyZone && stationBoxCounter == 0)
                 pressThreshold = 40;
@@ -126,16 +121,15 @@ void FsmStation::run(Mat &img)
         // 左岔路：引导结束见框开始计时（要求框到底部0.5以下，给足时间完成左转）
         if (params->yforkBranch == 1)
         {
-            // 引导期间不检测
-            if (params->yforkGuiding)
+            // 引导期间不检�?            if (params->yforkGuiding)
                 break;
 
-            for (int i = 0; i < params->results.size(); i++)
+            for (int i = 0; i < params->resultsSnapshot.size(); i++)
             {
-                if (params->results[i].type == LABEL_STATION)
+                if (params->resultsSnapshot[i].type == LABEL_STATION)
                 {
-                    int boxCx = params->results[i].x + params->results[i].width / 2;
-                    int boxBottom = params->results[i].y + params->results[i].height;
+                    int boxCx = params->resultsSnapshot[i].x + params->resultsSnapshot[i].width / 2;
+                    int boxBottom = params->resultsSnapshot[i].y + params->resultsSnapshot[i].height;
                     if (boxCx < COLSIMAGE / 2 && boxBottom > ROWSIMAGE * 0.5)
                     {
                         params->stationStarted = true;
@@ -152,13 +146,12 @@ void FsmStation::run(Mat &img)
             if (params->yforkGuiding)
                 break;
 
-            // 非左岔路：框到底部才检测
-            for (int i = 0; i < params->results.size(); i++)
+            // 非左岔路：框到底部才检�?            for (int i = 0; i < params->resultsSnapshot.size(); i++)
             {
-                if (params->results[i].type == LABEL_STATION)
+                if (params->resultsSnapshot[i].type == LABEL_STATION)
                 {
                     // 第一个框在中部检测，第二个框到底部才触发
-                    int boxBottom = params->results[i].y + params->results[i].height;
+                    int boxBottom = params->resultsSnapshot[i].y + params->resultsSnapshot[i].height;
                     bool isFirstBox = params->busyZone && !params->stationStopCompleted &&
                                       (params->config.currentLapConfig->busyStopPoint == 1 ||
                                        (params->config.currentLapConfig->busyStopPoint > 1 &&
@@ -168,15 +161,13 @@ void FsmStation::run(Mat &img)
                                         : ROWSIMAGE - 10;
                     if (boxBottom > threshold)
                     {
-                        // 施工区已停过，不再重复检测
-                        if (params->busyZone && params->stationStopCompleted)
+                        // 施工区已停过，不再重复检�?                        if (params->busyZone && params->stationStopCompleted)
                             break;
 
                         // 施工区跳过前N个框
                         if (params->busyZone)
                         {
-                            // 当前框已计过数，跳过本次检测
-                            if (stationBoxCounted)
+                            // 当前框已计过数，跳过本次检�?                            if (stationBoxCounted)
                                 break;
 
                             int targetBox = params->config.currentLapConfig->busyStopPoint;
@@ -207,13 +198,11 @@ void FsmStation::run(Mat &img)
         params->ctrl.stop = true;
         stopCounter++;
         printf("[Station] Stop %d/30\n", stopCounter);
-        if (stopCounter > 30) // 停车约1秒
-        {
+        if (stopCounter > 30) // 停车�?�?        {
             printf("[Station] Stop end, resume\n");
             params->stationStopCompleted = true; // 通知yfork边线突变可以退出了
             setStep(Step::NONE);
-            cooldown = params->busyZone ? 6 : 150; // 施工区0.2秒冷却，其他5秒
-        }
+            cooldown = params->busyZone ? 6 : 150; // 施工�?.2秒冷却，其他5�?        }
         break;
     }
     }

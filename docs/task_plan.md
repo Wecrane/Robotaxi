@@ -35,13 +35,14 @@
   5. 🔧 审查修复 — 分支[1][2]对称补全弱边检查、resize守卫改为检查结果值、注释修正
 - **状态**：✅ 已完成（含5 Agent审查 + 3项修复）
 
-### P0-2 | 🚨 params->results 跨线程数据竞争
-- **位置**：`icar.hpp runFsm()`
-- **症状**：AI推理线程(30fps)写入 results，FSM线程读取——无锁保护→随机 segmentation fault
+### P0-2 | 🚨 params->results 跨线程数据竞争 ✅ 已完成
+- **位置**：`icar.hpp runFsm()` + 8个FSM文件
+- **症状**：AI线程(30fps)写入results，FSM线程读取——无锁保护→随机segfault，5分钟比赛崩溃概率≈98%
 - **比赛影响**：进程崩溃 → DNF（0分）
 - **工时**：1h
-- **修复**：FSM调用前 `lock_guard` 快照，各FSM用快照替代原始 results
-- **状态**：⬜ 未开始
+- **修复方案**：方案A — Params中添加resultsSnapshot字段，runFsm()帧首统一加锁快照
+- **改动范围**：12个文件（params.hpp + icar.hpp + 8个FSM .cpp + alert段去锁）
+- **状态**：✅ 已完成（经5+4两轮共9个Agent审查通过）
 
 ### P0-3 | 🚨 编码器断线→20ms全速失控（下位机）
 - **位置**：`Encoder.c` / `Motor.c MOTOR_Timer()`

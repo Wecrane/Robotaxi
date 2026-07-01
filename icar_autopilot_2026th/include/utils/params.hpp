@@ -309,7 +309,8 @@ public:
     Config config;                      // 系统配置
     FsmMode mode, modeLast;             // FSM状态场景
     shared_ptr<Track> track;            // 赛道识别类
-    std::vector<PredictResult> results; // AI推理结果
+    std::vector<PredictResult> results;         // AI推理结果（AI线程写入，需mtxRes锁）
+    std::vector<PredictResult> resultsSnapshot; // 主线程快照（runFsm帧首加锁拷贝，FSM只读无锁安全）
     int totalLaps;                      // 总圈数
     int currentLap;                     // 当前圈数
     int crossStop;                      // 第几次检测到cross停车

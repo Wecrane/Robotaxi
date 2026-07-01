@@ -6,14 +6,13 @@
  *                      (c) Copyright 2024; SaiShu.Lcc.; Leo; https://bjsstech.com
  *                                   版权所属[SASU-北京赛曙科技有限公司]
  *
- *            The code is for internal use only, not for commercial transactions(开源学习).
+ *            The code is for internal use only, not for commercial transactions(开源学�?.
  *            The code ADAPTS the corresponding hardware circuit board(智能汽车-ICAR),
- *            The specific details consult the professional(欢迎联系我们,代码持续更正，敬请关注相关开源渠道).
+ *            The specific details consult the professional(欢迎联系我们,代码持续更正，敬请关注相关开源渠�?.
  *********************************************************************************************************
  * @file yfork.cpp
  * @author Leo (leo@saishukeji.com)
- * @brief Y型岔路口图像识别与规划
- * @version 0.1
+ * @brief Y型岔路口图像识别与规�? * @version 0.1
  * @date 2025-05-12
  *
  * @copyright Copyright (c) 2025
@@ -41,10 +40,8 @@ FsmYfork::~FsmYfork()
 }
 
 /**
- * @brief 检查状态切换
- *
- * @return FsmMode 切换后的状态
- */
+ * @brief 检查状态切�? *
+ * @return FsmMode 切换后的状�? */
 FsmMode FsmYfork::getMode()
 {
     if (!params->config.yfork || !params->config.currentLapConfig->yfork || !enable)
@@ -61,19 +58,16 @@ void FsmYfork::run(Mat &img)
 {
     if (!params->config.yfork) // 该模式未启用
     {
-        completed = false; // 失能时复位，确保下次使能时能重新检测
-        return;
+        completed = false; // 失能时复位，确保下次使能时能重新检�?        return;
     }
 
-    // park退出时通知yfork复位，防止残留forkSeen误触发
-    if (params->ctrl.yforkReset)
+    // park退出时通知yfork复位，防止残留forkSeen误触�?    if (params->ctrl.yforkReset)
     {
         reset();
         params->ctrl.yforkReset = false;
     }
 
-    // 非NORMAL/YFORK模式下不干扰其他FSM（如停车区内的fork地面箭头）
-    if (params->mode != FsmMode::NORMAL && params->mode != FsmMode::YFORK)
+    // 非NORMAL/YFORK模式下不干扰其他FSM（如停车区内的fork地面箭头�?    if (params->mode != FsmMode::NORMAL && params->mode != FsmMode::YFORK)
         return;
 
     enable = handle(img); // 处理Y型岔路口
@@ -92,8 +86,7 @@ void FsmYfork::show(Mat &img)
     putText(img, "[9] Yfork", Point(COLSIMAGE / 2 - 50, 20),
             cv::FONT_HERSHEY_TRIPLEX, 0.5, cv::Scalar(0, 255, 0), 0.5);
 
-    // 绘制赛道边缘点
-    for (int i = 0; i < params->track->pointsEdgeLeft.size(); i++)
+    // 绘制赛道边缘�?    for (int i = 0; i < params->track->pointsEdgeLeft.size(); i++)
     {
         circle(img, Point(params->track->pointsEdgeLeft[i].y, params->track->pointsEdgeLeft[i].x), 2,
                Scalar(0, 255, 0), -1); // 绿色
@@ -126,8 +119,7 @@ void FsmYfork::show(Mat &img)
 }
 
 /**
- * @brief 重置FSM状态
- *
+ * @brief 重置FSM状�? *
  */
 void FsmYfork::reset(void)
 {
@@ -153,8 +145,7 @@ void FsmYfork::reset(void)
 void FsmYfork::resetLap()
 {
     reset();
-    completed = false; // 新圈重新检测
-}
+    completed = false; // 新圈重新检�?}
 
 /**
  * @brief 处理Y型岔路口
@@ -179,17 +170,15 @@ bool FsmYfork::handle(Mat &img)
         }
         else if (forkSeen)
         {
-            // fork已离开画面，开始找V尖
-            if (findVTip(img))
+            // fork已离开画面，开始找V�?            if (findVTip(img))
             {
                 step = Step::DECIDE;
                 counterYfork = 0;
                 timeout = 0;
-                printf("[Yfork] V尖: row=%d col=%d\n", tipRow, tipCol);
+                printf("[Yfork] V�? row=%d col=%d\n", tipRow, tipCol);
             }
         }
-        return forkSeen; // 检测到fork进入YFORK模式减速，引导在V尖找到后才开始
-    }
+        return forkSeen; // 检测到fork进入YFORK模式减速，引导在V尖找到后才开�?    }
 
     case Step::DECIDE:
     {
@@ -213,9 +202,7 @@ bool FsmYfork::handle(Mat &img)
         // 引导期间屏蔽station检测，但V尖消失后放开让station能检测停车框
         params->yforkGuiding = (holdRow > 0) && (!vloss || vlossTimer < 5);
 
-        // 左岔路：V尖消失后左边线突变 → 已右拐驶出岔路
-        //   - 当前圈启用了station时：阻止突变退出，等先停好车
-        bool stationEnabled = params->config.currentLapConfig->station;
+        // 左岔路：V尖消失后左边线突�?�?已右拐驶出岔�?        //   - 当前圈启用了station时：阻止突变退出，等先停好�?        bool stationEnabled = params->config.currentLapConfig->station;
         bool stationBusy = stationEnabled && !params->stationStopCompleted;
         if (!stationBusy && selectLeft && tipRow == 0 && params->track->pointsEdgeLeft.size() > 4)
         {
@@ -230,8 +217,7 @@ bool FsmYfork::handle(Mat &img)
             countRes = cur;
         }
 
-        // 右岔路：右边缘突变 → 已左拐驶出岔路
-        if (!stationBusy && !selectLeft && tipRow == 0 && params->track->pointsEdgeRight.size() > 4)
+        // 右岔路：右边缘突�?�?已左拐驶出岔�?        if (!stationBusy && !selectLeft && tipRow == 0 && params->track->pointsEdgeRight.size() > 4)
         {
             int cur = params->track->pointsEdgeRight.back().y;
             if (countRes > 0 && abs(cur - countRes) > 25)
@@ -244,8 +230,7 @@ bool FsmYfork::handle(Mat &img)
             countRes = cur;
         }
 
-        // 超时退出（启用了station等多等帧等停车+突变）
-        int exitTimeout = stationEnabled ? 200 : 120;
+        // 超时退出（启用了station等多等帧等停�?突变�?        int exitTimeout = stationEnabled ? 200 : 120;
         if (timeout > exitTimeout)
         {
             step = Step::EXIT;
@@ -284,24 +269,22 @@ bool FsmYfork::detectYfork(Mat &img)
     if (completed) // 已完成一轮Y型岔路，不再检测（防止停车区fork箭头误触发）
         return false;
 
-    // 当前圈使能了停车场时：画面有PARK标志说明叉形箭头是车位标识，非Y型岔路
-    // 当前圈未使能停车场时（如第二圈）：PARK标志不阻断Y型岔路检测
-    if (params->config.park)
+    // 当前圈使能了停车场时：画面有PARK标志说明叉形箭头是车位标识，非Y型岔�?    // 当前圈未使能停车场时（如第二圈）：PARK标志不阻断Y型岔路检�?    if (params->config.park)
     {
-        for (int i = 0; i < params->results.size(); i++)
+        for (int i = 0; i < params->resultsSnapshot.size(); i++)
         {
-            if (params->results[i].type == LABEL_PARK)
+            if (params->resultsSnapshot[i].type == LABEL_PARK)
                 return false;
         }
     }
 
-    for (int i = 0; i < params->results.size(); i++)
+    for (int i = 0; i < params->resultsSnapshot.size(); i++)
     {
-        if (params->results[i].type == LABEL_FORK)
+        if (params->resultsSnapshot[i].type == LABEL_FORK)
         {
-            if (params->results[i].height < 150 && params->results[i].width < 150 &&
-                params->results[i].height > 15 && params->results[i].width > 15 &&
-                (params->results[i].y + params->results[i].height) > ROWSIMAGE * 0.35)
+            if (params->resultsSnapshot[i].height < 150 && params->resultsSnapshot[i].width < 150 &&
+                params->resultsSnapshot[i].height > 15 && params->resultsSnapshot[i].width > 15 &&
+                (params->resultsSnapshot[i].y + params->resultsSnapshot[i].height) > ROWSIMAGE * 0.35)
             {
                 return true;
             }
@@ -311,12 +294,9 @@ bool FsmYfork::detectYfork(Mat &img)
 }
 
 /**
- * @brief 在二值图中扫描V尖（岛的底部尖端）
- *
+ * @brief 在二值图中扫描V尖（岛的底部尖端�? *
  * @param img 二值化图像
- * @return true 找到V尖
- * @return false 未找到
- */
+ * @return true 找到V�? * @return false 未找�? */
 bool FsmYfork::findVTip(const Mat &img)
 {
     // V尖已确认消失，不再接受新红点
@@ -327,8 +307,7 @@ bool FsmYfork::findVTip(const Mat &img)
         return false;
     }
 
-    // 只用Track的岔路红点：选最远处的（row最小 = 岛尖）
-    int bestRow = 0, bestCol = 0;
+    // 只用Track的岔路红点：选最远处的（row最�?= 岛尖�?    int bestRow = 0, bestCol = 0;
     for (const auto &p : params->track->spurroad)
     {
         if (p.x > ROWSIMAGE / 4 && p.x < ROWSIMAGE - 20 &&
@@ -343,7 +322,7 @@ bool FsmYfork::findVTip(const Mat &img)
         tipRow = bestRow;
         tipCol = bestCol;
 
-        // 红点到达图像下方 → 标记消失
+        // 红点到达图像下方 �?标记消失
         if (tipRow > ROWSIMAGE * 0.7)
         {
             vloss = true;
@@ -353,7 +332,7 @@ bool FsmYfork::findVTip(const Mat &img)
         return true;
     }
 
-    // 红点从有到无 → 标记消失，后续不再接受新红点
+    // 红点从有到无 �?标记消失，后续不再接受新红点
     if (tipRow > 0)
         vloss = true;
 
@@ -363,19 +342,16 @@ bool FsmYfork::findVTip(const Mat &img)
 }
 
 /**
- * @brief 车道线重绘：保留自然检测边缘 + V尖屏障线引导进入岔路
+ * @brief 车道线重绘：保留自然检测边�?+ V尖屏障线引导进入岔路
  *
- * @param left true=左分支, false=右分支
- */
+ * @param left true=左分�? false=右分�? */
 void FsmYfork::replanTracking(bool left, const Mat &img)
 {
-    findVTip(img); // 更新V尖位置
-
+    findVTip(img); // 更新V尖位�?
     int vRow = tipRow;
     int vCol = tipCol;
 
-    // V尖可见时保存最后位置
-    if (vRow > 0 && vCol > 0)
+    // V尖可见时保存最后位�?    if (vRow > 0 && vCol > 0)
     {
         holdRow = vRow;
         holdCol = vCol;
@@ -401,8 +377,7 @@ void FsmYfork::replanTracking(bool left, const Mat &img)
 
     if (left)
     {
-        // 左分支：右边线 = 岛左边界 + V尖垂直屏障（保留）
-        vector<PointX> island;
+        // 左分支：右边�?= 岛左边界 + V尖垂直屏障（保留�?        vector<PointX> island;
         for (int row = vRow; row >= ROWSIMAGE / 4; row--)
         {
             int islandCol = -1;
@@ -449,8 +424,8 @@ void FsmYfork::replanTracking(bool left, const Mat &img)
     }
     else
     {
-        // 右分支：左边缘 = 岛右边界(尖↑) + 直线屏障(尖↓→左下角) (镜像左分支)
-        // 岛在二值图中为黑，从V尖往右找第一个白点=赛道边线就是岛右边界
+        // 右分支：左边�?= 岛右边界(尖↑) + 直线屏障(尖↓→左下角) (镜像左分�?
+        // 岛在二值图中为黑，从V尖往右找第一个白�?赛道边线就是岛右边界
         vector<PointX> island;
         for (int row = vRow; row >= ROWSIMAGE / 4; row--)
         {
@@ -476,8 +451,7 @@ void FsmYfork::replanTracking(bool left, const Mat &img)
         }
         reverse(island.begin(), island.end());
 
-        // 直线屏障：从V尖到底部左侧（镜像左分支）
-        vector<PointX> barrier;
+        // 直线屏障：从V尖到底部左侧（镜像左分支�?        vector<PointX> barrier;
         int endCol = (int)(COLSIMAGE * 0.3f);
         int steps = 15;
         for (int i = 1; i <= steps; i++)

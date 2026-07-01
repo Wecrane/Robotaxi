@@ -6,9 +6,9 @@
  *                      (c) Copyright 2024; SaiShu.Lcc.; Leo; https://bjsstech.com
  *                                   版权所属[SASU-北京赛曙科技有限公司]
  *
- *            The code is for internal use only, not for commercial transactions(开源学习).
+ *            The code is for internal use only, not for commercial transactions(开源学�?.
  *            The code ADAPTS the corresponding hardware circuit board(智能汽车-ICAR),
- *            The specific details consult the professional(欢迎联系我们,代码持续更正，敬请关注相关开源渠道).
+ *            The specific details consult the professional(欢迎联系我们,代码持续更正，敬请关注相关开源渠�?.
  *********************************************************************************************************
  * @file stop.cpp
  * @author Leo (leo@saishukeji.com)
@@ -41,14 +41,11 @@ FsmStop::~FsmStop()
 }
 
 /**
- * @brief 检查状态切换
- *
- * @return FsmMode 切换后的状态
- */
+ * @brief 检查状态切�? *
+ * @return FsmMode 切换后的状�? */
 FsmMode FsmStop::getMode()
 {
-    // 输出场景状态结果
-    if (step == Step::NONE || !params->config.stop || !params->config.currentLapConfig->stop)
+    // 输出场景状态结�?    if (step == Step::NONE || !params->config.stop || !params->config.currentLapConfig->stop)
         return FsmMode::NORMAL;
     else
         return FsmMode::STOP;
@@ -68,11 +65,10 @@ void FsmStop::run(Mat &img)
 
     switch (step)
     {
-    case Step::NONE: // AI未识别
-    {
-        for (int i = 0; i < params->results.size(); i++)
+    case Step::NONE: // AI未识�?    {
+        for (int i = 0; i < params->resultsSnapshot.size(); i++)
         {
-            if (params->results[i].type == LABEL_GATE) // 障碍物：道闸
+            if (params->resultsSnapshot[i].type == LABEL_GATE) // 障碍物：道闸
             {
                 countRec++;
                 break;
@@ -80,10 +76,8 @@ void FsmStop::run(Mat &img)
         }
 
         if (countRec > 2)
-            setStep(Step::ENABLE); // 设置新状态
-
-        if (countRec > 0) // 识别AI标志后开始场次计数
-        {
+            setStep(Step::ENABLE); // 设置新状�?
+        if (countRec > 0) // 识别AI标志后开始场次计�?        {
             countSes++;
             if (countSes > 4)
                 setStep(Step::NONE);
@@ -93,15 +87,14 @@ void FsmStop::run(Mat &img)
 
     case Step::ENABLE: // 场景使能
     {
-        countSes++; // 场次计数器
-        timeout++;
-        for (int i = 0; i < params->results.size(); i++)
+        countSes++; // 场次计数�?        timeout++;
+        for (int i = 0; i < params->resultsSnapshot.size(); i++)
         {
-            if (params->results[i].type == LABEL_GATE) // 障碍物：道闸
+            if (params->resultsSnapshot[i].type == LABEL_GATE) // 障碍物：道闸
             {
                 countSes = 0;
                 timeout = 0;
-                if ((params->results[i].y + params->results[i].height) > ROWSIMAGE * 0.4) // 停车距离计算
+                if ((params->resultsSnapshot[i].y + params->resultsSnapshot[i].height) > ROWSIMAGE * 0.4) // 停车距离计算
                 {
                     countRec++;
                     break;
@@ -110,19 +103,16 @@ void FsmStop::run(Mat &img)
             }
         }
         if (countRec > 2)
-            setStep(Step::STOP); // 设置新状态
-        if (countSes >= 10 || timeout > 50)
-            setStep(Step::NONE); // 设置新状态
-        break;
+            setStep(Step::STOP); // 设置新状�?        if (countSes >= 10 || timeout > 50)
+            setStep(Step::NONE); // 设置新状�?        break;
     }
 
     case Step::STOP: // 停车
     {
         params->ctrl.stop = true; // 停车标志
-        countSes++;               // 场次计数器
-        for (int i = 0; i < params->results.size(); i++)
+        countSes++;               // 场次计数�?        for (int i = 0; i < params->resultsSnapshot.size(); i++)
         {
-            if (params->results[i].type == LABEL_GATE) // 障碍物：道闸
+            if (params->resultsSnapshot[i].type == LABEL_GATE) // 障碍物：道闸
             {
                 countSes = 0;
                 break;
@@ -130,8 +120,7 @@ void FsmStop::run(Mat &img)
         }
         if (countSes >= 30)
         {
-            setStep(Step::NONE); // 设置新状态
-            params->ctrl.stop = false;
+            setStep(Step::NONE); // 设置新状�?            params->ctrl.stop = false;
         }
 
         break;
@@ -165,9 +154,7 @@ void FsmStop::show(Mat &img)
 
     if (polyRoad.size() > 0 && polyCar.size() > 0)
     {
-        drawPolygon(img, polyRoad, false, true); // 绘制赛道多边形
-        drawPolygon(img, polyCar, false, true);  // 绘制车辆多边形
-
+        drawPolygon(img, polyRoad, false, true); // 绘制赛道多边�?        drawPolygon(img, polyCar, false, true);  // 绘制车辆多边�?
         putText(img, "Overlap:" + doble2String(overlap, 2),
                 Point(100, ROWSIMAGE - 60), FONT_HERSHEY_TRIPLEX, 0.5,
                 Scalar(0, 0, 255), 0.5);
@@ -185,23 +172,18 @@ double FsmStop::getRoadCarPloy(PredictResult result)
     if (params->track->pointsEdgeLeft.size() < ROWSIMAGE / 5 && params->track->pointsEdgeRight.size() < ROWSIMAGE / 5)
         return 0.0;
 
-    // 添加赛道多边形轮廓
-    PointX ppoliy;
-    if (params->track->pointsEdgeLeft.size() < 5 && params->track->pointsEdgeRight.size() > 5) // 右单边
-    {
-        // [1]左上点
-        ppoliy.x = params->track->pointsEdgeRight[params->track->pointsEdgeRight.size() - 1].x;
+    // 添加赛道多边形轮�?    PointX ppoliy;
+    if (params->track->pointsEdgeLeft.size() < 5 && params->track->pointsEdgeRight.size() > 5) // 右单�?    {
+        // [1]左上�?        ppoliy.x = params->track->pointsEdgeRight[params->track->pointsEdgeRight.size() - 1].x;
         ppoliy.y = 1;
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x)); // 1
-        // [2]左下点
-        ppoliy.x = params->track->pointsEdgeRight[0].x;
+        // [2]左下�?        ppoliy.x = params->track->pointsEdgeRight[0].x;
         ppoliy.y = 1;
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x)); // 2
     }
     else
     {
-        // [1]左上点
-        ppoliy = params->track->pointsEdgeLeft[params->track->pointsEdgeLeft.size() - 1];
+        // [1]左上�?        ppoliy = params->track->pointsEdgeLeft[params->track->pointsEdgeLeft.size() - 1];
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x)); // 1
         ppoliy = params->track->pointsEdgeLeft[params->track->pointsEdgeLeft.size() * 0.8];
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x)); // 1
@@ -211,25 +193,20 @@ double FsmStop::getRoadCarPloy(PredictResult result)
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x)); // 1
         ppoliy = params->track->pointsEdgeLeft[params->track->pointsEdgeLeft.size() * 0.2];
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x)); // 1
-        // [2]左下点
-        ppoliy = params->track->pointsEdgeLeft[0];
+        // [2]左下�?        ppoliy = params->track->pointsEdgeLeft[0];
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x)); // 2
     }
 
-    if (params->track->pointsEdgeLeft.size() > 5 && params->track->pointsEdgeRight.size() < 5) // 左单边
-    {
-        //[3] 右下点
-        ppoliy.x = params->track->pointsEdgeLeft[0].x;
+    if (params->track->pointsEdgeLeft.size() > 5 && params->track->pointsEdgeRight.size() < 5) // 左单�?    {
+        //[3] 右下�?        ppoliy.x = params->track->pointsEdgeLeft[0].x;
         ppoliy.y = COLSIMAGE - 1;
 
-        //[4] 右上点
-        ppoliy.x = params->track->pointsEdgeLeft[params->track->pointsEdgeLeft.size() - 1].x;
+        //[4] 右上�?        ppoliy.x = params->track->pointsEdgeLeft[params->track->pointsEdgeLeft.size() - 1].x;
         ppoliy.y = COLSIMAGE - 1;
     }
     else
     {
-        //[3] 右下点
-        ppoliy = params->track->pointsEdgeRight[0];
+        //[3] 右下�?        ppoliy = params->track->pointsEdgeRight[0];
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x));
         ppoliy = params->track->pointsEdgeRight[params->track->pointsEdgeRight.size() * 0.2];
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x));
@@ -239,13 +216,11 @@ double FsmStop::getRoadCarPloy(PredictResult result)
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x));
         ppoliy = params->track->pointsEdgeRight[params->track->pointsEdgeRight.size() * 0.8];
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x));
-        //[4] 右上点
-        ppoliy = params->track->pointsEdgeRight[params->track->pointsEdgeRight.size() - 1];
+        //[4] 右上�?        ppoliy = params->track->pointsEdgeRight[params->track->pointsEdgeRight.size() - 1];
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x));
     }
 
-    // 添加车辆多边形轮廓
-    polyCar.push_back(cv::Point(result.x, result.y));
+    // 添加车辆多边形轮�?    polyCar.push_back(cv::Point(result.x, result.y));
     polyCar.push_back(cv::Point(result.x, result.y + result.height));
     polyCar.push_back(cv::Point(result.x + result.width, result.y + result.height));
     polyCar.push_back(cv::Point(result.x + result.width, result.y));
@@ -254,42 +229,34 @@ double FsmStop::getRoadCarPloy(PredictResult result)
 }
 
 /**
- * @brief 计算两个多边形图形的面积重叠度
- *
- * @param polyA 多边形顶点
- * @param polyB
+ * @brief 计算两个多边形图形的面积重叠�? *
+ * @param polyA 多边形顶�? * @param polyB
  * @return double [0,1]
  */
 double FsmStop::getOverlapArea(const std::vector<cv::Point> &polyA, const std::vector<cv::Point> &polyB)
 {
     // 创建两个多边形的掩模
     cv::Mat maskA = cv::Mat::zeros(500, 500, CV_8UC1);
-    cv::Mat maskB = cv::Mat::zeros(500, 500, CV_8UC1); // 智能车
-
-    // 填充多边形
-    cv::fillConvexPoly(maskA, polyA, cv::Scalar(255));
+    cv::Mat maskB = cv::Mat::zeros(500, 500, CV_8UC1); // 智能�?
+    // 填充多边�?    cv::fillConvexPoly(maskA, polyA, cv::Scalar(255));
     cv::fillConvexPoly(maskB, polyB, cv::Scalar(255));
 
     // 计算交集
     cv::Mat intersection;
     cv::bitwise_and(maskA, maskB, intersection);
 
-    // 计算交集的面积
-    double areaB = cv::countNonZero(maskB);
+    // 计算交集的面�?    double areaB = cv::countNonZero(maskB);
     double areaAnd = cv::countNonZero(intersection);
 
-    // 计算重合度
-    double overlap = (areaB > 0) ? (areaAnd / areaB) : 0;
+    // 计算重合�?    double overlap = (areaB > 0) ? (areaAnd / areaB) : 0;
 
     return overlap;
 }
 
 /**
- * @brief 绘制多边形
- *
+ * @brief 绘制多边�? *
  * @param img
- * @param poly 多边形点集
- * @param fill  填充
+ * @param poly 多边形点�? * @param fill  填充
  * @param close 封闭图形
  */
 void FsmStop::drawPolygon(Mat img, vector<Point> poly, bool fill, bool close)
@@ -304,17 +271,13 @@ void FsmStop::drawPolygon(Mat img, vector<Point> poly, bool fill, bool close)
 }
 
 /**
- * @brief 设置新状态
- *
+ * @brief 设置新状�? *
  * @param step
  */
 void FsmStop::setStep(Step st)
 {
     step = st;
-    countRec = 0; // AI场景识别计数器
-    countSes = 0; // 场次计数器
-    timeout = 0;  // 超时计数器
-}
+    countRec = 0; // AI场景识别计数�?    countSes = 0; // 场次计数�?    timeout = 0;  // 超时计数�?}
 
 void FsmStop::resetLap()
 {
