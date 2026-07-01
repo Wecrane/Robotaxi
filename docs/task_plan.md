@@ -110,13 +110,13 @@
 - **修复**：增加timeout>300帧(10秒)超时强制退出慢行区
 - **状态**：✅ 已完成
 
-### P1-5 | 🔴 30秒超时不恢复自动模式
+### P1-5 | 🔴 30秒超时不恢复自动模式 ✅ 已完成
 - **位置**：`manualControl.cpp:289`
-- **症状**：施工区手动接管超时→emergencyStop→manualTakeover仍为true→永久卡死
+- **症状**：施工区手动接管超时→emergencyStop→manualTakeover仍为true→永久卡死在手动模式
 - **比赛影响**：施工区永久停车 → 无法完赛
 - **工时**：1h
-- **修复**：超时后复位 manualTakeover=false，恢复自动驾驶
-- **状态**：⬜ 未开始
+- **修复**：checkTimeout()中增加 `manualControl.returnAuto = true`，通知主循环结束手动接管
+- **状态**：✅ 已完成
 
 ### P1-6 | 🔴 上位机不接收下位机遥测数据
 - **位置**：上位机通信层
