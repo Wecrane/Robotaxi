@@ -18,38 +18,39 @@
 
 /*---------------------------------------  D E F I N I T I O N  ---------------------------------------*/
 /**
-* @brief    ·äÃùÆ÷ÒôĞ§
+* @brief    ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ§
 **/
 typedef enum 
 {
-    BuzzerOk = 0,						//È·ÈÏÌáÊ¾Òô
-	BuzzerWarnning,						//±¨¾¯ÌáÊ¾Òô
-	BuzzerSysStart,						//¿ª»úÌáÊ¾Òô
-    BuzzerDing,                         //¶£=====(£ş¨Œ£ş*)
-    BuzzerFinish,                       //½áÊøÌáÊ¾Òô
+    BuzzerOk = 0,						//È·ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½
+	BuzzerWarnning,						//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½
+	BuzzerSysStart,						//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½
+    BuzzerDing,                         //ï¿½ï¿½=====(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*)
+    BuzzerFinish,                       //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½
 }BuzzerEnum;
 
 
 /**
-* @brief    °´¼üºÍLEDÏà¹Ø
+* @brief    ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½LEDï¿½ï¿½ï¿½
 **/
 typedef struct 
 {
-	bool KeyPress;					    //°´¼üÊäÈë-B
-	uint16_t CounterLed;				//LEDÉÁË¸¼ÆÊıÆ÷
+	bool KeyPress;					    //æŒ‰é”®æ ‡å¿—-B
+	uint16_t CounterLed;				//LEDé—ªçƒè®¡æ•°å™¨
+	uint16_t KeyDebounce;				//æŒ‰é”®æ¶ˆæŠ–è®¡æ•°å™¨(ms) [P3-4]
 }GpioStruct;
 
 
 /**
-* @brief    ·äÃùÆ÷Ïà¹Ø
+* @brief    ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 **/
 typedef struct 
 {
-	bool Enable;						//Ê¹ÄÜ±êÖ¾
-	uint16_t Times;					    //Ãù½Ğ´ÎÊı
-	uint16_t Counter;				    //¼ÆÊıÆ÷
-	uint16_t Cut;					    //¼ä¸ôÊ±¼ä
-	bool Silent;						//ÊÇ·ñ½ûÓÃ·äÃùÆ÷
+	bool Enable;						//Ê¹ï¿½Ü±ï¿½Ö¾
+	uint16_t Times;					    //ï¿½ï¿½ï¿½Ğ´ï¿½ï¿½ï¿½
+	uint16_t Counter;				    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	uint16_t Cut;					    //ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+	bool Silent;						//ï¿½Ç·ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½
 }BuzzerStruct;
 
 

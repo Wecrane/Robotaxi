@@ -1,15 +1,15 @@
 #include "gpio.h"
 /*
 ********************************************************************************************************
-*                                               Ê¾Àı´úÂë
+*                                               Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 *                                             EXAMPLE  CODE                                             
 *
 *                             (c) Copyright 2021; SaiShu.Lcc.; Leo
-*                                 °æÈ¨ËùÊô[±±¾©ÈüÊï¿Æ¼¼ÓĞÏŞ¹«Ë¾]
+*                                 ï¿½ï¿½È¨ï¿½ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¼ï¿½ï¿½ï¿½ï¿½Ş¹ï¿½Ë¾]
 *
-*               The code is for internal use only, not for commercial transactions(¿ªÔ´Ñ§Ï°,ÇëÎğÉÌÓÃ).
-*               The code ADAPTS the corresponding hardware circuit board(´úÂëÊ¹ÓÃCarDoÖÇ¿Ø°å), 
-*               the specific details consult the professional(»¶Ó­ÁªÏµÎÒÃÇ).
+*               The code is for internal use only, not for commercial transactions(ï¿½ï¿½Ô´Ñ§Ï°,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½).
+*               The code ADAPTS the corresponding hardware circuit board(ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½CarDoï¿½Ç¿Ø°ï¿½), 
+*               the specific details consult the professional(ï¿½ï¿½Ó­ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½).
 *********************************************************************************************************
 */
 
@@ -17,11 +17,11 @@ GpioStruct gpioStr;
 BuzzerStruct buzzerStr;
 
 /**
-* @brief        GPIOÍâÉè³õÊ¼»¯
+* @brief        GPIOï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
 * @param        
 * @ref          
 * @author       Leo
-* @note         ÍâÉè£º·äÃùÆ÷ x1  ×´Ì¬LED x1  °´¼üÊäÈë x1
+* @note         ï¿½ï¿½ï¿½è£ºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ x1  ×´Ì¬LED x1  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ x1
 **/
 void GPIO_Initialize(void)
 {
@@ -29,7 +29,7 @@ void GPIO_Initialize(void)
     EXTI_InitTypeDef  EXTI_InitStructure;
     NVIC_InitTypeDef  NVIC_InitStructure;
 	
-    //·äÃùÆ÷IO³õÊ¼»¯
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½IOï¿½ï¿½Ê¼ï¿½ï¿½
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;	
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
@@ -37,7 +37,7 @@ void GPIO_Initialize(void)
     GPIO_Init(GPIOA, &GPIO_InitStructure);
     GPIO_ResetBits(GPIOA,GPIO_Pin_3);
 
-    //LEDµÆIO³õÊ¼»¯
+    //LEDï¿½ï¿½IOï¿½ï¿½Ê¼ï¿½ï¿½
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
@@ -45,13 +45,13 @@ void GPIO_Initialize(void)
     GPIO_Init(GPIOB, &GPIO_InitStructure);
     GPIO_ResetBits(GPIOB,GPIO_Pin_12);
     
-    //°´¼üIO³õÊ¼»¯
+    //ï¿½ï¿½ï¿½ï¿½IOï¿½ï¿½Ê¼ï¿½ï¿½
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_AFIO, ENABLE);
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
     GPIO_EXTILineConfig(GPIO_PortSourceGPIOA,GPIO_PinSource2);
-    //Ê¹ÄÜ°´¼üÍâ²¿ÖĞ¶Ï
+    //Ê¹ï¿½Ü°ï¿½ï¿½ï¿½ï¿½â²¿ï¿½Ğ¶ï¿½
     EXTI_InitStructure.EXTI_Line    = EXTI_Line2;
     EXTI_InitStructure.EXTI_Mode    = EXTI_Mode_Interrupt;
     EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
@@ -72,10 +72,10 @@ void GPIO_Initialize(void)
 }
 
 
-//----------------------------------------------[UNIT-°´¼ü¼°Êı×ÖÊäÈëÖĞ¶Ï]----------------------------------------------------------
+//----------------------------------------------[UNIT-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¶ï¿½]----------------------------------------------------------
 
 /**
-* @brief        °´¼üAÖĞ¶ÏÏìÓ¦º¯Êı
+* @brief        ï¿½ï¿½ï¿½ï¿½Aï¿½Ğ¶ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½
 * @param        
 * @ref          
 * @author       Leo
@@ -85,14 +85,18 @@ void EXTI2_IRQHandler(void)
 {
     if(EXTI_GetITStatus(EXTI_Line2)==1)	 		
     {				 
-        if(!GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_2))	//°´¼ü°´ÏÂ
+        if(gpioStr.KeyDebounce == 0)		// [P3-4] æ¶ˆæŠ–å†·å´ä¸­åˆ™å¿½ç•¥
         {
-            gpioStr.KeyPress = true;
-            GPIO_BuzzerEnable(BuzzerDing);
-        }
-        else	//°´¼üµ¯Æğ
-        {
-            gpioStr.KeyPress = false;
+            gpioStr.KeyDebounce = 30;		// [P3-4] 30mså†·å´çª—å£
+            if(!GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_2))	//æŒ‰é”®æŒ‰ä¸‹
+            {
+                gpioStr.KeyPress = true;
+                GPIO_BuzzerEnable(BuzzerDing);
+            }
+            else	//æŒ‰é”®é‡Šæ”¾
+            {
+                gpioStr.KeyPress = false;
+            }
         }
     }
     EXTI_ClearITPendingBit(EXTI_Line2);
@@ -104,7 +108,7 @@ void EXTI2_IRQHandler(void)
 
 
 /**
-* @brief        GPIOÏß³Ì¿ØÖÆÆ÷
+* @brief        GPIOï¿½ß³Ì¿ï¿½ï¿½ï¿½ï¿½ï¿½
 * @param        
 * @ref          
 * @author       Leo
@@ -112,7 +116,7 @@ void EXTI2_IRQHandler(void)
 **/
 void GPIO_Timer(void)
 {
-    //·äÃùÆ÷¿ØÖÆ
+    //èœ‚é¸£å™¨æ§åˆ¶
     if(buzzerStr.Enable)
     {
         buzzerStr.Counter++;
@@ -121,14 +125,18 @@ void GPIO_Timer(void)
             buzzerStr.Counter = buzzerStr.Cut;
     }
     
-    //LEDÉÁË¸
+    //æŒ‰é”®æ¶ˆæŠ–è®¡æ•°å™¨é€’å‡ [P3-4]
+    if(gpioStr.KeyDebounce > 0)
+        gpioStr.KeyDebounce--;
+    
+    //LEDé—ªçƒ
     gpioStr.CounterLed++;
 }
 
 
 
 /**
-* @brief        GPIOÂß¼­´¦Àíº¯Êı
+* @brief        GPIOï¿½ß¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * @param        
 * @ref          
 * @author       Leo
@@ -136,7 +144,7 @@ void GPIO_Timer(void)
 **/
 void GPIO_Handle(void)
 {
-    //·äÃùÆ÷¿ØÖÆ
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     if(buzzerStr.Enable && !buzzerStr.Silent)
     {
         if(buzzerStr.Times<=0)
@@ -155,7 +163,7 @@ void GPIO_Handle(void)
     else
         BUZZER_OFF;
     
-    //LED¿ØÖÆ
+    //LEDï¿½ï¿½ï¿½ï¿½
     if(gpioStr.CounterLed > 100)	    //100ms
     {
         LED_REV;
@@ -165,8 +173,8 @@ void GPIO_Handle(void)
 
 
 /**
-* @brief        ·äÃùÆ÷Ê¹ÄÜ
-* @param        buzzer£º·äÃùÆ÷¹¤×÷Ä£Ê½
+* @brief        ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½
+* @param        buzzerï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£Ê½
 * @ref          
 * @author       Leo
 * @note         

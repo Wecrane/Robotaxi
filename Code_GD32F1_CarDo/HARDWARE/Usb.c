@@ -125,10 +125,7 @@ void USART1_IRQHandler(void)
             uint8_t length = USB_FRAME_LENMIN;
         
             length = usbStr.receiveBuff[2];
-            for(int i=0;i<length-1;i++)
-                check += usbStr.receiveBuff[i];
-            
-            if(check == usbStr.receiveBuff[length-1])//У��λ
+            if(crc8(usbStr.receiveBuff, length - 1) == usbStr.receiveBuff[length - 1]) // [P2-4] CRC8校验
             {
                 memcpy(usbStr.receiveBuffFinished,usbStr.receiveBuff,USB_FRAME_LENMAX);	
                 usbStr.receiveFinished = true;
@@ -335,24 +332,24 @@ void USB_Edgeboard_Handle(void)
 void USB_Edgeboard_TransmitKey(uint16_t time)
 {
     uint8_t check = 0;
-    uint8_t buff[8];
-    Bint16_Union bint16_Union;
+    uint8_t buff[6];
     
-    buff[0] = 0x42; //֡ͷ
-    buff[1] = USB_ADDR_KEYINPUT; //��ַ
-    buff[2] = 0x06; //֡��
+    buff[0] = 0x42; //帧头
+    buff[1] = USB_ADDR_KEYINPUT; //地址
+    buff[2] = 0x05; //帧长 [P2-3] 对齐上位机: 仅1字节类型码
 
-    bint16_Union.U16 = time;
-    buff[3] = bint16_Union.U8_Buff[0];
-    buff[4] = bint16_Union.U8_Buff[1];
+    // 按时长转换为按键类型码 [P2-3]
+    if (time >= 2000)
+        buff[3] = 2;  // 长按>=2s → killAll
+    else
+        buff[3] = 1;  // 短按 → keypress
     
-    for(int i=0;i<5;i++)
+    for(int i = 0; i < 4; i++)
         check += buff[i];
+    buff[4] = crc8(buff, 4); // [P2-4] CRC8校验
 
-    buff[5] = check;
-
-	for(int i=0;i<8;i++)
-		USB_Edgeboard_TransmitByte(buff[i]);
+    for(int i = 0; i < 5; i++)
+        USB_Edgeboard_TransmitByte(buff[i]);
 }
 	
 
@@ -414,7 +411,7 @@ void USB_Edgeboard_ServoThreshold(uint8_t chanel)
     for(int i=0;i<6;i++)
         check += buff[i];
     
-    buff[6] = check;
+    buff[6] = crc8(buff, 6); // [P2-4] CRC8校验
     
     for(int i=0;i<9;i++)
         USB_Edgeboard_TransmitByte(buff[i]);
@@ -446,7 +443,7 @@ void USB_Edgeboard_KeyPress(uint16_t time)
     for(int i=0;i<5;i++)
         check += buff[i];
     
-    buff[5] = check;
+    buff[5] = crc8(buff, 5); // [P2-4] CRC8校验
     
     for(int i=0;i<8;i++)
         USB_Edgeboard_TransmitByte(buff[i]);
@@ -478,7 +475,7 @@ void USB_Edgeboard_BatteryInfo(void)
     for(int i=0;i<8;i++)
         check += buff[i];
     
-    buff[8] = check;
+    buff[8] = crc8(buff, 8); // [P2-4] CRC8校验
     
     for(int i=0;i<11;i++)
         USB_Edgeboard_TransmitByte(buff[i]);
@@ -508,7 +505,7 @@ void USB_Edgeboard_CarSpeed(void)
     for(int i=0;i<7;i++)
         check += buff[i];
     
-    buff[7] = check;
+    buff[7] = crc8(buff, 7); // [P2-4] CRC8校验
     
     for(int i=0;i<10;i++)
         USB_Edgeboard_TransmitByte(buff[i]);
@@ -538,7 +535,7 @@ void USB_Edgeboard_Selfcheck(uint8_t step)
     for(int i=0;i<6;i++)
         check += buff[i];
     
-    buff[6] = check;
+    buff[6] = crc8(buff, 6); // [P2-4] CRC8校验
     
     for(int i=0;i<9;i++)
         USB_Edgeboard_TransmitByte(buff[i]);
