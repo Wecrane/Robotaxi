@@ -36,7 +36,8 @@ void FsmObstacle::run(Mat &img)
 {
     resultObs = PredictResult();
 
-    if (params->track->pointsEdgeLeft.size() < ROWSIMAGE / 2 ||
+    // [修复] 只有两侧都严重不足才放弃避障（原||在弯道中一侧<120即跳过→避障100%失效）
+    if (params->track->pointsEdgeLeft.size() < ROWSIMAGE / 2 &&
         params->track->pointsEdgeRight.size() < ROWSIMAGE / 2)
         return;
 
@@ -83,8 +84,19 @@ void FsmObstacle::run(Mat &img)
             row = i;
         }
     }
-    if (row > params->track->pointsEdgeRight.size() - 1)
-        row = params->track->pointsEdgeRight.size() - 1;
+
+    // [修复] 安全 row clamp：空向量保护 + 防 size_t 下溢（原 size()-1 在空向量时溢出为 SIZE_MAX）
+    if (params->track->pointsEdgeLeft.empty() || params->track->pointsEdgeRight.empty())
+        return;
+    if (row < 0 || row >= (int)params->track->pointsEdgeRight.size())
+        row = (int)(params->track->pointsEdgeRight.size() - 1);
+    if (row < 0 || row >= (int)params->track->pointsEdgeLeft.size())
+        row = (int)(params->track->pointsEdgeLeft.size() - 1);
+
+    // [修复] 弱边检测：对侧边线点数不足时降级为缩线绕行，避免 Bezier 依赖缺失数据
+    const size_t MIN_EDGE_POINTS = 20;
+    bool weakRight = (params->track->pointsEdgeRight.size() < MIN_EDGE_POINTS);
+    bool weakLeft  = (params->track->pointsEdgeLeft.size() < MIN_EDGE_POINTS);
 
     // 路径重规划
     int disLeft = resultsObs[index].x - params->track->pointsEdgeLeft[row].y;
@@ -93,8 +105,8 @@ void FsmObstacle::run(Mat &img)
         params->track->pointsEdgeRight[row].y > resultsObs[index].x &&
         abs(disLeft) <= abs(disRight)) //[1] 障碍物靠左
     {
-        if (resultsObs[index].type == LABEL_PERSON) // 行人避障
-            curtailTracking(false);                 // 缩减优化车道线（双车道→单车道）
+        if (resultsObs[index].type == LABEL_PERSON || weakLeft || weakRight) // 行人 或 任一侧弱边降级
+            curtailTracking(false);                                          // 缩减优化车道线（双车道→单车道）
         else
         {
             vector<PointX> points(4); // 三阶贝塞尔曲线
@@ -117,8 +129,8 @@ void FsmObstacle::run(Mat &img)
              params->track->pointsEdgeRight[row].y > resultsObs[index].x &&
              abs(disLeft) > abs(disRight)) //[2] 障碍物靠右
     {
-        if (resultsObs[index].type == LABEL_PERSON) // 行人避障
-            curtailTracking(true);                  // 缩减优化车道线（双车道→单车道）
+        if (resultsObs[index].type == LABEL_PERSON || weakLeft || weakRight) // 行人 或 任一侧弱边降级
+            curtailTracking(true);                                          // 缩减优化车道线（双车道→单车道）
         else
         {
             vector<PointX> points(4); // 三阶贝塞尔曲线
@@ -138,9 +150,14 @@ void FsmObstacle::run(Mat &img)
         params->ctrl.slow = true; // 避障期间锁定限速，防止转向见解除限速标志提前加速
     }
 
-    // 车道线切除顶行1/5，避免弯道权重过大
-    params->track->pointsEdgeLeft.resize(params->track->pointsEdgeLeft.size() * 0.7);
-    params->track->pointsEdgeRight.resize(params->track->pointsEdgeRight.size() * 0.7);
+    // [修复] 保留底部70%车道线（切除顶部30%），避免弯道远端点权重过大；加最小值保护防 resize 到 0
+    const size_t MIN_KEEP_POINTS = 10;
+    size_t newLeft = (size_t)(params->track->pointsEdgeLeft.size() * 0.7);
+    if (newLeft > MIN_KEEP_POINTS)
+        params->track->pointsEdgeLeft.resize(newLeft);
+    size_t newRight = (size_t)(params->track->pointsEdgeRight.size() * 0.7);
+    if (newRight > MIN_KEEP_POINTS)
+        params->track->pointsEdgeRight.resize(newRight);
 }
 
 void FsmObstacle::resetLap()
