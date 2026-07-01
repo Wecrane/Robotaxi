@@ -1,0 +1,28 @@
+# KEIL5 编译产物
+*.o
+*.crf
+*.d
+*.axf
+*.hex
+*.lnp
+*.sct
+*.dep
+*.htm
+*.build_log.htm
+
+# KEIL5 输出目录
+Objects/
+Listings/
+DebugConfig/
+
+# J-Link 烧录脚本
+flash.jlink
+
+# KEIL5 用户配置
+*.uvguix.*
+*.uvoptx
+JLinkSettings.ini
+
+# 临时文件
+*.bak
+*.tmp

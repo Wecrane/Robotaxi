@@ -17,7 +17,7 @@ MotorStruct motorStr;
 
 
 /**
-* @brief        ������Ƴ�ʼ��?* @param        
+* @brief        ������Ƴ�ʼ��?* @param        
 * @ref          
 * @author       Leo
 * @note         
@@ -85,8 +85,8 @@ void MOTOR_Init(void)
 		
     MOTOR_SetPwmValue(0);
     
-    //���ģ�ͳ�ʼ��?    motorStr.EncoderLine = 512.0f; 							//����������=��դ��16*4				
-    motorStr.ReductionRatio = 2.7f;							//������ٱ�?							
+    //���ģ�ͳ�ʼ��?    motorStr.EncoderLine = 512.0f; 							//����������=��դ��16*4				
+    motorStr.ReductionRatio = 2.7f;							//������ٱ�?							
     motorStr.EncoderValue = 0;
     motorStr.DiameterWheel = 0.064f;//68cm					//����ֱ��:m
     motorStr.CloseLoop = true;                              //Ĭ�ϱջ�ģʽ
@@ -131,7 +131,7 @@ void MOTOR_SetPwmValue(signed int pwm)
 
 
 /**
-* @brief        ����ջ��ٿ�?* @param        speed���ٶ�m/s
+* @brief        ����ջ��ٿ�?* @param        speed���ٶ�m/s
 * @ref          
 * @author       Leo
 * @note         
@@ -150,7 +150,7 @@ void MOTOR_ControlLoop(float speed)
 
 
 /**
-* @brief        ��������߳�?* @param        
+* @brief        ��������߳�?* @param        
 * @ref          
 * @author       Leo
 * @note         
@@ -160,28 +160,33 @@ void MOTOR_Timer(void)
     motorStr.Counter++;
     if(motorStr.Counter >= 10)							    //主控周期:10ms
     {
-        ENCODER_RevSample();								//编码器采�?
-        //[P0-4] &&替代||：必须同时满足冲刺使�?上位机连接，防止单条件绕过保�?        if(!motorStr.FaultLatched && (icarStr.sprintEnable || icarStr.selfcheckEnable) && usbStr.connected)
+        ENCODER_RevSample();								//编码器采�?
+        //[P0-4] &&替代||：必须同时满足冲刺使能、上位机连接，防止单条件绕过保护
+        if(!motorStr.FaultLatched && (icarStr.sprintEnable || icarStr.selfcheckEnable) && usbStr.connected)
         {
             if(motorStr.CloseLoop)
             {
-                MOTOR_ControlLoop(icarStr.SpeedSet);		//闭环控�?            }
+                MOTOR_ControlLoop(icarStr.SpeedSet);		//闭环控制
+            }
             else//开环百分比控制
             {
                 if(icarStr.SpeedSet > 100)
                     icarStr.SpeedSet = 100;
                 else if(icarStr.SpeedSet < -100)
                     icarStr.SpeedSet = -100;
-                signed int speedRate = MOTOR_PWM_MAX/100.f*icarStr.SpeedSet; //输出速度百分�?
+                signed int speedRate = MOTOR_PWM_MAX/100.f*icarStr.SpeedSet; //输出速度百分�?
                 
-                MOTOR_SetPwmValue(speedRate);		//开环控�?            }
+                MOTOR_SetPwmValue(speedRate);		//开环控制
+            }
         }
         else
         {
             MOTOR_SetPwmValue(0);
         }
 
-        //[P0-3] 编码器故障检测：EncoderValue==0且PwmOutput>100，连�?0周期(200ms)触发紧急停�?        //       启动豁免：电机曾转动�?abs(EncoderValue)>5)后才使能检�?        if(!motorStr.FaultLatched)
+        //[P0-3] 编码器故障检测：EncoderValue==0且PwmOutput>100，连续20周期(200ms)触发紧急停车
+        //       启动豁免：电机曾转动过(abs(EncoderValue)>5)后才使能检测
+        if(!motorStr.FaultLatched)
         {
             if(motorStr.EncoderValue == 0 && motorStr.PwmOutput > 100)
             {
@@ -189,12 +194,14 @@ void MOTOR_Timer(void)
                 if(motorStr.FaultCnt >= 20)
                 {
                     motorStr.FaultLatched = true;			//锁存故障
-                    MOTOR_SetPwmValue(0);					//紧急停�?                    icarStr.errorCode |= 0x10;				//故障码bit4:编码器断�?                    motorStr.FaultCnt = 0;
+                    MOTOR_SetPwmValue(0);					//紧急停车
+                    icarStr.errorCode |= 0x10;				//故障码bit4:编码器断线
+                    motorStr.FaultCnt = 0;
                 }
             }
             else
             {
-                motorStr.FaultCnt = 0;						//条件不满足立即清�?防偶发零值累�?
+                motorStr.FaultCnt = 0;						//条件不满足立即清�?防偶发零值累�?
             }
         }
        
