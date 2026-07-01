@@ -6,13 +6,14 @@
  *                      (c) Copyright 2024; SaiShu.Lcc.; Leo; https://bjsstech.com
  *                                   版权所属[SASU-北京赛曙科技有限公司]
  *
- *            The code is for internal use only, not for commercial transactions(开源学�?.
+ *            The code is for internal use only, not for commercial transactions(开源学习).
  *            The code ADAPTS the corresponding hardware circuit board(智能汽车-ICAR),
- *            The specific details consult the professional(欢迎联系我们,代码持续更正，敬请关注相关开源渠�?.
+ *            The specific details consult the professional(欢迎联系我们,代码持续更正，敬请关注相关开源渠道).
  *********************************************************************************************************
  * @file cross.cpp
  * @author Leo (leo@saishukeji.com)
- * @brief 斑马线停车控�? * @version 0.1
+ * @brief 斑马线停车控制
+ * @version 0.1
  * @date 2025-05-12
  *
  * @copyright Copyright (c) 2025
@@ -40,11 +41,14 @@ FsmCross::~FsmCross()
 }
 
 /**
- * @brief 检查状态切�? *
- * @return FsmMode 切换后的状�? */
+ * @brief 检查状态切换
+ *
+ * @return FsmMode 切换后的状态
+ */
 FsmMode FsmCross::getMode()
 {
-    // 输出场景状态结�?    if (step == Step::NONE || !params->config.currentLapConfig->cross)
+    // 输出场景状态结果
+    if (step == Step::NONE || !params->config.currentLapConfig->cross)
         return FsmMode::NORMAL;
     else
         return FsmMode::CROSS;
@@ -63,7 +67,7 @@ bool FsmCross::checkCrossPass()
             crossDetected = true;
             if (!params->crossPassed)
             {
-                // 斑马线底部进入图像下�?/3时才进行过线计数（避免过早识别）
+                // 斑马线底部进入图像下方1/3时才进行过线计数（避免过早识别）
                 if (params->resultsSnapshot[i].y + params->resultsSnapshot[i].height <= ROWSIMAGE * 2 / 3)
                     continue;
 
@@ -77,7 +81,8 @@ bool FsmCross::checkCrossPass()
     if (!crossDetected)
     {
         crossLostCount++;
-        if (crossLostCount > 15) // �?.5秒未检测到cross才复�?        {
+        if (crossLostCount > 15) // 约0.5秒未检测到cross才复位
+        {
             params->crossPassed = false;
             crossLostCount = 0;
         }
@@ -96,7 +101,8 @@ bool FsmCross::checkCrossPass()
  */
 void FsmCross::run(Mat &img)
 {
-    if (!params->config.currentLapConfig->cross) // 当前圈未启用斑马线功�?        return;
+    if (!params->config.currentLapConfig->cross) // 当前圈未启用斑马线功能
+        return;
 
     countInit++; // 起点屏蔽计数器（同时保护换圈和停车，避免发车时误触）
     if (countInit > 999)
@@ -104,13 +110,14 @@ void FsmCross::run(Mat &img)
     else if (countInit < 60)
         return;
 
-    // 检查是否通过斑马线（起点/终点�? 仅用于计数和圈数切换
+    // 检查是否通过斑马线（起点/终点检测） 仅用于计数和圈数切换
     if (checkCrossPass())
     {
         crossCount++;
         printf("[Cross] Cross #%d detected (currentLap=%d)\n", crossCount, params->currentLap);
 
-        // 增加圈数，准备进入下一�?        if (params->currentLap < params->totalLaps)
+        // 增加圈数，准备进入下一圈
+        if (params->currentLap < params->totalLaps)
         {
             params->nextLap();
             printf("[Cross] Lap incremented to %d\n", params->currentLap);
@@ -119,7 +126,8 @@ void FsmCross::run(Mat &img)
         return;
     }
 
-    // 最后一圈：等待斑马线完全离开视野后再停车（越过斑马线�?    if (crossCount >= params->totalLaps && !params->crossPassed && step != Step::STOP)
+    // 最后一圈：等待斑马线完全离开视野后再停车（越过斑马线后）
+    if (crossCount >= params->totalLaps && !params->crossPassed && step != Step::STOP)
     {
         printf("[Cross] Cross fully passed, stopping vehicle...\n");
         setStep(Step::STOP);
@@ -128,7 +136,8 @@ void FsmCross::run(Mat &img)
 
     switch (step)
     {
-    case Step::NONE: // AI未识�?    {
+    case Step::NONE: // AI未识别
+    {
         countCross++; // 斑马线屏蔽计数器
         if (countCross > 999)
             countCross = 999;
@@ -144,12 +153,15 @@ void FsmCross::run(Mat &img)
         }
 
         if (countRec >= 2)
-            setStep(Step::ENABLE); // 设置新状�?
-        if (countRec > 0) // 识别AI标志后开始场次计�?        {
+            setStep(Step::ENABLE); // 设置新状态
+        if (countRec > 0) // 识别AI标志后开始场次计数
+        {
             countSes++;
             if (countSes > 4)
             {
-                countRec = 0; // AI场景识别计数�?                countSes = 0; // 场次计数�?            }
+                countRec = 0; // AI场景识别计数器
+                countSes = 0; // 场次计数器
+            }
         }
         break;
     }
@@ -163,7 +175,8 @@ void FsmCross::run(Mat &img)
             if (params->resultsSnapshot[i].type == LABEL_CROSS) // 禁行标志：斑马线
             {
                 crossDetected = true;
-                // 当斑马线已经越过车辆（检测框的上边缘低于车辆位置�?                if (params->resultsSnapshot[i].y < ROWSIMAGE * 0.4)
+                // 当斑马线已经越过车辆（检测框的上边缘低于车辆位置时）
+                if (params->resultsSnapshot[i].y < ROWSIMAGE * 0.4)
                 {
                     countRec++;
                     timeout = 0;
@@ -172,11 +185,12 @@ void FsmCross::run(Mat &img)
             }
         }
 
-        // 如果斑马线离开画面，连�?帧未检测到才触发停车（防抖动）
+        // 如果斑马线离开画面，连续3帧未检测到才触发停车（防抖动）
         if (!crossDetected)
         {
             crossLostStepCount++;
-            if (crossLostStepCount >= 3) // 连续3帧未检测到斑马�?            {
+            if (crossLostStepCount >= 3) // 连续3帧未检测到斑马线
+            {
                 // 最后一圈不在此停车，等待cross完全离开后由crossPassed处理
                 setStep(crossCount >= params->totalLaps ? Step::NONE : Step::STOP);
                 return;
@@ -192,7 +206,8 @@ void FsmCross::run(Mat &img)
             setStep(crossCount >= params->totalLaps ? Step::NONE : Step::STOP);
         if (timeout > 30)
         {
-            setStep(Step::NONE); // 设置新状�?        }
+            setStep(Step::NONE); // 设置新状态
+        }
         break;
     }
 
@@ -272,12 +287,16 @@ void FsmCross::show(Mat &img)
 }
 
 /**
- * @brief 设置新状�? *
+ * @brief 设置新状态
+ *
  * @param step
  */
 void FsmCross::setStep(Step st)
 {
     step = st;
-    countRec = 0;          // AI场景识别计数�?    countSes = 0;          // 场次计数�?    timeout = 0;           // 超时计数�?    params->ctrl.stop = false;
+    countRec = 0;          // AI场景识别计数器
+    countSes = 0;          // 场次计数器
+    timeout = 0;           // 超时计数器
+    params->ctrl.stop = false;
     countCross = 0;
 }

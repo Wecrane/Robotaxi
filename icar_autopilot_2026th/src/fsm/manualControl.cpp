@@ -6,9 +6,9 @@
  *                      (c) Copyright 2024; SaiShu.Lcc.; Leo; https://bjsstukeji.com
  *                                   版权所属[SASU-北京赛曙科技有限公司]
  *
- *            The code is for internal use only, not for commercial transactions(开源学�?.
+ *            The code is for internal use only, not for commercial transactions(开源学习).
  *            The code ADAPTS the corresponding hardware circuit board(智能汽车-ICAR),
- *            The specific details consult the professional(欢迎联系我们,代码持续更正，敬请关注相关开源渠�?.
+ *            The specific details consult the professional(欢迎联系我们,代码持续更正，敬请关注相关开源渠道).
  *********************************************************************************************************
  * @file manualControl.cpp
  * @author Leo (leo@saishukeji.com)
@@ -185,7 +185,9 @@ void ManualControlThread::run() {
         }
 
         connected = true;
-        lastContact = std::chrono::steady_clock::now();  // 重置超时计时（防止旧连接的lastContact导致立即超时�?        // 禁用Nagle算法，降低控制延�?        int flag = 1;
+        lastContact = std::chrono::steady_clock::now();  // 重置超时计时（防止旧连接的lastContact导致立即超时）
+        // 禁用Nagle算法，降低控制延迟
+        int flag = 1;
         setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(flag));
         printf("[Manual] Remote control connected\n");
 
@@ -256,7 +258,8 @@ void ManualControlThread::handleClientConnection() {
 
                     // 发送图像头
                     send(clientSocket, header.c_str(), header.length(), 0);
-                    // 发送图像数�?                    send(clientSocket, buf.data(), buf.size(), 0);
+                    // 发送图像数据
+                    send(clientSocket, buf.data(), buf.size(), 0);
                 } catch (const cv::Exception& e) {
                     cerr << "[Manual] Image encode error: " << e.what() << endl;
                 }
@@ -264,12 +267,13 @@ void ManualControlThread::handleClientConnection() {
             hasImage = false;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(16));  // �?0Hz
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));  // 约60Hz
     }
 }
 
 void ManualControlThread::receiveCommands() {
-    std::string lineBuf;  // 粘包缓冲�?    char rawBuf[1024];
+    std::string lineBuf;  // 粘包缓冲区
+    char rawBuf[1024];
     while (running && connected) {
         int bytes = recv(clientSocket, rawBuf, 1023, 0);
         if (bytes <= 0) {
@@ -282,7 +286,8 @@ void ManualControlThread::receiveCommands() {
         // Update contact time
         lastContact = std::chrono::steady_clock::now();
 
-        // 按换行符分割处理（解决TCP粘包�?        size_t pos;
+        // 按换行符分割处理（解决TCP粘包问题）
+        size_t pos;
         while ((pos = lineBuf.find('\n')) != std::string::npos) {
             std::string cmd = lineBuf.substr(0, pos + 1);  // 包含\n
             lineBuf.erase(0, pos + 1);
@@ -321,7 +326,8 @@ void ManualControlThread::processCommand(const std::string &cmd) {
         return;
     }
 
-    // 组合命令解析（如"WA\n"=前进+左转�?WD\n"=前进+右转�?    manualControl.forward = false;
+    // 组合命令解析（如"WA\n"=前进+左转，"WD\n"=前进+右转）
+    manualControl.forward = false;
     manualControl.backward = false;
     manualControl.left = false;
     manualControl.right = false;
