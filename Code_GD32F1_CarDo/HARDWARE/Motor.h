@@ -1,4 +1,4 @@
-#ifndef __PWM_H__
+ï»¿#ifndef __PWM_H__
 #define __PWM_H__
 
 /*-----------------------------------------  I N C L U D E S  -----------------------------------------*/
@@ -6,23 +6,26 @@
 
 /*---------------------------------------  D E F I N I T I O N  ---------------------------------------*/
 
-#define  MOTOR_PWM_MAX   			1500		//OCR=95%,½ûÖ¹ÂúÕ¼¿Õ±ÈÊä³ö£¬Ôì³ÉMOSËğ»µ
+#define  MOTOR_PWM_MAX   			1500		//OCR=95%,ï¿½ï¿½Ö¹ï¿½ï¿½Õ¼ï¿½Õ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½MOSï¿½ï¿½
 #define  MOTOR_PWM_MIN			    -1500		//OCR=95%
-#define  MOTOR_SPEED_MAX		    10.0f	 	//µç»ú×î´ó×ªËÙ(m/s) (0.017,8.04)
-#define  PI					        3.141593f   //¦Ğ
-#define  MOTOR_CONTROL_CYCLE	    0.01f    	//µç»ú¿ØÖÆÖÜÆÚT£º10ms
+#define  MOTOR_SPEED_MAX		    10.0f	 	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½(m/s) (0.017,8.04)
+#define  PI					        3.141593f   //ï¿½ï¿½
+#define  MOTOR_CONTROL_CYCLE	    0.01f    	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½ï¿½10ms
 
 /**
-* @brief    µç»úÏà¹Ø
+* @brief    ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 **/
 typedef struct 
 {
-	float ReductionRatio ;					    //µç»ú¼õËÙ±È
-	float EncoderLine ; 						//±àÂëÆ÷ÏßÊı=¹âÕ¤Êı16*4
-	signed int EncoderValue;				    //±àÂëÆ÷ÊµÊ±ËÙ¶È
-	float DiameterWheel;						//ÂÖ×ÓÖ±¾¶£ºmm
-	bool CloseLoop;							    //¿ª»·Ä£Ê½
-	uint16_t Counter;							//Ïß³Ì¼ÆÊıÆ÷
+	float ReductionRatio ;					    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù±ï¿½
+	float EncoderLine ; 						//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½=ï¿½ï¿½Õ¤ï¿½ï¿½16*4
+	signed int EncoderValue;				    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÊµÊ±ï¿½Ù¶ï¿½
+	float DiameterWheel;						//ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½mm
+	bool CloseLoop;							    //ï¿½ï¿½ï¿½ï¿½Ä£Ê½
+	uint16_t Counter;							//ï¿½ß³Ì¼ï¿½ï¿½ï¿½ï¿½ï¿½
+	signed int PwmOutput;						//[P0-3] å½“å‰PWMè¾“å‡ºå€¼
+	uint16_t FaultCnt;							//[P0-3] ç¼–ç å™¨æ•…éšœè¿ç»­è®¡æ•°
+	bool FaultLatched;							//[P0-3] æ•…éšœé”å­˜æ ‡å¿—
 }MotorStruct;
 
 

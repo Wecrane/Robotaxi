@@ -44,21 +44,27 @@
 - **改动范围**：12个文件（params.hpp + icar.hpp + 8个FSM .cpp + alert段去锁）
 - **状态**：✅ 已完成（经5+4两轮共9个Agent审查通过）
 
-### P0-3 | 🚨 编码器断线→20ms全速失控（下位机）
-- **位置**：`Encoder.c` / `Motor.c MOTOR_Timer()`
-- **症状**：编码器线缆松动→EncoderValue=0→PID输出拉满→电机全速→车冲出赛道
+### P0-3 | 🚨 编码器断线→20ms全速失控（下位机） ✅ 已完成
+- **位置**：`Motor.c MOTOR_Timer()` + `Motor.h` + `Encoder.c`
+- **症状**：编码器线缆松动→EncoderValue=0→PID积分饱和→PWM=1500→电机全速→车冲出赛道
 - **比赛影响**：物理冲出赛道 → 0分
 - **工时**：3h
-- **修复**：增加故障计数器，EncoderValue=0 且 PwmOutput≠0 持续50周期→紧急停车+错误码0x10
-- **状态**：⬜ 未开始
+- **修复内容**：
+  1. MotorStruct新增 PwmOutput/FaultCnt/FaultLatched 三字段
+  2. MOTOR_SetPwmValue追踪实际PWM输出值
+  3. 故障检测：EncoderValue==0且PwmOutput>100连续20周期(200ms)→紧急停车+errorCode|=0x10
+  4. 锁存保护：触发后每周期强制PWM=0，直至系统复位
+- **状态**：✅ 已完成（与P0-4联合修复，经2Agent审查+自检阻断修正）
 
-### P0-4 | 🚨 sprintEnable 绕过断线保护（下位机）
-- **位置**：`Motor.c` / `Icar.c` / `Usb.c`
-- **症状**：上位机断开时 sprintEnable=1 仍允许电机输出→完全绕过安全保护
+### P0-4 | 🚨 sprintEnable绕过断线保护（下位机） ✅ 已完成
+- **位置**：`Motor.c` / `Usb.c`
+- **症状**：上位机断开时sprintEnable=1仍允许电机输出→完全绕过安全保护
 - **比赛影响**：失控
 - **工时**：2h
-- **修复**：`OR`→`AND`（sprintEnable && connected）；Icar.c不无条件覆盖SpeedSet；Usb.c掉线时清除sprintEnable+SpeedSet=0
-- **状态**：⬜ 未开始
+- **修复内容**：
+  1. Motor.c MOTOR_Timer: `||`→`&&` — 必须同时满足(冲刺或自检)+上位机连接
+  2. Usb.c USB_Edgeboard_Timr: 掉线时清除sprintEnable+SpeedSet=0
+- **状态**：✅ 已完成（与P0-3联合修复，经2Agent审查）
 
 ### P0-5 | 🚨 舵机掉线不回中（下位机）
 - **位置**：`Usb.c USB_Edgeboard_Timr()`
