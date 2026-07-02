@@ -1,15 +1,15 @@
-#include "Rgb.h" 
+ï»¿#include "Rgb.h" 
 /*
 ********************************************************************************************************
-*                                               Ê¾Àı´úÂë
+*                                               ç¤ºä¾‹ä»£ç 
 *                                             EXAMPLE  CODE                                             
 *
 *                             (c) Copyright 2021; SaiShu.Lcc.; Leo
-*                                 °æÈ¨ËùÊô[±±¾©ÈüÊï¿Æ¼¼ÓĞÏŞ¹«Ë¾]
+*                                 ç‰ˆæƒæ‰€å±[åŒ—äº¬èµ›æ›™ç§‘æŠ€æœ‰é™å…¬å¸]
 *
-*               The code is for internal use only, not for commercial transactions(¿ªÔ´Ñ§Ï°,ÇëÎğÉÌÓÃ).
-*               The code ADAPTS the corresponding hardware circuit board(´úÂëÊ¹ÓÃCarDoÖÇ¿Ø°å), 
-*               the specific details consult the professional(»¶Ó­ÁªÏµÎÒÃÇ).
+*               The code is for internal use only, not for commercial transactions(å¼€æºå­¦ä¹ ,è¯·å‹¿å•†ç”¨).
+*               The code ADAPTS the corresponding hardware circuit board(ä»£ç ä½¿ç”¨CarDoæ™ºæ§æ¿), 
+*               the specific details consult the professional(æ¬¢è¿è”ç³»æˆ‘ä»¬).
 *********************************************************************************************************
 */
 
@@ -17,7 +17,7 @@ RgbStruct rgbStr;
 
 
 /**
-* @brief        RGBµÆ³õÊ¼»¯
+* @brief        RGBç¯åˆå§‹åŒ–
 * @param        
 * @ref          
 * @author       Leo
@@ -28,23 +28,23 @@ void RGB_Init(void)
 	GPIO_InitTypeDef  GPIO_InitStructure;	
 
 	RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA, ENABLE );	 
-    GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable,ENABLE); //¹Ø±ÕJTAG£¬¿ªÆôSWDÄ£Ê½
+    GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable,ENABLE); //å…³é—­JTAGï¼Œå¼€å¯SWDæ¨¡å¼
     
-	// ¶Ë¿ÚÅäÖÃ
+	// ç«¯å£é…ç½®
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;				// PIN
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		// ÍÆÍìÊä³ö
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;		// IO¿ÚËÙ¶ÈÎª50MHz
-	GPIO_Init(GPIOB, &GPIO_InitStructure);					// ¸ù¾İÉè¶¨²ÎÊı³õÊ¼»¯ 
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		// æ¨æŒ½è¾“å‡º
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;		// IOå£é€Ÿåº¦ä¸º50MHz
+	GPIO_Init(GPIOB, &GPIO_InitStructure);					// æ ¹æ®è®¾å®šå‚æ•°åˆå§‹åŒ– 
     
     Delay_Ms(10);
     
-    RGB_SetColorToColor(RGB_COLOR_GREEN,RGB_COLOR_RED);  //³õÊ¼»¯µÆĞ§
+    RGB_SetColorToColor(RGB_COLOR_GREEN,RGB_COLOR_RED);  //åˆå§‹åŒ–ç¯æ•ˆ
     rgbStr.lastColor = RGB_COLOR_RED;
 }
 
 
 /**
-* @brief        ÌØÊâÑÓÊ±
+* @brief        ç‰¹æ®Šå»¶æ—¶
 * @param        
 * @ref          
 * @author       Leo
@@ -61,7 +61,7 @@ void RGB_Delay05us()
 }
 
 /**
-* @brief        ·¢ËÍ0ĞÅºÅ(Byte)
+* @brief        å‘é€0ä¿¡å·(Byte)
 * @param        
 * @ref          
 * @author       Leo
@@ -77,7 +77,7 @@ void RGB_SendLow(void)
 
 
 /**
-* @brief        ·¢ËÍ1ĞÅºÅ(Byte)
+* @brief        å‘é€1ä¿¡å·(Byte)
 * @param        
 * @ref          
 * @author       Leo
@@ -93,7 +93,7 @@ void RGB_SendHigh(void)
 
 
 /**
-* @brief        µÆĞ§¸´Î»
+* @brief        ç¯æ•ˆå¤ä½
 * @param        
 * @ref          
 * @author       Leo
@@ -109,7 +109,7 @@ void RGB_Reset(void)
 
 
 /**
-* @brief        ÉèÖÃÒ»ÖÖµÆĞ§
+* @brief        è®¾ç½®ä¸€ç§ç¯æ•ˆ
 * @param        
 * @ref          
 * @author       Leo
@@ -117,7 +117,7 @@ void RGB_Reset(void)
 **/
 void RGB_SetLight(unsigned long dat)
 {	
-    //µ÷ÕûGRB µÄË³ĞòÖÁ RGB
+    //è°ƒæ•´GRB çš„é¡ºåºè‡³ RGB
     unsigned long colorG,colorR;
     colorG = dat & 0xFF0000;        //G
     colorR = dat & 0x00FF00;        //R
@@ -132,12 +132,12 @@ void RGB_SetLight(unsigned long dat)
             RGB_SendHigh();
 		else
             RGB_SendLow();
-		dat<<=1;							//×óÒÆÒ»Î»
+		dat<<=1;							//å·¦ç§»ä¸€ä½
 	}
 }
 
 /**
-* @brief        ÉèÖÃ¶àÖÖµÆĞ§
+* @brief        è®¾ç½®å¤šç§ç¯æ•ˆ
 * @param        
 * @ref          
 * @author       Leo
@@ -156,7 +156,7 @@ void RGB_SetAllLight(unsigned long *colorBuff)
 
 
 /**
-* @brief        ÉèÖÃµÆ¹âÑÕÉ«
+* @brief        è®¾ç½®ç¯å…‰é¢œè‰²
 * @param        
 * @ref          
 * @author       Leo
@@ -175,23 +175,23 @@ void RGB_SetAllColor(unsigned long color)
 
 
 /**
-* @brief        ÑÕÉ«½¥±äËã·¨
+* @brief        é¢œè‰²æ¸å˜ç®—æ³•
 * @param        
 * @ref          
 * @author       Leo
-* @note         Îó²î <= 2
+* @note         è¯¯å·® <= 2
 **/
 uint32_t RGB_SetColorToColor(unsigned long color0, unsigned long color1)
 {
-	unsigned char Red0, Green0, Blue0;  // ÆğÊ¼ÈıÔ­É«
-	unsigned char Red1, Green1, Blue1;  // ½á¹ûÈıÔ­É«
-	int			  RedMinus, GreenMinus, BlueMinus;	// ÑÕÉ«²î£¨color1 - color0£©
-	unsigned char NStep; 							// ĞèÒª¼¸²½
-	float		  RedStep, GreenStep, BlueStep;		// ¸÷É«²½½øÖµ
-	unsigned long color;							// ½á¹ûÉ«
+	unsigned char Red0, Green0, Blue0;  // èµ·å§‹ä¸‰åŸè‰²
+	unsigned char Red1, Green1, Blue1;  // ç»“æœä¸‰åŸè‰²
+	int			  RedMinus, GreenMinus, BlueMinus;	// é¢œè‰²å·®ï¼ˆcolor1 - color0ï¼‰
+	unsigned char NStep; 							// éœ€è¦å‡ æ­¥
+	float		  RedStep, GreenStep, BlueStep;		// å„è‰²æ­¥è¿›å€¼
+	unsigned long color;							// ç»“æœè‰²
 	unsigned char i;
 	
-	// ÂÌ ºì À¶ ÈıÔ­É«·Ö½â
+	// ç»¿ çº¢ è“ ä¸‰åŸè‰²åˆ†è§£
 	Red0   = color0>>8;
 	Green0 = color0>>16;
 	Blue0  = color0;
@@ -200,7 +200,7 @@ uint32_t RGB_SetColorToColor(unsigned long color0, unsigned long color1)
 	Green1 = color1>>16;
 	Blue1  = color1;
 	
-	// ¼ÆËãĞèÒª¶àÉÙ²½£¨È¡²îÖµµÄ×î´óÖµ£©
+	// è®¡ç®—éœ€è¦å¤šå°‘æ­¥ï¼ˆå–å·®å€¼çš„æœ€å¤§å€¼ï¼‰
 	RedMinus   = Red1 - Red0; 
 	GreenMinus = Green1 - Green0; 
 	BlueMinus  = Blue1 - Blue0;
@@ -208,25 +208,25 @@ uint32_t RGB_SetColorToColor(unsigned long color0, unsigned long color1)
 	NStep = ( abs(RedMinus) > abs(GreenMinus) ) ? abs(RedMinus):abs(GreenMinus);
 	NStep = ( NStep > abs(BlueMinus) ) ? NStep:abs(BlueMinus);
 	
-	// ¼ÆËã³ö¸÷É«²½½øÖµ
+	// è®¡ç®—å‡ºå„è‰²æ­¥è¿›å€¼
 	RedStep   = (float)RedMinus   / NStep;
 	GreenStep = (float)GreenMinus / NStep;
 	BlueStep  = (float)BlueMinus  / NStep;
 	
-	// ½¥±ä¿ªÊ¼
+	// æ¸å˜å¼€å§‹
 	for(i=0; i<NStep; i++)
 	{
 		Red1   = Red0   + (int)(RedStep   * i);
 		Green1 = Green0 + (int)(GreenStep * i);
 		Blue1  = Blue0  + (int)(BlueStep  * i);
 		
-		color  = Green1<<16 | Red1<<8 | Blue1; 	                // ºÏ³É  ÂÌºìÀ¶
+		color  = Green1<<16 | Red1<<8 | Blue1; 	                // åˆæˆ  ç»¿çº¢è“
         for(int n=0;n<RGB_NUM;n++)
             rgbStr.buffColors[n] = color;
-		RGB_SetAllLight(rgbStr.buffColors);			    // Êä³ö
-		Delay_Ms(1);											// ½¥±äËÙ¶È
+		RGB_SetAllLight(rgbStr.buffColors);			    // è¾“å‡º
+		Delay_Ms(1);											// æ¸å˜é€Ÿåº¦
 	}
-	// ½¥±ä½áÊø
+	// æ¸å˜ç»“æŸ
 	
 	return color;
 }

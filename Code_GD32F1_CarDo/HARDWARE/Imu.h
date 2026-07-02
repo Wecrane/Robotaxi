@@ -1,15 +1,15 @@
-#ifndef _IMU_H_
+ï»¿#ifndef _IMU_H_
 #define _IMU_H_
 
 #include "main.h"
 
 
-// ¶¨ÒåMPU6050ÄÚ²¿µØÖ·
+// å®šä¹‰MPU6050å†…éƒ¨åœ°å€
 //****************************************
-#define	SMPLRT_DIV		0x19		//ÍÓÂÝÒÇ²ÉÑùÂÊ£¬µäÐÍÖµ£º0x07(125Hz)
-#define	CONFIG			0x1A		//µÍÍ¨ÂË²¨ÆµÂÊ£¬µäÐÍÖµ£º0x06(5Hz)
-#define	GYRO_CONFIG		0x1B		//ÍÓÂÝÒÇ×Ô¼ì¼°²âÁ¿·¶Î§£¬µäÐÍÖµ£º0x18(²»×Ô¼ì£¬2000deg/s)
-#define	ACCEL_CONFIG	0x1C		//¼ÓËÙ¼Æ×Ô¼ì¡¢²âÁ¿·¶Î§¼°¸ßÍ¨ÂË²¨ÆµÂÊ£¬µäÐÍÖµ£º0x01(²»×Ô¼ì£¬2G£¬5Hz)
+#define	SMPLRT_DIV		0x19		//é™€èžºä»ªé‡‡æ ·çŽ‡ï¼Œå…¸åž‹å€¼ï¼š0x07(125Hz)
+#define	CONFIG			0x1A		//ä½Žé€šæ»¤æ³¢é¢‘çŽ‡ï¼Œå…¸åž‹å€¼ï¼š0x06(5Hz)
+#define	GYRO_CONFIG		0x1B		//é™€èžºä»ªè‡ªæ£€åŠæµ‹é‡èŒƒå›´ï¼Œå…¸åž‹å€¼ï¼š0x18(ä¸è‡ªæ£€ï¼Œ2000deg/s)
+#define	ACCEL_CONFIG	0x1C		//åŠ é€Ÿè®¡è‡ªæ£€ã€æµ‹é‡èŒƒå›´åŠé«˜é€šæ»¤æ³¢é¢‘çŽ‡ï¼Œå…¸åž‹å€¼ï¼š0x01(ä¸è‡ªæ£€ï¼Œ2Gï¼Œ5Hz)
 #define	ACCEL_XOUT_H	0x3B
 #define	ACCEL_XOUT_L	0x3C
 #define	ACCEL_YOUT_H	0x3D
@@ -26,16 +26,16 @@
 #define	GYRO_ZOUT_H		0x47
 #define	GYRO_ZOUT_L		0x48
 
-#define	PWR_MGMT_1		0x6B	//µçÔ´¹ÜÀí£¬µäÐÍÖµ£º0x00(Õý³£ÆôÓÃ)
-#define	WHO_AM_I		  0x75	//IICµØÖ·¼Ä´æÆ÷(Ä¬ÈÏÊýÖµ0x68£¬Ö»¶Á)
+#define	PWR_MGMT_1		0x6B	//ç”µæºç®¡ç†ï¼Œå…¸åž‹å€¼ï¼š0x00(æ­£å¸¸å¯ç”¨)
+#define	WHO_AM_I		  0x75	//IICåœ°å€å¯„å­˜å™¨(é»˜è®¤æ•°å€¼0x68ï¼Œåªè¯»)
 
 
 //****************************
 
-#define	MPU6050_Addr   0xD0	  //¶¨ÒåÆ÷¼þÔÚIIC×ÜÏßÖÐµÄ´ÓµØÖ·,¸ù¾ÝALT  ADDRESSµØÖ·Òý½Å²»Í¬ÐÞ¸Ä
+#define	MPU6050_Addr   0xD0	  //å®šä¹‰å™¨ä»¶åœ¨IICæ€»çº¿ä¸­çš„ä»Žåœ°å€,æ ¹æ®ALT  ADDRESSåœ°å€å¼•è„šä¸åŒä¿®æ”¹
 
 //************************************
-/*Ä£ÄâIIC¶Ë¿ÚÊä³öÊäÈë¶¨Òå*/
+/*æ¨¡æ‹ŸIICç«¯å£è¾“å‡ºè¾“å…¥å®šä¹‰*/
 #define SCL_H         GPIOB->BSRR = GPIO_Pin_14
 #define SCL_L         GPIOB->BRR  = GPIO_Pin_14
 
@@ -48,13 +48,13 @@
 
 typedef struct  
 {
-	uint16_t Counter;											//Ïß³Ì¼ÆÊýÆ÷
-	short AacX;												    //XÖá¼ÓËÙ¶È
-	short AacY;												    //YÖá¼ÓËÙ¶È
-	short AacZ;													//ZÖá¼ÓËÙ¶È
-	short GyroX;												//XÖá½ÇËÙ¶È
-	short GyroY;												//YÖá½ÇËÙ¶È
-	short GyroZ;												//ZÖá½ÇËÙ¶È
+	uint16_t Counter;											//çº¿ç¨‹è®¡æ•°å™¨
+	short AacX;												    //Xè½´åŠ é€Ÿåº¦
+	short AacY;												    //Yè½´åŠ é€Ÿåº¦
+	short AacZ;													//Zè½´åŠ é€Ÿåº¦
+	short GyroX;												//Xè½´è§’é€Ÿåº¦
+	short GyroY;												//Yè½´è§’é€Ÿåº¦
+	short GyroZ;												//Zè½´è§’é€Ÿåº¦
 }IMU_STA;
 
 

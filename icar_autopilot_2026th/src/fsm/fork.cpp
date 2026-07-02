@@ -87,7 +87,7 @@ void FsmFork::show(Mat &img)
 void FsmFork::reset(void)
 {
     step = Step::NONE; // 岔路处理阶段
-    counterFork = 0;   // 图像状态计数器
+    counterFork = 0;   // 图像状态计数
     lastForkL = PointX(0, 0, 0);
     lastForkR = PointX(0, COLSIMAGE - 1, 0);
     repairing = false;
@@ -111,9 +111,9 @@ bool FsmFork::handle(Mat &img, int type)
 
         if (type < 2)
         { // 左侧可能出现T形岔路口（卜型）
-            // 先找到左侧道路上下直道段上下直道点
-            PointX leftFilletUp;    // 左上圆弧拐点    对于圆弧拐点，slope代表其index而不是斜率
-            PointX leftFilletDown;  // 左下圆弧拐点
+            // 先找到左侧道路上下直道段上下直道段
+            PointX leftFilletUp;    // 左上圆弧点        对于圆弧拐点，slope代表其index而不是斜率
+            PointX leftFilletDown;  // 左下圆弧点
             leftFilletUp.slope = 0; // 初始化index
             leftFilletDown.slope = 0;
             leftFilletDown = searchFilletLeftDown(params->track->pointsEdgeLeft, params->track->pointsEdgeRight);
@@ -157,8 +157,8 @@ bool FsmFork::handle(Mat &img, int type)
             {
                 return false; // 对于该部分判断一个重要依据即为搜索行数的减少
             }
-            PointX Right_Fillet_DOWN;    // 左上圆弧拐点    对于圆弧拐点，slope代表其index而不是斜率
-            PointX leftFilletDown;       // 左下圆弧拐点
+            PointX Right_Fillet_DOWN;    // 左上圆弧点        对于圆弧拐点，slope代表其index而不是斜率
+            PointX leftFilletDown;       // 左下圆弧点
             Right_Fillet_DOWN.slope = 0; // 初始化index
             leftFilletDown.slope = 0;
             leftFilletDown = searchFilletLeftDown(params->track->pointsEdgeLeft, params->track->pointsEdgeRight, -1, 0);
@@ -171,7 +171,7 @@ bool FsmFork::handle(Mat &img, int type)
                 {
                     // 从俩下拐点的最低点往上看大白块数量，一旦有一个不满足马上break
                     if (params->track->widthBlock[i].y > Right_Fillet_DOWN.y - leftFilletDown.y + 10)
-                    { // 下面行的宽度大于俩下拐点间距+10
+                    { // 下面行的宽度大于俩下拐点间距则++
                         countThroughoutBlocks++;
                     }
                     if (params->track->pointsEdgeLeft[i].y < 3 && params->track->pointsEdgeRight[i].y > COLSIMAGE - 3)
@@ -191,15 +191,15 @@ bool FsmFork::handle(Mat &img, int type)
         if (type < 2)
         {
             { // 左侧可能出现T形岔路口
-                // 先找到左侧道路上下直道段上下直道点
-                PointX leftFilletUp;    // 左上圆弧拐点    对于圆弧拐点，slope代表其index而不是斜率
-                PointX leftFilletDown;  // 左下圆弧拐点
+                // 先找到左侧道路上下直道段上下直道段
+                PointX leftFilletUp;    // 左上圆弧点        对于圆弧拐点，slope代表其index而不是斜率
+                PointX leftFilletDown;  // 左下圆弧点
                 leftFilletUp.slope = 0; // 初始化index
                 leftFilletDown.slope = 0;
                 bool LastFlag = 0;
                 leftFilletDown = searchFilletLeftDown(params->track->pointsEdgeLeft, params->track->pointsEdgeRight, (ROWSIMAGE - params->track->rowCutBottom) * 0.8);
                 if (!leftFilletDown.slope || leftFilletDown.x < 40)
-                { // 此时的Left_Fillet_DOWN不可能特别靠左
+                { // 此时的Left_Fillet_DOWN不可能特别靠上
                     leftFilletDown = lastForkL;
                     LastFlag = 1; // 如果没有找到有效拐点就以上一次的拐点为基准补线
                 }
@@ -223,7 +223,7 @@ bool FsmFork::handle(Mat &img, int type)
                         { // 太靠右侧以后出现了错误分岔点
                             if (params->track->spurroad[i].x > ROWSIMAGE / 3 && params->track->spurroad[i].y > COLSIMAGE / 3 && params->track->spurroad[i].y < COLSIMAGE * 7 / 8)
                             {
-                                lastForkR = params->track->spurroad[i]; // 出现符合要求的分岔点后改为补一条直线到分岔点进入EXITING状态
+                                lastForkR = params->track->spurroad[i]; // 出现符合要求的分岔点后改为补一条直线到分岔点+进入EXITING状态
                                 lastForkR.slope = 1;                    //
                                 step = Step::EXIT;
                                 counterFork = 0;
@@ -275,7 +275,7 @@ bool FsmFork::handle(Mat &img, int type)
                          kkk++)
                     {
 
-                        if (params->track->pointsEdgeLeft[kkk].y > 3) // 找到第一个左侧贴边白点
+                        if (params->track->pointsEdgeLeft[kkk].y > 3) // 找到第一个 左侧贴边白点
                         {
                             x_end = kkk;
                             break;
@@ -285,8 +285,8 @@ bool FsmFork::handle(Mat &img, int type)
                     PointX midPoint1;
                     PointX midPoint2;
                     PointX endPoint = params->track->pointsEdgeLeft[x_end]; // 补线：终点
-                    midPoint1 = PointX(endPoint.x + 10, startPoint.y - 30); // 补线：中点1
-                    midPoint2 = PointX(ROWSIMAGE - 30, startPoint.y - 15);  // 补线：中点2
+                    midPoint1 = PointX(endPoint.x + 10, startPoint.y - 30); // 补线：中点
+                    midPoint2 = PointX(ROWSIMAGE - 30, startPoint.y - 15);  // 补线：中点
                     vector<PointX> input = {startPoint, midPoint2, midPoint1, endPoint};
                     vector<PointX> b_modify = Bezier(0.01, input);
                     params->track->pointsEdgeRight.resize(0);
@@ -330,8 +330,8 @@ bool FsmFork::handle(Mat &img, int type)
                 else
                     break;
             }
-            PointX Right_Fillet_DOWN; // 左上圆弧拐点    对于圆弧拐点，slope代表其index而不是斜率
-            PointX leftFilletDown;    // 左下圆弧拐点
+            PointX Right_Fillet_DOWN; // 左上圆弧点        对于圆弧拐点，slope代表其index而不是斜率
+            PointX leftFilletDown;    // 左下圆弧点
             bool lastLFlag = false;
             bool lastRFlag = false;
             Right_Fillet_DOWN.slope = 0; // 初始化index
@@ -349,14 +349,14 @@ bool FsmFork::handle(Mat &img, int type)
                 lastRFlag = true;
             }
             if (lastLFlag && lastRFlag && StickL > 30 && StickR > 30)
-            { // 俩点都找不到时
+            { // 俩点都找不到了
                 step = Step::EXIT;
                 counterFork = 0;
                 return true;
             }
             if (!lastLFlag && !lastRFlag && leftFilletDown.slope > 10 && Right_Fillet_DOWN.slope > 10 && !repairing)
             { // 距离弯道距离相对较远，先补直线便于接近
-                // 将拐点上方使用直线进行补线
+                // 将拐点上方使用直线进行补齐
                 double k = gradientCal(leftFilletDown, params->track->pointsEdgeLeft[leftFilletDown.slope - 10]);
                 double b = leftFilletDown.y - k * leftFilletDown.x;
                 for (int i = leftFilletDown.slope; i < params->track->pointsEdgeLeft.size(); i++)
@@ -387,8 +387,8 @@ bool FsmFork::handle(Mat &img, int type)
                 PointX midPoint1;
                 PointX midPoint2;
                 PointX endPoint = PointX(x_end, leftFilletDown.y);        // 补线：终点
-                midPoint1 = PointX(endPoint.x, startPoint.y - 30);        // 补线：中点1
-                midPoint2 = PointX(startPoint.x - 30, startPoint.y - 15); // 补线：中点2
+                midPoint1 = PointX(endPoint.x, startPoint.y - 30);        // 补线：中点
+                midPoint2 = PointX(startPoint.x - 30, startPoint.y - 15); // 补线：中点
                 vector<PointX> input = {startPoint, midPoint2, midPoint1, endPoint};
                 vector<PointX> b_modify = Bezier(0.01, input);
                 params->track->pointsEdgeRight.resize(Right_Fillet_DOWN.slope);
@@ -462,7 +462,7 @@ bool FsmFork::handle(Mat &img, int type)
                 {
                     if (params->track->spurroad[i].x > ROWSIMAGE / 3 && params->track->spurroad[i].y > COLSIMAGE / 3)
                     {
-                        lastForkR = params->track->spurroad[i]; // 出现符合要求的分岔点后改为补一条直线到分岔点进入EXITING状态
+                        lastForkR = params->track->spurroad[i]; // 出现符合要求的分岔点后改为补一条直线到分岔点+进入EXITING状态
                         lastForkR.slope = 1;
                         break;
                     }
@@ -550,8 +550,8 @@ bool FsmFork::handle(Mat &img, int type)
                 PointX midPoint1;
                 PointX midPoint2;
                 PointX endPoint = PointX(x_end, leftFilletDown.y);        // 补线：终点
-                midPoint1 = PointX(endPoint.x, startPoint.y - 30);        // 补线：中点1
-                midPoint2 = PointX(startPoint.x - 30, startPoint.y - 15); // 补线：中点2
+                midPoint1 = PointX(endPoint.x, startPoint.y - 30);        // 补线：中点
+                midPoint2 = PointX(startPoint.x - 30, startPoint.y - 15); // 补线：中点
                 vector<PointX> input = {startPoint, midPoint2, midPoint1, endPoint};
                 vector<PointX> b_modify = Bezier(0.01, input); // 拟定右边第一段补线
                 // 对右边界进行处理
@@ -571,7 +571,7 @@ bool FsmFork::handle(Mat &img, int type)
                 // 接下来进行尾端处理
                 vector<PointX> repair0;
                 repair0.push_back(endPoint);
-                bool LeftPushRightFlag = false; // 使用是否有左侧点加入右侧点判断是否使用另一种补线方式
+                bool LeftPushRightFlag = false; // 使用是否有左侧点加入右侧点判断是否使用另一种补线方法
                 for (int i = params->track->pointsEdgeLeft.size() - 1; i > leftFilletDown.slope; i--)
                 { // 将左侧有效点加入
                     if (params->track->pointsEdgeLeft[i].y > 5)
@@ -644,7 +644,7 @@ bool FsmFork::handle(Mat &img, int type)
                     int sizeLNow = params->track->pointsEdgeLeft.size();
                     params->track->pointsEdgeLeft.resize(params->track->pointsEdgeRight[0].x - TempPoint.x + 1);
                     for (int i = sizeLNow; i < params->track->pointsEdgeLeft.size(); i++)
-                    { // 如果有左侧点被错误补充
+                    { // 如果有左侧点被错误补出
                         if (params->track->pointsEdgeLeft[i].x == 0)
                         {
                             params->track->pointsEdgeLeft[i].x = params->track->pointsEdgeLeft[i - 1].x - 1;
@@ -656,11 +656,11 @@ bool FsmFork::handle(Mat &img, int type)
                     params->track->pointsEdgeRight.resize(params->track->pointsEdgeRight[0].x - TempPoint.x + 1);                   // 类似种树问题，从0开始到index结束
                     for (int i = sizeRNow - 1; i < sizeRNow + deltaPoint; i++)                                                      // 如果有右侧点被错误补充，先进行初始处理
                     {
-                        params->track->pointsEdgeRight[i].y = params->track->pointsEdgeRight[sizeRNow - 1].y; // 暂时先使用最后一个点的y值把所有（0，）补充
+                        params->track->pointsEdgeRight[i].y = params->track->pointsEdgeRight[sizeRNow - 1].y; // 暂时先使用最后一个点的y值把所有（0，0）补齐
                         params->track->pointsEdgeRight[i].x = params->track->pointsEdgeRight[sizeRNow - 1].x - i + sizeRNow - 1;
                     }
-                    params->track->handle(true, params->track->pointsEdgeRight[0].x - TempPoint.x + 1); // 可能出现多点的情况，补充了一部分(0，)点
-                    // 对这部分(0，)点进行重新定位
+                    params->track->handle(true, params->track->pointsEdgeRight[0].x - TempPoint.x + 1); // 可能出现多点的情况，补充了一部分（0，0）
+                    // 对这部分(0，0)点进行重新定位
                     double k = gradientCal(params->track->pointsEdgeRight[sizeRNow - 1], params->track->pointsEdgeRight[sizeRNow - 1 + deltaPoint]);
                     double b = params->track->pointsEdgeRight[sizeRNow - 1].y - k * params->track->pointsEdgeRight[sizeRNow - 1].x;
                     for (int i = sizeRNow - 1; i < sizeRNow - 1 + deltaPoint; i++)
@@ -712,7 +712,7 @@ bool FsmFork::handle(Mat &img, int type)
  */
 PointX FsmFork::searchFilletLeftUp(vector<PointX> pointsEdgeLeft, PointX leftFilletDown)
 {
-    PointX leftFilletUp; // 左上圆弧拐点
+    PointX leftFilletUp; // 左上圆弧点
     leftFilletUp.slope = 0;
     for (int i = leftFilletDown.slope + 10; i < pointsEdgeLeft.size() - 2; i++)
     {
@@ -738,8 +738,8 @@ PointX FsmFork::searchFilletLeftUp(vector<PointX> pointsEdgeLeft, PointX leftFil
  */
 PointX FsmFork::searchFilletLeftDown(vector<PointX> pointsEdgeLeft, vector<PointX> pointsEdgeRight, int rowsEnd, bool straightSideJudge)
 {
-    // 先找到左侧道路上下直道段上下直道点 /  对于圆弧拐点，slope代表其index而不是斜率
-    PointX leftFilletDown; // 左下圆弧拐点
+    // 先找到左侧道路上下直道段上下直道段//  对于圆弧拐点，slope代表其index而不是斜率
+    PointX leftFilletDown; // 左下圆弧点
     leftFilletDown.slope = 0;
     if (rowsEnd == -1 || rowsEnd > pointsEdgeLeft.size() - 4)
     {
@@ -800,8 +800,8 @@ PointX FsmFork::searchFilletLeftDown(vector<PointX> pointsEdgeLeft, vector<Point
  */
 PointX FsmFork::searchFilletRightDown(vector<PointX> pointsEdgeRight, vector<PointX> pointsEdgeLeft, int rowsEnd, bool straightSideJudge)
 {
-    // 先找到左侧道路上下直道段上下直道点 /  对于圆弧拐点，slope代表其index而不是斜率
-    PointX Right_Fillet_DOWN; // 左下圆弧拐点
+    // 先找到左侧道路上下直道段上下直道段//  对于圆弧拐点，slope代表其index而不是斜率
+    PointX Right_Fillet_DOWN; // 左下圆弧点
     Right_Fillet_DOWN.slope = 0;
     if (rowsEnd == -1 || rowsEnd > pointsEdgeRight.size() - 4)
     {
@@ -853,7 +853,7 @@ PointX FsmFork::searchFilletRightDown(vector<PointX> pointsEdgeRight, vector<Poi
 };
 
 /**
- * @brief 搜索左侧贴边点数量函数，可设定起始和终止行
+ * @brief 搜索左侧贴边点数量函数，可设定起始和终止点
  *
  * @param pointsEdgeLeft
  * @param StartLine
@@ -878,7 +878,7 @@ int FsmFork::countFormerStickpointL(vector<PointX> pointsEdgeLeft, int StartLine
 }
 
 /**
- * @brief 搜索右侧贴边点数量函数，可设定起始和终止行
+ * @brief 搜索右侧贴边点数量函数，可设定起始和终止点
  *
  * @param pointsEdgeRight
  * @param StartLine

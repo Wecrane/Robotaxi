@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 ********************************************************************************************************
 *                                              EXAMPLE CODE
 *
@@ -44,7 +44,7 @@ typedef enum { false = 0,true = 1} bool;
 #define MEM_ADDR(addr)  *((volatile unsigned long  *)(addr)) 
 #define BIT_ADDR(addr, bitnum)   MEM_ADDR(BITBAND(addr, bitnum)) 
 
-//IO¿ÚµØÖ·Ó³Éä
+//IOå£åœ°å€æ˜ å°„
 #define GPIOA_ODR_Addr    (GPIOA_BASE+12) //0x4001080C 
 #define GPIOB_ODR_Addr    (GPIOB_BASE+12) //0x40010C0C 
 #define GPIOC_ODR_Addr    (GPIOC_BASE+12) //0x4001100C 
@@ -52,14 +52,14 @@ typedef enum { false = 0,true = 1} bool;
 #define GPIOB_IDR_Addr    (GPIOB_BASE+8) //0x40010C08 
 #define GPIOC_IDR_Addr    (GPIOC_BASE+8) //0x40011008 
 
-//IO¿Ú²Ù×÷,Ö»¶Ôµ¥Ò»µÄIO¿Ú!
-//È·±£nµÄÖµĞ¡ÓÚ16!
-#define PAout(n)   BIT_ADDR(GPIOA_ODR_Addr,n)  //Êä³ö 
-#define PAin(n)    BIT_ADDR(GPIOA_IDR_Addr,n)  //ÊäÈë 
-#define PBout(n)   BIT_ADDR(GPIOB_ODR_Addr,n)  //Êä³ö 
-#define PBin(n)    BIT_ADDR(GPIOB_IDR_Addr,n)  //ÊäÈë 
-#define PCout(n)   BIT_ADDR(GPIOC_ODR_Addr,n)  //Êä³ö 
-#define PCin(n)    BIT_ADDR(GPIOC_IDR_Addr,n)  //ÊäÈë 
+//IOå£æ“ä½œ,åªå¯¹å•ä¸€çš„IOå£!
+//ç¡®ä¿nçš„å€¼å°äº16!
+#define PAout(n)   BIT_ADDR(GPIOA_ODR_Addr,n)  //è¾“å‡º 
+#define PAin(n)    BIT_ADDR(GPIOA_IDR_Addr,n)  //è¾“å…¥ 
+#define PBout(n)   BIT_ADDR(GPIOB_ODR_Addr,n)  //è¾“å‡º 
+#define PBin(n)    BIT_ADDR(GPIOB_IDR_Addr,n)  //è¾“å…¥ 
+#define PCout(n)   BIT_ADDR(GPIOC_ODR_Addr,n)  //è¾“å‡º 
+#define PCin(n)    BIT_ADDR(GPIOC_IDR_Addr,n)  //è¾“å…¥ 
 
 typedef union 
 {

@@ -286,7 +286,7 @@ void ManualControlThread::receiveCommands() {
         // Update contact time
         lastContact = std::chrono::steady_clock::now();
 
-        // 按换行符分割处理（解决TCP粘包问题）
+        // 按换行符分割处理（解决TCP粘包）
         size_t pos;
         while ((pos = lineBuf.find('\n')) != std::string::npos) {
             std::string cmd = lineBuf.substr(0, pos + 1);  // 包含\n
@@ -354,7 +354,6 @@ void ManualControlThread::checkTimeout() {
         if (elapsed > 30000) { // 30 seconds timeout
             printf("[Manual] Connection timeout, returning to auto mode\n");
             emergencyStop();
-            manualControl.returnAuto = true; // [P1-5] 通知主循环结束手动接管
             connected = false;
         }
     }

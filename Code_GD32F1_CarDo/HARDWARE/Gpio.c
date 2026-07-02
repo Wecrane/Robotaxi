@@ -1,15 +1,15 @@
-#include "gpio.h"
+﻿#include "gpio.h"
 /*
 ********************************************************************************************************
-*                                               ʾ������
+*                                               示例代码
 *                                             EXAMPLE  CODE                                             
 *
 *                             (c) Copyright 2021; SaiShu.Lcc.; Leo
-*                                 ��Ȩ����[��������Ƽ����޹�˾]
+*                                 版权所属[北京赛曙科技有限公司]
 *
-*               The code is for internal use only, not for commercial transactions(��Դѧϰ,��������).
-*               The code ADAPTS the corresponding hardware circuit board(����ʹ��CarDo�ǿذ�), 
-*               the specific details consult the professional(��ӭ��ϵ����).
+*               The code is for internal use only, not for commercial transactions(开源学习,请勿商用).
+*               The code ADAPTS the corresponding hardware circuit board(代码使用CarDo智控板), 
+*               the specific details consult the professional(欢迎联系我们).
 *********************************************************************************************************
 */
 
@@ -17,11 +17,11 @@ GpioStruct gpioStr;
 BuzzerStruct buzzerStr;
 
 /**
-* @brief        GPIO�����ʼ��
+* @brief        GPIO外设初始化
 * @param        
 * @ref          
 * @author       Leo
-* @note         ���裺������ x1  ״̬LED x1  �������� x1
+* @note         外设：蜂鸣器 x1  状态LED x1  按键输入 x1
 **/
 void GPIO_Initialize(void)
 {
@@ -29,7 +29,7 @@ void GPIO_Initialize(void)
     EXTI_InitTypeDef  EXTI_InitStructure;
     NVIC_InitTypeDef  NVIC_InitStructure;
 	
-    //������IO��ʼ��
+    //蜂鸣器IO初始化
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;	
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
@@ -37,7 +37,7 @@ void GPIO_Initialize(void)
     GPIO_Init(GPIOA, &GPIO_InitStructure);
     GPIO_ResetBits(GPIOA,GPIO_Pin_3);
 
-    //LED��IO��ʼ��
+    //LED灯IO初始化
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
@@ -45,13 +45,13 @@ void GPIO_Initialize(void)
     GPIO_Init(GPIOB, &GPIO_InitStructure);
     GPIO_ResetBits(GPIOB,GPIO_Pin_12);
     
-    //����IO��ʼ��
+    //按键IO初始化
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_AFIO, ENABLE);
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
     GPIO_EXTILineConfig(GPIO_PortSourceGPIOA,GPIO_PinSource2);
-    //ʹ�ܰ����ⲿ�ж�
+    //使能按键外部中断
     EXTI_InitStructure.EXTI_Line    = EXTI_Line2;
     EXTI_InitStructure.EXTI_Mode    = EXTI_Mode_Interrupt;
     EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
@@ -72,10 +72,10 @@ void GPIO_Initialize(void)
 }
 
 
-//----------------------------------------------[UNIT-���������������ж�]----------------------------------------------------------
+//----------------------------------------------[UNIT-按键及数字输入中断]----------------------------------------------------------
 
 /**
-* @brief        ����A�ж���Ӧ����
+* @brief        按键A中断响应函数
 * @param        
 * @ref          
 * @author       Leo
@@ -85,18 +85,14 @@ void EXTI2_IRQHandler(void)
 {
     if(EXTI_GetITStatus(EXTI_Line2)==1)	 		
     {				 
-        if(gpioStr.KeyDebounce == 0)		// [P3-4] 消抖冷却中则忽略
+        if(!GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_2))	//按键按下
         {
-            gpioStr.KeyDebounce = 30;		// [P3-4] 30ms冷却窗口
-            if(!GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_2))	//按键按下
-            {
-                gpioStr.KeyPress = true;
-                GPIO_BuzzerEnable(BuzzerDing);
-            }
-            else	//按键释放
-            {
-                gpioStr.KeyPress = false;
-            }
+            gpioStr.KeyPress = true;
+            GPIO_BuzzerEnable(BuzzerDing);
+        }
+        else	//按键弹起
+        {
+            gpioStr.KeyPress = false;
         }
     }
     EXTI_ClearITPendingBit(EXTI_Line2);
@@ -108,7 +104,7 @@ void EXTI2_IRQHandler(void)
 
 
 /**
-* @brief        GPIO�߳̿�����
+* @brief        GPIO线程控制器
 * @param        
 * @ref          
 * @author       Leo
@@ -125,10 +121,6 @@ void GPIO_Timer(void)
             buzzerStr.Counter = buzzerStr.Cut;
     }
     
-    //按键消抖计数器递减 [P3-4]
-    if(gpioStr.KeyDebounce > 0)
-        gpioStr.KeyDebounce--;
-    
     //LED闪烁
     gpioStr.CounterLed++;
 }
@@ -136,7 +128,7 @@ void GPIO_Timer(void)
 
 
 /**
-* @brief        GPIO�߼���������
+* @brief        GPIO逻辑处理函数
 * @param        
 * @ref          
 * @author       Leo
@@ -144,7 +136,7 @@ void GPIO_Timer(void)
 **/
 void GPIO_Handle(void)
 {
-    //����������
+    //蜂鸣器控制
     if(buzzerStr.Enable && !buzzerStr.Silent)
     {
         if(buzzerStr.Times<=0)
@@ -163,7 +155,7 @@ void GPIO_Handle(void)
     else
         BUZZER_OFF;
     
-    //LED����
+    //LED控制
     if(gpioStr.CounterLed > 100)	    //100ms
     {
         LED_REV;
@@ -173,8 +165,8 @@ void GPIO_Handle(void)
 
 
 /**
-* @brief        ������ʹ��
-* @param        buzzer������������ģʽ
+* @brief        蜂鸣器使能
+* @param        buzzer：蜂鸣器工作模式
 * @ref          
 * @author       Leo
 * @note         

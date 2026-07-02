@@ -209,11 +209,11 @@ Step 4: 制作SD卡 → SDFormatter格式化 → USB Image Tool Restore → 插�
 
 | 项目     | 详情                                               |
 | -------- | -------------------------------------------------- |
-| 板卡IP   | **10.25.139.199**（静态）                          |
-| 电脑IP   | **10.25.139.188**（手动设置）                      |
+| 板卡IP   | **192.168.137.199**（静态）                        |
+| 电脑IP   | **192.168.137.1**（手动设置）                      |
 | SSH      | root/root，端口22                                  |
-| VNC      | 10.25.139.199:5902，密码root                       |
-| Samba    | \\10.25.139.199\root\root\workspace                |
+| VNC      | 192.168.137.199:5902，密码root                     |
+| Samba    | \\192.168.137.199\root\root\workspace              |
 | 预装软件 | OpenCV, CMake, GCC/G++, Python3, VNC Server, Samba |
 | SD卡推荐 | 闪迪64GB，Class10/UHS-I                            |
 
@@ -222,7 +222,7 @@ Step 4: 制作SD卡 → SDFormatter格式化 → USB Image Tool Restore → 插�
 | 维度      |    EMMC（出厂）     |      SD卡（⭐推荐）       |
 | --------- | :-----------------: | :-----------------------: |
 | root权限  | ❌ 仅sudo edgeboard |        ✅ 直接root        |
-| 静态IP    |     ❌ 需手动配     |  ✅ 已预设10.25.139.199   |
+| 静态IP    |     ❌ 需手动配     | ✅ 已预设192.168.137.199  |
 | VNC/Samba |      ❌ 未配置      |         ✅ 已配置         |
 | 备份恢复  |       ❌ 困难       | ✅ USB Image Tool直接备份 |
 
@@ -232,18 +232,18 @@ Step 4: 制作SD卡 → SDFormatter格式化 → USB Image Tool Restore → 插�
 
 ### 6.1 连接方式
 
-| 方式      | 地址                                  | 用途            |
-| --------- | ------------------------------------- | --------------- |
-| SSH       | `ssh root@10.25.139.199`              | 终端命令        |
-| VNC       | `10.25.139.199:5902`                  | 远程桌面        |
-| Samba     | `\\10.25.139.199\root\root\workspace` | VS Code文件编辑 |
-| MobaXterm | （可选）                              | 集成SSH+SFTP    |
+| 方式      | 地址                                    | 用途            |
+| --------- | --------------------------------------- | --------------- |
+| SSH       | `ssh root@192.168.137.199`              | 终端命令        |
+| VNC       | `192.168.137.199:5902`                  | 远程桌面        |
+| Samba     | `\\192.168.137.199\root\root\workspace` | VS Code文件编辑 |
+| MobaXterm | （可选）                                | 集成SSH+SFTP    |
 
 ### 6.2 推荐工作流程
 
 ```
 代码编辑: VS Code → Samba挂载 → 保存自动同步到小车
-程序运行: 终端 ssh root@10.25.139.199 → cd build → ./icar
+程序运行: 终端 ssh root@192.168.137.199 → cd build → ./icar
 文件传输: Samba拖拽 或 scp命令
 ```
 
@@ -781,19 +781,19 @@ SERVO_SetPwmValueCorrect(servoStr.thresholdMiddle);
 
 ### EdgeBoard板卡
 
-| 服务      | 地址/端口                           | 账号/密码   |
-| --------- | ----------------------------------- | ----------- |
-| 板卡IP    | 10.25.139.199                       | —           |
-| SSH       | 端口22                              | root / root |
-| VNC       | 10.25.139.199:5902                  | root / root |
-| Samba     | \\10.25.139.199\root\root\workspace | root / root |
-| EMMC sudo | —                                   | edgeboard   |
+| 服务      | 地址/端口                             | 账号/密码   |
+| --------- | ------------------------------------- | ----------- |
+| 板卡IP    | 192.168.137.199                       | —           |
+| SSH       | 端口22                                | root / root |
+| VNC       | 192.168.137.199:5902                  | root / root |
+| Samba     | \\192.168.137.199\root\root\workspace | root / root |
+| EMMC sudo | —                                     | edgeboard   |
 
 ### 电脑配置
 
 | 项目     | 值            |
 | -------- | ------------- |
-| IP       | 10.25.139.188 |
+| IP       | 192.168.137.1 |
 | 子网掩码 | 255.255.255.0 |
 
 ### 百度平台

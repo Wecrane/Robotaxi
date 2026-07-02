@@ -1,28 +1,28 @@
-#ifndef __PID_H
+ï»¿#ifndef __PID_H
 #define __PID_H	
 
 
 #include "main.h"
 
 /******************************************************************************/
-#define VV_DEADLINE 		    2						//ËÙ¶ÈPID£¬ÉèÖÃËÀÇø·¶Î§£¬Ïû¶¶£¬¾²Ö¹Ç¿Ó²³Ì¶È
-#define PID_VKP					1.6f					//PID±ê¶¨Öµ
-#define PID_VKI					0.5f					//PID±ê¶¨Öµ
-#define PID_VKD					0.02f					//PID±ê¶¨Öµ
+#define VV_DEADLINE 		    2						//é€Ÿåº¦PIDï¼Œè®¾ç½®æ­»åŒºèŒƒå›´ï¼Œæ¶ˆæŠ–ï¼Œé™æ­¢å¼ºç¡¬ç¨‹åº¦
+#define PID_VKP					1.6f					//PIDæ ‡å®šå€¼
+#define PID_VKI					0.5f					//PIDæ ‡å®šå€¼
+#define PID_VKD					0.02f					//PIDæ ‡å®šå€¼
 
 /**
-* @brief    PIDÏà¹Ø
+* @brief    PIDç›¸å…³
 **/
 typedef struct 
 {
-	float vi_Ref;        	            //ËÙ¶ÈPID£¬ËÙ¶ÈÉè¶¨Öµ
-	float vi_FeedBack;                  //ËÙ¶ÈPID£¬ËÙ¶È·´À¡Öµ
-    float vi_PreError;	 	            //ËÙ¶ÈPID£¬ËÙ¶ÈÎó²î,vi_Ref - vi_FeedBack
-	float vi_PreDerror; 	            //ËÙ¶ÈPID£¬Ç°Ò»´Î£¬ËÙ¶ÈÎó²îÖ®²î£¬d_error-PreDerror;
-	float v_Kp;	 		 			    //±ÈÀıÏµÊı£¬Kp = Kp
-	float v_Ki;		 				    //»ı·ÖÏµÊı£¬Ki = Kp * ( T / Ti )
-	float v_Kd;		 				    //Î¢·ÖÏµÊı£¬Kd = KP * Td * T
-	float vl_PreU; 				        //PIDÊä³öÖµ
+	float vi_Ref;        	            //é€Ÿåº¦PIDï¼Œé€Ÿåº¦è®¾å®šå€¼
+	float vi_FeedBack;                  //é€Ÿåº¦PIDï¼Œé€Ÿåº¦åé¦ˆå€¼
+    float vi_PreError;	 	            //é€Ÿåº¦PIDï¼Œé€Ÿåº¦è¯¯å·®,vi_Ref - vi_FeedBack
+	float vi_PreDerror; 	            //é€Ÿåº¦PIDï¼Œå‰ä¸€æ¬¡ï¼Œé€Ÿåº¦è¯¯å·®ä¹‹å·®ï¼Œd_error-PreDerror;
+	float v_Kp;	 		 			    //æ¯”ä¾‹ç³»æ•°ï¼ŒKp = Kp
+	float v_Ki;		 				    //ç§¯åˆ†ç³»æ•°ï¼ŒKi = Kp * ( T / Ti )
+	float v_Kd;		 				    //å¾®åˆ†ç³»æ•°ï¼ŒKd = KP * Td * T
+	float vl_PreU; 				        //PIDè¾“å‡ºå€¼
 }PIDStruct;
 
 extern PIDStruct pidStr;

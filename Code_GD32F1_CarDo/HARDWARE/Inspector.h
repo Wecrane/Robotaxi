@@ -1,4 +1,4 @@
-#ifndef __INSPECTOR_H__
+ï»¿#ifndef __INSPECTOR_H__
 #define __INSPECTOR_H__
 
 /*-----------------------------------------  I N C L U D E S  -----------------------------------------*/
@@ -9,9 +9,9 @@
 **/
 typedef struct 
 {
-    bool enable;                //¼à²âÈí¼şÁ¬½ÓÊ¹ÄÜ
-    uint16_t counterDrop;       //µôÏß¼ÆÊıÆ÷    
-    uint16_t counterSend;       //·¢ËÍÊı¾İ¼ÆÊıÆ÷
+    bool enable;                //ç›‘æµ‹è½¯ä»¶è¿æ¥ä½¿èƒ½
+    uint16_t counterDrop;       //æ‰çº¿è®¡æ•°å™¨    
+    uint16_t counterSend;       //å‘é€æ•°æ®è®¡æ•°å™¨
 }InspectorStr;
 
 extern InspectorStr inspectorStructure;

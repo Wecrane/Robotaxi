@@ -1,11 +1,11 @@
-#include "Inspector.h"
+ï»¿#include "Inspector.h"
 
 
 UsbStruct usbInspector;
 InspectorStr inspectorStructure;
 
 /**
-* @brief        USB/UART³õÊ¼»¯
+* @brief        USB/UARTåˆå§‹åŒ–
 * @param        
 * @ref          
 * @author       Leo
@@ -13,30 +13,30 @@ InspectorStr inspectorStructure;
 **/
 void USB_Inspector_Init(void)
 {  
-    //UART2³õÊ¼»¯
+    //UART2åˆå§‹åŒ–
     USART_InitTypeDef USART_InitStructure;
     GPIO_InitTypeDef GPIO_InitStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
-    //PA2,PA3 ¸´ÓÃIO¿Ú¹¦ÄÜÓÃÓÚÅäÖÃ´®¿Ú¡£Òò´ËÒªÊ¹ÄÜAFIO£¨¸´ÓÃ¹¦ÄÜIO£©Ê±ÖÓ¡£
+    //PA2,PA3 å¤ç”¨IOå£åŠŸèƒ½ç”¨äºé…ç½®ä¸²å£ã€‚å› æ­¤è¦ä½¿èƒ½AFIOï¼ˆå¤ç”¨åŠŸèƒ½IOï¼‰æ—¶é’Ÿã€‚
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE); 
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);	
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
   
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;		//¸¡¿ÕÊäÈëÄ£Ê½	   
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;		//æµ®ç©ºè¾“å…¥æ¨¡å¼	   
     GPIO_Init(GPIOA, &GPIO_InitStructure);					 
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;			  	//¸´ÓÃÍÆÍìÊä³ö
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;			  	//å¤ç”¨æ¨æŒ½è¾“å‡º
     GPIO_Init(GPIOA, &GPIO_InitStructure);
     
     USART_InitStructure.USART_BaudRate = 115200;	
-    USART_InitStructure.USART_WordLength = USART_WordLength_8b;			//Êı¾İÎ»8Î»
-    USART_InitStructure.USART_StopBits = USART_StopBits_1;					//Í£Ö¹Î»1Î»
-    USART_InitStructure.USART_Parity = USART_Parity_No;							//ÎŞĞ£ÑéÎ»
-    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;  //ÎŞÓ²¼şÁ÷¿Ø
-    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;	//ÊÕ·¢Ä£Ê½
-    USART_Init(USART2, &USART_InitStructure);//ÅäÖÃ´®¿Ú²ÎÊıº¯Êı
+    USART_InitStructure.USART_WordLength = USART_WordLength_8b;			//æ•°æ®ä½8ä½
+    USART_InitStructure.USART_StopBits = USART_StopBits_1;					//åœæ­¢ä½1ä½
+    USART_InitStructure.USART_Parity = USART_Parity_No;							//æ— æ ¡éªŒä½
+    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;  //æ— ç¡¬ä»¶æµæ§
+    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;	//æ”¶å‘æ¨¡å¼
+    USART_Init(USART2, &USART_InitStructure);//é…ç½®ä¸²å£å‚æ•°å‡½æ•°
     USART_Cmd(USART2, ENABLE); 
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
     NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn; 
@@ -44,9 +44,9 @@ void USB_Inspector_Init(void)
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0; 
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
     NVIC_Init(&NVIC_InitStructure); 
-    USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);            			//Ê¹ÄÜ½ÓÊÕÖĞ¶Ï
+    USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);            			//ä½¿èƒ½æ¥æ”¶ä¸­æ–­
         
-    //USBÊı¾İ³õÊ¼»¯
+    //USBæ•°æ®åˆå§‹åŒ–
     usbInspector.counter = 0;
     usbInspector.receiveFinished = false;
     usbInspector.receiveStart = false;
@@ -54,7 +54,7 @@ void USB_Inspector_Init(void)
 }
 
 /**
-* @brief        USB-TypeC(¼à²âÈí¼ş)·¢ËÍÒ»¸ö×Ö½Ú
+* @brief        USB-TypeC(ç›‘æµ‹è½¯ä»¶)å‘é€ä¸€ä¸ªå­—èŠ‚
 * @param        
 * @ref          
 * @author       Leo
@@ -64,12 +64,12 @@ void USB_Inspector_TransmitByte(uint8_t data)
 {
     USART2->SR;           
     USART_SendData(USART2, data);
-    while(USART_GetFlagStatus(USART2,USART_FLAG_TC) != SET);	//µÈ´ı·¢ËÍ½áÊø
+    while(USART_GetFlagStatus(USART2,USART_FLAG_TC) != SET);	//ç­‰å¾…å‘é€ç»“æŸ
 }
 
 
 /**
-* @brief        USB/UART½ÓÊÕÖĞ¶Ïº¯Êı
+* @brief        USB/UARTæ¥æ”¶ä¸­æ–­å‡½æ•°
 * @param        
 * @ref          
 * @author       Leo
@@ -81,19 +81,19 @@ void USART2_IRQHandler(void)
     if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
     {   
         Uart1Res = USART_ReceiveData(USART2); 
-        if(Uart1Res == USB_FRAME_HEAD && !usbInspector.receiveStart)//¼à²âÖ¡Í·
+        if(Uart1Res == USB_FRAME_HEAD && !usbInspector.receiveStart)//ç›‘æµ‹å¸§å¤´
         {
             usbInspector.receiveStart = true;
             usbInspector.receiveBuff[0] = Uart1Res;
             usbInspector.receiveBuff[2] = USB_FRAME_LENMIN;
             usbInspector.receiveIndex = 1;
         }
-        else if(usbInspector.receiveIndex == 2)	//½ÓÊÕÖ¡³¤¶È
+        else if(usbInspector.receiveIndex == 2)	//æ¥æ”¶å¸§é•¿åº¦
         {
             usbInspector.receiveBuff[usbInspector.receiveIndex] = Uart1Res;
             usbInspector.receiveIndex++;
             
-            if(Uart1Res > USB_FRAME_LENMAX || Uart1Res < USB_FRAME_LENMIN) //Ö¡³¤´íÎó
+            if(Uart1Res > USB_FRAME_LENMAX || Uart1Res < USB_FRAME_LENMIN) //å¸§é•¿é”™è¯¯
             {
                 usbInspector.receiveBuff[2] = USB_FRAME_LENMIN;
                 usbInspector.receiveIndex = 0;
@@ -106,7 +106,7 @@ void USART2_IRQHandler(void)
             usbInspector.receiveIndex++;
         }
         
-        //½ÓÊÕÖ¡Íê±Ï
+        //æ¥æ”¶å¸§å®Œæ¯•
         if((usbInspector.receiveIndex >= USB_FRAME_LENMAX || usbInspector.receiveIndex >= usbInspector.receiveBuff[2]) && usbInspector.receiveIndex > USB_FRAME_LENMIN)
         {
             uint8_t check = 0;
@@ -116,12 +116,12 @@ void USART2_IRQHandler(void)
             for(int i=0;i<length-1;i++)
                 check += usbInspector.receiveBuff[i];
             
-            if(check == usbInspector.receiveBuff[length-1])//Ğ£ÑéÎ»
+            if(check == usbInspector.receiveBuff[length-1])//æ ¡éªŒä½
             {
                 memcpy(usbInspector.receiveBuffFinished,usbInspector.receiveBuff,USB_FRAME_LENMAX);	
                 usbInspector.receiveFinished = true;
                 
-                //ÖÇÄÜ³µ¿ØÖÆÖ¸ÁîÌØÊâ´¦Àí
+                //æ™ºèƒ½è½¦æ§åˆ¶æŒ‡ä»¤ç‰¹æ®Šå¤„ç†
                 if(USB_ADDR_CONTROL  == usbInspector.receiveBuffFinished[1])
                 {
                     Bint16_Union bint16_Union;
@@ -134,10 +134,10 @@ void USART2_IRQHandler(void)
                     
                     SERVO_SetPwmValueCorrect(bint16_Union.U16);
                     icarStr.ServoPwmSet = bint16_Union.U16;
-                    if(motorStr.CloseLoop)//±Õ»·ËÙ¿Ø
+                    if(motorStr.CloseLoop)//é—­ç¯é€Ÿæ§
                         icarStr.SpeedSet = bint32_Union.Float;   
                     else
-                        icarStr.SpeedSet = MOTOR_PWM_MAX /100.f*bint32_Union.Float; //¿ª»·£º°Ù·Ö±È%
+                        icarStr.SpeedSet = MOTOR_PWM_MAX /100.f*bint32_Union.Float; //å¼€ç¯ï¼šç™¾åˆ†æ¯”%
                     GPIO_BuzzerEnable(BuzzerOk);
                 }
             }
@@ -153,7 +153,7 @@ void USART2_IRQHandler(void)
 
 
 /**
-* @brief        USBÍ¨ĞÅ´¦Àíº¯Êı
+* @brief        USBé€šä¿¡å¤„ç†å‡½æ•°
 * @param        
 * @ref          
 * @author       Leo
@@ -162,36 +162,36 @@ void USART2_IRQHandler(void)
 void USB_Inspector_Handle(void)
 {
     
-    //-----------------------[Êı¾İ½ÓÊÕ´¦Àí]-----------------------------
-    if(usbInspector.receiveFinished)																//½ÓÊÕ³É¹¦
+    //-----------------------[æ•°æ®æ¥æ”¶å¤„ç†]-----------------------------
+    if(usbInspector.receiveFinished)																//æ¥æ”¶æˆåŠŸ
     {
         usbInspector.receiveFinished = false;
         Bint32_Union bint32_Union;
         Bint16_Union bint16_Union;
            
-        if(usbInspector.receiveBuffFinished[1] & 0x80)	//¶ÁÊı¾İ
+        if(usbInspector.receiveBuffFinished[1] & 0x80)	//è¯»æ•°æ®
         {
             uint8_t Addr = (uint8_t)(usbInspector.receiveBuffFinished[1] & 0x7F);
             switch(Addr)
             {
-                case USB_ADDR_BATTERY :      //µç³ØĞÅÏ¢
+                case USB_ADDR_BATTERY :      //ç”µæ± ä¿¡æ¯
                     break;
                 
-                case USB_ADDR_SERVOTHRESHOLD :   //¶æ»úãĞÖµ
+                case USB_ADDR_SERVOTHRESHOLD :   //èˆµæœºé˜ˆå€¼
                     break;
             }
         }
-        else //Ğ´Êı¾İ
+        else //å†™æ•°æ®
         {
             switch(usbInspector.receiveBuffFinished[1])
             {
-                case USB_ADDR_HEART :    //¼à²âÈí¼şĞÄÌø
+                case USB_ADDR_HEART :    //ç›‘æµ‹è½¯ä»¶å¿ƒè·³
                     inspectorStructure.enable = true;
                     inspectorStructure.counterDrop = 0;
                     break;
                 
-                case USB_ADDR_SERVOTHRESHOLD :   //¶æ»úãĞÖµ
-                    if(usbInspector.receiveBuffFinished[3] == 1)          //×ó×ªãĞÖµ
+                case USB_ADDR_SERVOTHRESHOLD :   //èˆµæœºé˜ˆå€¼
+                    if(usbInspector.receiveBuffFinished[3] == 1)          //å·¦è½¬é˜ˆå€¼
                     {
                         bint16_Union.U8_Buff[0] = usbInspector.receiveBuffFinished[4];
                         bint16_Union.U8_Buff[1] = usbInspector.receiveBuffFinished[5];
@@ -200,7 +200,7 @@ void USB_Inspector_Handle(void)
                         GPIO_BuzzerEnable(BuzzerDing);
                         flashSaveEnable = true;
                     }
-                    else if(usbInspector.receiveBuffFinished[3] == 2)     //ÓÒ×ªãĞÖµ
+                    else if(usbInspector.receiveBuffFinished[3] == 2)     //å³è½¬é˜ˆå€¼
                     {
                         bint16_Union.U8_Buff[0] = usbInspector.receiveBuffFinished[4];
                         bint16_Union.U8_Buff[1] = usbInspector.receiveBuffFinished[5];
@@ -209,7 +209,7 @@ void USB_Inspector_Handle(void)
                         GPIO_BuzzerEnable(BuzzerDing);
                         flashSaveEnable = true;
                     }
-                    else if(usbInspector.receiveBuffFinished[3] == 3)     //ÖĞÖµ
+                    else if(usbInspector.receiveBuffFinished[3] == 3)     //ä¸­å€¼
                     {
                         bint16_Union.U8_Buff[0] = usbInspector.receiveBuffFinished[4];
                         bint16_Union.U8_Buff[1] = usbInspector.receiveBuffFinished[5];
@@ -220,7 +220,7 @@ void USB_Inspector_Handle(void)
                     }
                     break;
                 
-                case USB_ADDR_BUZZER :      //·äÃùÆ÷ÒôĞ§
+                case USB_ADDR_BUZZER :      //èœ‚é¸£å™¨éŸ³æ•ˆ
                     if(usbInspector.receiveBuffFinished[3] == 1)          //OK
                         GPIO_BuzzerEnable(BuzzerOk);
                     else if(usbInspector.receiveBuffFinished[3] == 1)     //Warnning
@@ -234,7 +234,7 @@ void USB_Inspector_Handle(void)
                     
                     break;
                 
-                case USB_ADDR_LIGHT :         //LEDµÆĞ§
+                case USB_ADDR_LIGHT :         //LEDç¯æ•ˆ
                     for(int i=0;i<4;i++)
                         bint32_Union.U8_Buff[i] = usbInspector.receiveBuffFinished[i+3];
                 
@@ -243,8 +243,8 @@ void USB_Inspector_Handle(void)
                 
                     break;
                 
-                case USB_ADDR_SPEEDMODE :        //ËÙ¿ØÄ£Ê½ÇĞ»»
-                    if(usbInspector.receiveBuffFinished[3] == 1)    //¿ª»·Ä£Ê½
+                case USB_ADDR_SPEEDMODE :        //é€Ÿæ§æ¨¡å¼åˆ‡æ¢
+                    if(usbInspector.receiveBuffFinished[3] == 1)    //å¼€ç¯æ¨¡å¼
                         motorStr.CloseLoop = false;                    
                     else
                         motorStr.CloseLoop = true;
@@ -253,7 +253,7 @@ void USB_Inspector_Handle(void)
                     GPIO_BuzzerEnable(BuzzerDing);
                     break;
                     
-                case USB_ADDR_SELFCHECK :     //ÖÇÄÜ³µ×Ô¼ì
+                case USB_ADDR_SELFCHECK :     //æ™ºèƒ½è½¦è‡ªæ£€
                 {
                     ICAR_SelfcheckControl(usbInspector.receiveBuffFinished[3]);
                     break;
@@ -262,7 +262,7 @@ void USB_Inspector_Handle(void)
         }
     }
     
-    //-----------------------[Êı¾İ·¢ËÍ´¦Àí]-----------------------------
+    //-----------------------[æ•°æ®å‘é€å¤„ç†]-----------------------------
     if(inspectorStructure.enable && inspectorStructure.counterSend > 150)//150ms
     {
         USB_SendToInspector_ServoThreshold(1);
@@ -281,7 +281,7 @@ void USB_Inspector_Handle(void)
 
 
 /**
-* @brief        ¼à²âÈí¼şÏß³Ì¿ØÖÆÆ÷
+* @brief        ç›‘æµ‹è½¯ä»¶çº¿ç¨‹æ§åˆ¶å™¨
 * @param        
 * @ref          
 * @author       Leo
@@ -302,11 +302,11 @@ void USB_Inspector_Timer(void)
     
 }
 
-//----------------------------------------------[UNIT-ÏÂÎ»»úÓë¼à²âÈí¼şÍ¨ĞÅ]----------------------------------------------------------
+//----------------------------------------------[UNIT-ä¸‹ä½æœºä¸ç›‘æµ‹è½¯ä»¶é€šä¿¡]----------------------------------------------------------
 
 /**
-* @brief        ·¢ËÍ¶æ»úãĞÖµ
-* @param        chanel: 1/×ó×ªãĞÖµ£¬2/ÓÒ×ªãĞÖµ£¬3/ÖĞÖµ
+* @brief        å‘é€èˆµæœºé˜ˆå€¼
+* @param        chanel: 1/å·¦è½¬é˜ˆå€¼ï¼Œ2/å³è½¬é˜ˆå€¼ï¼Œ3/ä¸­å€¼
 * @ref          
 * @author       Leo
 * @note         
@@ -319,10 +319,10 @@ void USB_SendToInspector_ServoThreshold(uint8_t chanel)
     Bint16_Union bint16_Union;
     uint8_t check = 0;
     uint8_t buff[9];
-    buff[0] = 0x42; //Ö¡Í·
-    buff[1] = USB_ADDR_SERVOTHRESHOLD ; //µØÖ·
-    buff[2] = 0x07; //Ö¡³¤
-    buff[3] = chanel; //Í¨µÀ
+    buff[0] = 0x42; //å¸§å¤´
+    buff[1] = USB_ADDR_SERVOTHRESHOLD ; //åœ°å€
+    buff[2] = 0x07; //å¸§é•¿
+    buff[3] = chanel; //é€šé“
     
     switch(chanel)
     {
@@ -354,13 +354,13 @@ void USB_SendToInspector_ServoThreshold(uint8_t chanel)
     
     buff[6] = check;
     
-    for(int i=0;i<9;i++)
+    for(int i=0;i<buff[2];i++) //[å®¡æŸ¥ä¿®å¤] æŒ‰LENå‘é€
         USB_Inspector_TransmitByte(buff[i]);
 }
 
 /**
-* @brief        ·¢ËÍ°´¼üÏìÓ¦ĞÅÏ¢
-* @param        time: °´ÏÂÊ±³¤/ms
+* @brief        å‘é€æŒ‰é”®å“åº”ä¿¡æ¯
+* @param        time: æŒ‰ä¸‹æ—¶é•¿/ms
 * @ref          
 * @author       Leo
 * @note         
@@ -373,9 +373,9 @@ void USB_SendToInspector_KeyPress(uint16_t time)
     Bint16_Union bint16_Union;
     uint8_t check = 0;
     uint8_t buff[8];
-    buff[0] = 0x42; //Ö¡Í·
-    buff[1] = USB_ADDR_KEYINPUT ; //µØÖ·
-    buff[2] = 0x06; //Ö¡³¤
+    buff[0] = 0x42; //å¸§å¤´
+    buff[1] = USB_ADDR_KEYINPUT ; //åœ°å€
+    buff[2] = 0x06; //å¸§é•¿
         
     bint16_Union.U16 = time;
     buff[3] = bint16_Union.U8_Buff[0];
@@ -386,13 +386,13 @@ void USB_SendToInspector_KeyPress(uint16_t time)
     
     buff[5] = check;
     
-    for(int i=0;i<8;i++)
+    for(int i=0;i<buff[2];i++) //[å®¡æŸ¥ä¿®å¤] æŒ‰LENå‘é€
         USB_Inspector_TransmitByte(buff[i]);
 }
 
 
 /**
-* @brief        ·¢ËÍµç³ØĞÅÏ¢
+* @brief        å‘é€ç”µæ± ä¿¡æ¯
 * @ref          
 * @author       Leo
 * @note         
@@ -402,11 +402,11 @@ void USB_SendToInspector_BatteryInfo(void)
     Bint32_Union bint32_Union;
     uint8_t check = 0;
     uint8_t buff[11];
-    buff[0] = 0x42; //Ö¡Í·
-    buff[1] = USB_ADDR_BATTERY ; //µØÖ·
-    buff[2] = 0x09; //Ö¡³¤
+    buff[0] = 0x42; //å¸§å¤´
+    buff[1] = USB_ADDR_BATTERY ; //åœ°å€
+    buff[2] = 0x09; //å¸§é•¿
         
-    buff[3] = icarStr.Electricity; //µçÁ¿
+    buff[3] = icarStr.Electricity; //ç”µé‡
     bint32_Union.Float = icarStr.Voltage;
     buff[4] = bint32_Union.U8_Buff[0];
     buff[5] = bint32_Union.U8_Buff[1];
@@ -418,12 +418,12 @@ void USB_SendToInspector_BatteryInfo(void)
     
     buff[8] = check;
     
-    for(int i=0;i<11;i++)
+    for(int i=0;i<buff[2];i++) //[å®¡æŸ¥ä¿®å¤] æŒ‰LENå‘é€
         USB_Inspector_TransmitByte(buff[i]);
 }
 
 /**
-* @brief        ·¢ËÍ×Ô¼ìĞÅÏ¢
+* @brief        å‘é€è‡ªæ£€ä¿¡æ¯
 * @ref          
 * @author       Leo
 * @note         
@@ -433,9 +433,9 @@ void USB_SendToInspector_Selfcheck(uint8_t step)
     Bint16_Union bint16_Union;
     uint8_t check = 0;
     uint8_t buff[9];
-    buff[0] = 0x42; //Ö¡Í·
-    buff[1] = USB_ADDR_SELFCHECK ; //µØÖ·
-    buff[2] = 0x07; //Ö¡³¤
+    buff[0] = 0x42; //å¸§å¤´
+    buff[1] = USB_ADDR_SELFCHECK ; //åœ°å€
+    buff[2] = 0x07; //å¸§é•¿
         
     buff[3] = step;
     
@@ -448,7 +448,7 @@ void USB_SendToInspector_Selfcheck(uint8_t step)
     
     buff[6] = check;
     
-    for(int i=0;i<9;i++)
+    for(int i=0;i<buff[2];i++) //[å®¡æŸ¥ä¿®å¤] æŒ‰LENå‘é€
         USB_Inspector_TransmitByte(buff[i]);
 }
 //------------------------------------------------[END]-------------------------------------------------------------

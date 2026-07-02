@@ -1,33 +1,33 @@
-#include "flash.h"
+ï»¿#include "flash.h"
 /*
 ********************************************************************************************************
-*                                               Ê¾Àı´úÂë
+*                                               ç¤ºä¾‹ä»£ç 
 *                                             EXAMPLE  CODE                                             
 *
 *                             (c) Copyright 2021; SaiShu.Lcc.; Leo
-*                                 °æÈ¨ËùÊô[±±¾©ÈüÊï¿Æ¼¼ÓĞÏŞ¹«Ë¾]
+*                                 ç‰ˆæƒæ‰€å±[åŒ—äº¬èµ›æ›™ç§‘æŠ€æœ‰é™å…¬å¸]
 *
-*               The code is for internal use only, not for commercial transactions(¿ªÔ´Ñ§Ï°,ÇëÎğÉÌÓÃ).
-*               The code ADAPTS the corresponding hardware circuit board(´úÂëÊ¹ÓÃCarDoÖÇ¿Ø°å), 
-*               the specific details consult the professional(»¶Ó­ÁªÏµÎÒÃÇ).
+*               The code is for internal use only, not for commercial transactions(å¼€æºå­¦ä¹ ,è¯·å‹¿å•†ç”¨).
+*               The code ADAPTS the corresponding hardware circuit board(ä»£ç ä½¿ç”¨CarDoæ™ºæ§æ¿), 
+*               the specific details consult the professional(æ¬¢è¿è”ç³»æˆ‘ä»¬).
 *********************************************************************************************************
 */
 
 bool flashSaveEnable = false;
-volatile FLASH_Status FLASHStatus = FLASH_BUSY; // flash×´Ì¬
+volatile FLASH_Status FLASHStatus = FLASH_BUSY; // flashçŠ¶æ€
 
-//ÁÙÊ±´æÈ¡Êı×é
+//ä¸´æ—¶å­˜å–æ•°ç»„
 uint8_t ArrayParams_ForFlash[FLASH_SIZE] = 
 {
-	/*1*/       0x00,0x00,0x00,0x00, 	//[Flag] [¶æ»úÖĞÖµ]
-    /*2*/       0x00,0x00,0x00,0x00, 	//[Flag] [¶æ»ú×ó×ªãĞÖµ]
-    /*3*/       0x00,0x00,0x00,0x00 	//[Flag] [¶æ»úÓÒ×ªãĞÖµ]
+	/*1*/       0x00,0x00,0x00,0x00, 	//[Flag] [èˆµæœºä¸­å€¼]
+    /*2*/       0x00,0x00,0x00,0x00, 	//[Flag] [èˆµæœºå·¦è½¬é˜ˆå€¼]
+    /*3*/       0x00,0x00,0x00,0x00 	//[Flag] [èˆµæœºå³è½¬é˜ˆå€¼]
 };
 
 
 
 /**
-* @brief        ´æ´¢ÏµÍ³ÅäÖÃ£¨È«²¿/ALL£©
+* @brief        å­˜å‚¨ç³»ç»Ÿé…ç½®ï¼ˆå…¨éƒ¨/ALLï¼‰
 * @param        
 * @ref          
 * @author       Leo
@@ -42,19 +42,19 @@ void FLASH_SaveAllConfig(void)
     memset(ArrayParams_ForFlash,0,sizeof(ArrayParams_ForFlash));
     
     /*1*/       buff[0] = FLASH_DATA_OK; 
-                bint16_Union.U16 = servoStr.thresholdMiddle;//¶æ»úÖĞÖµPWM
+                bint16_Union.U16 = servoStr.thresholdMiddle;//èˆµæœºä¸­å€¼PWM
                 buff[1] = bint16_Union.U8_Buff[0];
                 buff[2] = bint16_Union.U8_Buff[1];
                 memcpy(ArrayParams_ForFlash+(i++)*4,buff,4);
     
     /*2*/       buff[0] = FLASH_DATA_OK; 
-                bint16_Union.U16 = servoStr.thresholdLeft;//¶æ»ú×ó×ªãĞÖµ
+                bint16_Union.U16 = servoStr.thresholdLeft;//èˆµæœºå·¦è½¬é˜ˆå€¼
                 buff[1] = bint16_Union.U8_Buff[0];
                 buff[2] = bint16_Union.U8_Buff[1];
                 memcpy(ArrayParams_ForFlash+(i++)*4,buff,4);
     
     /*3*/       buff[0] = FLASH_DATA_OK; 
-                bint16_Union.U16 = servoStr.thresholdRight;//¶æ»úÓÒ×ªãĞÖµ
+                bint16_Union.U16 = servoStr.thresholdRight;//èˆµæœºå³è½¬é˜ˆå€¼
                 buff[1] = bint16_Union.U8_Buff[0];
                 buff[2] = bint16_Union.U8_Buff[1];
                 memcpy(ArrayParams_ForFlash+(i++)*4,buff,4);
@@ -63,7 +63,7 @@ void FLASH_SaveAllConfig(void)
 }
 
 /**
-* @brief        ¼ÓÔØÏµÍ³ÅäÖÃ£¨È«²¿/ALL£©
+* @brief        åŠ è½½ç³»ç»Ÿé…ç½®ï¼ˆå…¨éƒ¨/ALLï¼‰
 * @param        
 * @ref          
 * @author       Leo
@@ -75,10 +75,10 @@ void FLASH_LoadAllConfig(void)
     Bint16_Union bint16_Union;
 	uint8_t buff[4];
     
-    FLASH_ReadFlashNBtye(0,ArrayParams_ForFlash,sizeof(ArrayParams_ForFlash));//¶ÁÈ¡FlashÊı¾İ
+    FLASH_ReadFlashNBtye(0,ArrayParams_ForFlash,sizeof(ArrayParams_ForFlash));//è¯»å–Flashæ•°æ®
     
     /*1*/		memcpy(buff,ArrayParams_ForFlash+(i++)*4,4);
-                if(buff[0] == FLASH_DATA_OK)                //¶æ»úÖĞÖµPWM
+                if(buff[0] == FLASH_DATA_OK)                //èˆµæœºä¸­å€¼PWM
                 {
                     bint16_Union.U8_Buff[0] = buff[1];
                     bint16_Union.U8_Buff[1] = buff[2];
@@ -90,7 +90,7 @@ void FLASH_LoadAllConfig(void)
                 }
                 
     /*2*/		memcpy(buff,ArrayParams_ForFlash+(i++)*4,4);
-                if(buff[0] == FLASH_DATA_OK)                //¶æ»ú×ó×ªãĞÖµ
+                if(buff[0] == FLASH_DATA_OK)                //èˆµæœºå·¦è½¬é˜ˆå€¼
                 {
                     bint16_Union.U8_Buff[0] = buff[1];
                     bint16_Union.U8_Buff[1] = buff[2];
@@ -102,7 +102,7 @@ void FLASH_LoadAllConfig(void)
                 }
                 
     /*3*/		memcpy(buff,ArrayParams_ForFlash+(i++)*4,4);
-                if(buff[0] == FLASH_DATA_OK)                //¶æ»úÓÒ×ªãĞÖµ
+                if(buff[0] == FLASH_DATA_OK)                //èˆµæœºå³è½¬é˜ˆå€¼
                 {
                     bint16_Union.U8_Buff[0] = buff[1];
                     bint16_Union.U8_Buff[1] = buff[2];
@@ -116,8 +116,8 @@ void FLASH_LoadAllConfig(void)
 
 
 /**
-* @brief        ¶ÁÈ¡flashÖĞÖ¸¶¨Î»ÖÃµÄ²ÎÊı
-* @param        *pch ´æ´¢¸ÃÊı¾İµÄ±äÁ¿,iaddr ¸ÃÊı¾İµÄÆ«ÒÆµØÖ·
+* @brief        è¯»å–flashä¸­æŒ‡å®šä½ç½®çš„å‚æ•°
+* @param        *pch å­˜å‚¨è¯¥æ•°æ®çš„å˜é‡,iaddr è¯¥æ•°æ®çš„åç§»åœ°å€
 * @ref          
 * @author       Leo
 * @note         
@@ -129,8 +129,8 @@ void FLASH_ReadSpecifyParam(uint8_t *pch,int iaddr)
 
 
 /**
-* @brief        ÏëÆ¬ÄÚflashĞ´Êı¾İ
-* @param        WriteAddress Æ«ÒÆµØÖ·£¬pbuff Ğ´ÈëÊı¾İÊ×µØÖ·£¬num pbuffµÄ´óĞ¡
+* @brief        æƒ³ç‰‡å†…flashå†™æ•°æ®
+* @param        WriteAddress åç§»åœ°å€ï¼Œpbuff å†™å…¥æ•°æ®é¦–åœ°å€ï¼Œnum pbuffçš„å¤§å°
 * @ref          
 * @author       Leo
 * @note         
@@ -139,7 +139,7 @@ void FLASH_WriteBuffToFlash(int WriteAddress,uint8_t * pbuff,int num)
 {   
     int i = 0;
     uint16_t temp = 0;
-    FLASH_UnlockBank1(); // ½âËøflash
+    FLASH_UnlockBank1(); // è§£é”flash
     FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
 
     FLASHStatus = FLASH_BUSY;
@@ -160,8 +160,8 @@ void FLASH_WriteBuffToFlash(int WriteAddress,uint8_t * pbuff,int num)
 
 
 /**
-* @brief        ´ÓflashÖĞ¶¾Êı¾İ
-* @param        ReadAddress Æ«ÒÆµØÖ·£¬pbuff ´æ´¢Êı¾İÊı×é£¬ReadNum pbuff´óĞ¡
+* @brief        ä»flashä¸­æ¯’æ•°æ®
+* @param        ReadAddress åç§»åœ°å€ï¼Œpbuff å­˜å‚¨æ•°æ®æ•°ç»„ï¼ŒReadNum pbuffå¤§å°
 * @ref          
 * @author       Leo
 * @note         
@@ -185,7 +185,7 @@ void FLASH_ReadFlashNBtye(int ReadAddress, uint8_t *pbuff, int ReadNum)
 
 
 /**
-* @brief        Flash´æÊı¾İ¿ØÖÆ
+* @brief        Flashå­˜æ•°æ®æ§åˆ¶
 * @param        
 * @ref          
 * @author       Leo

@@ -35,6 +35,7 @@ public:
   void run(Mat &img);
   void show(Mat &img);
   FsmMode getMode();
+  void resetLap(); //[修复] 圈数变更时复位状态
 
 private:
   /**

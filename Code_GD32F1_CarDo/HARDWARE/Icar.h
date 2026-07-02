@@ -1,4 +1,4 @@
-#ifndef __SMARTCAR_H__
+ï»¿#ifndef __SMARTCAR_H__
 #define __SMARTCAR_H__
 
 /*-----------------------------------------  I N C L U D E S  -----------------------------------------*/
@@ -8,52 +8,52 @@
 /*---------------------------------------  D E F I N I T I O N  ---------------------------------------*/
 
 /**
-* @brief    ÖÇÄÜ³µ×Ô¼ì²½Öè
+* @brief    æ™ºèƒ½è½¦è‡ªæ£€æ­¥éª¤
 **/
 typedef enum 
 {
-    Selfcheck_None = 0,             //¿ªÊ¼²âÊÔ
-    Selfcheck_MotorA,               //µç»úÕı×ªÆô¶¯
-    Selfcheck_MotorB,               //µç»úÕı×ª²ÉÑù
-    Selfcheck_MotorC,               //µç»ú·´×ªÆô¶¯
-    Selfcheck_MotorD,               //µç»ú·´×ª²ÉÑù
-    Selfcheck_MotorE,               //µç»ú±Õ»·Õı´«Æô¶¯
-    Selfcheck_MotorF,               //µç»ú±Õ»·Õı´«²ÉÑù
-    Selfcheck_MotorG,               //µç»ú±Õ»··´×ªÆô¶¯
-    Selfcheck_MotorH,               //µç»ú±Õ»··´×ª²ÉÑù
-    Selfcheck_ServoA,               //¶æ»ú²âÊÔA
-    Selfcheck_Com,                  //Í¨ĞÅ²âÊÔ
-    Selfcheck_Buzzer,               //·äÃùÆ÷²âÊÔ
-    Selfcheck_RgbLed,               //µÆĞ§²âÊÔ
-    Selfcheck_Key,                  //°´¼ü²âÊÔ
-    Selfcheck_Finish                //²âÊÔÍê³É
+    Selfcheck_None = 0,             //å¼€å§‹æµ‹è¯•
+    Selfcheck_MotorA,               //ç”µæœºæ­£è½¬å¯åŠ¨
+    Selfcheck_MotorB,               //ç”µæœºæ­£è½¬é‡‡æ ·
+    Selfcheck_MotorC,               //ç”µæœºåè½¬å¯åŠ¨
+    Selfcheck_MotorD,               //ç”µæœºåè½¬é‡‡æ ·
+    Selfcheck_MotorE,               //ç”µæœºé—­ç¯æ­£ä¼ å¯åŠ¨
+    Selfcheck_MotorF,               //ç”µæœºé—­ç¯æ­£ä¼ é‡‡æ ·
+    Selfcheck_MotorG,               //ç”µæœºé—­ç¯åè½¬å¯åŠ¨
+    Selfcheck_MotorH,               //ç”µæœºé—­ç¯åè½¬é‡‡æ ·
+    Selfcheck_ServoA,               //èˆµæœºæµ‹è¯•A
+    Selfcheck_Com,                  //é€šä¿¡æµ‹è¯•
+    Selfcheck_Buzzer,               //èœ‚é¸£å™¨æµ‹è¯•
+    Selfcheck_RgbLed,               //ç¯æ•ˆæµ‹è¯•
+    Selfcheck_Key,                  //æŒ‰é”®æµ‹è¯•
+    Selfcheck_Finish                //æµ‹è¯•å®Œæˆ
 }SelfcheckEnum;
 
 
 /**
-* @brief    ÖÇÄÜ³µÏà¹Ø
+* @brief    æ™ºèƒ½è½¦ç›¸å…³
 **/
-typedef struct  							//[ÖÇÄÜ³µÇı¶¯Ö÷°å]
+typedef struct  							//[æ™ºèƒ½è½¦é©±åŠ¨ä¸»æ¿]
 {
-	float Voltage;							//µç³ØµçÑ¹
-	uint8_t	Electricity;					//µç³ØµçÁ¿°Ù·Ö±È£º0~100
-	float SpeedSet;							//µç»úÄ¿±êËÙ¶È£ºm/s
-	float SpeedFeedback;					//µç»úÄ£ĞÍÊµ²âËÙ¶È£ºm/s
-	float SpeedMaxRecords;				    //²âÊÔ¼ÇÂ¼×î¸ßËÙ
-    uint16_t ServoPwmSet;                   //¶æ»úPWMÉèÖÃ
+	float Voltage;							//ç”µæ± ç”µå‹
+	uint8_t	Electricity;					//ç”µæ± ç”µé‡ç™¾åˆ†æ¯”ï¼š0~100
+	float SpeedSet;							//ç”µæœºç›®æ ‡é€Ÿåº¦ï¼šm/s
+	float SpeedFeedback;					//ç”µæœºæ¨¡å‹å®æµ‹é€Ÿåº¦ï¼šm/s
+	float SpeedMaxRecords;				    //æµ‹è¯•è®°å½•æœ€é«˜é€Ÿ
+    uint16_t ServoPwmSet;                   //èˆµæœºPWMè®¾ç½®
     
-    uint16_t counterKeyA;                   //°´¼üÄ£Ê½A¼ÆÊıÆ÷
-    bool keyPressed;                        //°´¼ü°´ÏÂ
-    bool sprintEnable;                      //±Õ»·³å´ÌÊ¹ÄÜ
-    uint16_t counterSprint;                 //±Õ»·³å´ÌÊ±¼ä  
-    uint16_t errorCode;                     //´íÎó´úÂë
+    uint16_t counterKeyA;                   //æŒ‰é”®æ¨¡å¼Aè®¡æ•°å™¨
+    bool keyPressed;                        //æŒ‰é”®æŒ‰ä¸‹
+    bool sprintEnable;                      //é—­ç¯å†²åˆºä½¿èƒ½
+    uint16_t counterSprint;                 //é—­ç¯å†²åˆºæ—¶é—´  
+    uint16_t errorCode;                     //é”™è¯¯ä»£ç 
     
-    bool selfcheckEnable;                   //ÖÇÄÜ³µ×Ô¼ìÊ¹ÄÜ
-    uint16_t counterSelfcheck;              //×Ô¼ì¼ÆÊıÆ÷
-    uint8_t timesSendStep;                  //·¢ËÍ³¬Ê±Êı¾İ´ÎÊı
-    uint16_t counterModuleCheck;            //×Ô¼ì¼ÆÊıÆ÷
-    SelfcheckEnum selfcheckStep;            //×Ô¼ì²½Öè
-    uint8_t speedSampleStep;                //ËÙ¶È²ÉÑù²½Öè
+    bool selfcheckEnable;                   //æ™ºèƒ½è½¦è‡ªæ£€ä½¿èƒ½
+    uint16_t counterSelfcheck;              //è‡ªæ£€è®¡æ•°å™¨
+    uint8_t timesSendStep;                  //å‘é€è¶…æ—¶æ•°æ®æ¬¡æ•°
+    uint16_t counterModuleCheck;            //è‡ªæ£€è®¡æ•°å™¨
+    SelfcheckEnum selfcheckStep;            //è‡ªæ£€æ­¥éª¤
+    uint8_t speedSampleStep;                //é€Ÿåº¦é‡‡æ ·æ­¥éª¤
 }IcarStruct;
 
 
@@ -65,7 +65,7 @@ void ICAR_Timer(void);
 void ICAR_Handle(void);
 void ICAR_Reboot(void);
 
-//×Ô¼ìÏà¹Ø
+//è‡ªæ£€ç›¸å…³
 void ICAR_Selfcheck(void);
 void ICAR_SelfcheckControl(uint8_t step);
 float ICAR_SpeedSample(void);

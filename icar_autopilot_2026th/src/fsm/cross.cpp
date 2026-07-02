@@ -110,7 +110,7 @@ void FsmCross::run(Mat &img)
     else if (countInit < 60)
         return;
 
-    // 检查是否通过斑马线（起点/终点检测） 仅用于计数和圈数切换
+    // 检查是否通过斑马线（起点/终点）- 仅用于计数和圈数切换
     if (checkCrossPass())
     {
         crossCount++;
@@ -126,7 +126,7 @@ void FsmCross::run(Mat &img)
         return;
     }
 
-    // 最后一圈：等待斑马线完全离开视野后再停车（越过斑马线后）
+    // 最后一圈：等待斑马线完全离开视野后再停车（越过斑马线）
     if (crossCount >= params->totalLaps && !params->crossPassed && step != Step::STOP)
     {
         printf("[Cross] Cross fully passed, stopping vehicle...\n");
@@ -154,6 +154,7 @@ void FsmCross::run(Mat &img)
 
         if (countRec >= 2)
             setStep(Step::ENABLE); // 设置新状态
+
         if (countRec > 0) // 识别AI标志后开始场次计数
         {
             countSes++;
@@ -175,7 +176,7 @@ void FsmCross::run(Mat &img)
             if (params->resultsSnapshot[i].type == LABEL_CROSS) // 禁行标志：斑马线
             {
                 crossDetected = true;
-                // 当斑马线已经越过车辆（检测框的上边缘低于车辆位置时）
+                // 当斑马线已经越过车辆（检测框的上边缘低于车辆位置）
                 if (params->resultsSnapshot[i].y < ROWSIMAGE * 0.4)
                 {
                     countRec++;
@@ -220,41 +221,13 @@ void FsmCross::run(Mat &img)
             break;
         }
 
-        // 最后一圈：编码器测距精确停车（1.5m内）
-        if (timeout == 0)
-        {
-            // 首次进入STOP：清零距离积分起点
-            params->ctrl.odometry = 0.0;
-            printf("[Cross] Final lap STOP: measuring distance...\n");
-        }
+        // 最后一圈：停车并退出程序
+        params->ctrl.stop = true; // 停车标志
         timeout++;
-
-        if (params->ctrl.odometry < 1.5)
+        if (timeout >= 50)
         {
-            // 阶段1：怠速前进，累计编码器距离
-            params->ctrl.stop = false;
-            // 安全兜底：10秒超时强制刹车
-            if (timeout > 300)
-            {
-                printf("[Cross] Distance timeout! Forcing stop at %.2fm\n",
-                       params->ctrl.odometry);
-                params->ctrl.stop = true;
-            }
-        }
-        else
-        {
-            // 阶段2：距离达标→刹车
-            params->ctrl.stop = true;
-            countRec++; // 复用为刹车确认计数器
-
-            // 等待速度归零后触发蜂鸣完赛信号（仅一次）
-            if (!buzzerDone && countRec >= 5 && params->ctrl.speedFeedback < 0.05f)
-            {
-                params->ctrl.crossFinishBuzzer = true;
-                buzzerDone = true;
-                printf("[Cross] Stopped at %.2fm, race complete!\n",
-                       params->ctrl.odometry);
-            }
+            printf("[Cross] Last lap completed, exiting...\n");
+            exit(0);
         }
         break;
     }

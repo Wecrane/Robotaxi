@@ -1,15 +1,15 @@
-#include "servo.h"
+ï»¿#include "servo.h"
 /*
 ********************************************************************************************************
-*                                               Ê¾Àı´úÂë
+*                                               ç¤ºä¾‹ä»£ç 
 *                                             EXAMPLE  CODE                                             
 *
 *                             (c) Copyright 2021; SaiShu.Lcc.; Leo
-*                                 °æÈ¨ËùÊô[±±¾©ÈüÊï¿Æ¼¼ÓĞÏŞ¹«Ë¾]
+*                                 ç‰ˆæƒæ‰€å±[åŒ—äº¬èµ›æ›™ç§‘æŠ€æœ‰é™å…¬å¸]
 *
-*               The code is for internal use only, not for commercial transactions(¿ªÔ´Ñ§Ï°,ÇëÎğÉÌÓÃ).
-*               The code ADAPTS the corresponding hardware circuit board(´úÂëÊ¹ÓÃCarDoÖÇ¿Ø°å), 
-*               the specific details consult the professional(»¶Ó­ÁªÏµÎÒÃÇ).
+*               The code is for internal use only, not for commercial transactions(å¼€æºå­¦ä¹ ,è¯·å‹¿å•†ç”¨).
+*               The code ADAPTS the corresponding hardware circuit board(ä»£ç ä½¿ç”¨CarDoæ™ºæ§æ¿), 
+*               the specific details consult the professional(æ¬¢è¿è”ç³»æˆ‘ä»¬).
 *********************************************************************************************************
 */
 
@@ -17,7 +17,7 @@ ServoStruct servoStr;
 
 
 /**
-* @brief        ¶æ»ú¿ØÖÆ³õÊ¼»¯
+* @brief        èˆµæœºæ§åˆ¶åˆå§‹åŒ–
 * @param        
 * @ref          
 * @author       Leo
@@ -25,7 +25,7 @@ ServoStruct servoStr;
 **/
 void SERVO_Init(void)
 {
-    //PWM-IO³õÊ¼»¯
+    //PWM-IOåˆå§‹åŒ–
     GPIO_InitTypeDef GPIO_InitStructure;
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);  
     GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_6; 			//PWM
@@ -33,20 +33,20 @@ void SERVO_Init(void)
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; 
     GPIO_Init(GPIOB, &GPIO_InitStructure);
 	
-    //TIM³õÊ¼»¯
+    //TIMåˆå§‹åŒ–
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;  
     TIM_OCInitTypeDef TIM_OCInitStructure;  
     TIM_BDTRInitTypeDef TIM_BDTRInitStructure; 
 	
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-    TIM_TimeBaseStructure.TIM_Prescaler = 72-1;  												// ÏµÍ³  72MHz    TIMÊ±ÖÓ= 72MHz/72=1M			
+    TIM_TimeBaseStructure.TIM_Prescaler = 72-1;  												// ç³»ç»Ÿ  72MHz    TIMæ—¶é’Ÿ= 72MHz/72=1M			
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  
     TIM_TimeBaseStructure.TIM_Period = 20000-1;   											// Frequency = 1000000 / 20000 = 50Hz
     TIM_TimeBaseStructure.TIM_ClockDivision = 0;   
     TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;     
     TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);    
       
-    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1; 									//ÉèÖÃPWMÄ£Ê½ÎªÏòÉÏ¼ÆÊıÄ£Ê½ 
+    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1; 									//è®¾ç½®PWMæ¨¡å¼ä¸ºå‘ä¸Šè®¡æ•°æ¨¡å¼ 
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;  
     TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High;  
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;  
@@ -83,15 +83,15 @@ void SERVO_Init(void)
 
 
 /**
-* @brief        ¶æ»úÊä³öPWMÉèÖÃ
-* @param        pwm£º-20000~20000
+* @brief        èˆµæœºè¾“å‡ºPWMè®¾ç½®
+* @param        pwmï¼š-20000~20000
 * @ref          
 * @author       Leo
 * @note         
 **/
 void SERVO_SetPwmValue(signed int pwm)
 {   
-    pwm = 3000 - pwm;  //×ó¡úÓÒ
+    pwm = 3000 - pwm;  //å·¦â†’å³
         
     if(pwm < SERVO_PWM_MIN)
         pwm = SERVO_PWM_MIN;
@@ -103,8 +103,8 @@ void SERVO_SetPwmValue(signed int pwm)
 
 
 /**
-* @brief        ¶æ»úÊä³öPWMÉèÖÃ£¨½ÃÕıºó£©
-* @param        pwm£º500~2500
+* @brief        èˆµæœºè¾“å‡ºPWMè®¾ç½®ï¼ˆçŸ«æ­£åï¼‰
+* @param        pwmï¼š500~2500
 * @ref          
 * @author       Leo
 * @note         
@@ -112,9 +112,9 @@ void SERVO_SetPwmValue(signed int pwm)
 uint16_t pwm_Servo = 0;
 void SERVO_SetPwmValueCorrect(signed int pwm)
 {   
-    pwm = 3000 - pwm;  //×ó¡úÓÒ
+    pwm = 3000 - pwm;  //å·¦â†’å³
     
-    pwm -= servoStr.thresholdMiddle-SERVO_PWM_MIDDLE; //ÖĞÖµ²¹³¥
+    pwm -= servoStr.thresholdMiddle-SERVO_PWM_MIDDLE; //ä¸­å€¼è¡¥å¿
 	
 	uint16_t pwmMax = 3000 - servoStr.thresholdLeft;
 	uint16_t pwmMin = 3000 - servoStr.thresholdRight;
@@ -128,7 +128,7 @@ void SERVO_SetPwmValueCorrect(signed int pwm)
 }
 
 /**
-* @brief       ¶æ»ú½Ç¶È¿ØÖÆ 
+* @brief       èˆµæœºè§’åº¦æ§åˆ¶ 
 * @param        
 * @ref          
 * @author       
@@ -144,10 +144,10 @@ void SERVO_AngleControl(float angle)
 	else if(angle < -SERVO_ANGLE_MAX)
 		angle = -SERVO_ANGLE_MAX;
 	
-	if(angle >= 0)  //ÓÒ×ª
-		pwm = (float)angle/SERVO_ANGLE_MAX * (SERVO_PWM_MAX_R-servoStr.thresholdMiddle) + servoStr.thresholdMiddle;		//¾ø¶Ô½Ç¶È¼ÆËã
-	else if(angle < 0)  	//×ó×ª
-		pwm = (float)angle/SERVO_ANGLE_MAX * (servoStr.thresholdMiddle - SERVO_PWM_MAX_L) + servoStr.thresholdMiddle;		//¾ø¶Ô½Ç¶È¼ÆËã
+	if(angle >= 0)  //å³è½¬
+		pwm = (float)angle/SERVO_ANGLE_MAX * (SERVO_PWM_MAX_R-servoStr.thresholdMiddle) + servoStr.thresholdMiddle;		//ç»å¯¹è§’åº¦è®¡ç®—
+	else if(angle < 0)  	//å·¦è½¬
+		pwm = (float)angle/SERVO_ANGLE_MAX * (servoStr.thresholdMiddle - SERVO_PWM_MAX_L) + servoStr.thresholdMiddle;		//ç»å¯¹è§’åº¦è®¡ç®—
 	
 	ServoPwm = pwm;
 	SERVO_SetPwmValue(pwm);

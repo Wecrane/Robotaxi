@@ -1,4 +1,4 @@
-#ifndef __SOC_H__
+ï»¿#ifndef __SOC_H__
 #define __SOC_H__
 
 /*-----------------------------------------  I N C L U D E S  -----------------------------------------*/
@@ -7,11 +7,11 @@
 
 /*---------------------------------------  D E F I N I T I O N  ---------------------------------------*/
 //IIC
-#define SOC_SDA_IN()  					{GPIOC->CRH&=0XFF0FFFFF;GPIOC->CRH|=8<<20;}	//PC13ÊäÈëÄ£Ê½
-#define SOC_SDA_OUT() 					{GPIOC->CRH&=0XFF0FFFFF;GPIOC->CRH|=3<<20;} //PC13Êä³öÄ£Ê½ 
+#define SOC_SDA_IN()  					{GPIOC->CRH&=0XFF0FFFFF;GPIOC->CRH|=8<<20;}	//PC13è¾“å…¥æ¨¡å¼
+#define SOC_SDA_OUT() 					{GPIOC->CRH&=0XFF0FFFFF;GPIOC->CRH|=3<<20;} //PC13è¾“å‡ºæ¨¡å¼ 
 #define SOC_IIC_SCL    					PCout(14) 		//SCL
 #define SOC_IIC_SDA    					PCout(13) 		//SDA	 
-#define SOC_READ_SDA   					PCin(13)  		//ÊäÈëSDA 
+#define SOC_READ_SDA   					PCin(13)  		//è¾“å…¥SDA 
 
 
 #define	READ_CW2015							0xc5
@@ -40,7 +40,7 @@
 #define BATTERY_DOWN_MIN_CHANGE_SLEEP 1800      // the min time allow battery change quantity when run 30min
 //#define BAT_LOW_INTERRUPT    1
 
-/*µç³Ø½¨Ä£ÐÅÏ¢£¬ÄÃµ½×Ô¼ºµÄµç³ØÆ¥ÅäµÄ½¨Ä£ÐÅÏ¢ºóÌæ»»*/
+/*ç”µæ± å»ºæ¨¡ä¿¡æ¯ï¼Œæ‹¿åˆ°è‡ªå·±çš„ç”µæ± åŒ¹é…çš„å»ºæ¨¡ä¿¡æ¯åŽæ›¿æ¢*/
 static unsigned char cw_bat_config_info[SIZE_BATINFO] = {
 0x15  ,0x4C  ,0x5D  ,0x5D  ,0x5A  ,0x59  ,0x55  ,
 0x51  ,0x4E  ,0x48  ,0x46  ,0x41  ,0x3C  ,0x39  ,
@@ -56,45 +56,45 @@ static unsigned char cw_bat_config_info[SIZE_BATINFO] = {
 
 //****************************struct*********************************/
 /**
-* @brief    µçÁ¿¼ÆÏà¹Ø
+* @brief    ç”µé‡è®¡ç›¸å…³
 **/
 typedef struct  
 {
-	unsigned char UsbOnline;					            //USB²åÈë×´Ì¬
-	unsigned int Capacity;						            //µçÁ¿
-	unsigned int voltage;							        //µçÑ¹Öµ
-	uint32_t Counter;									    //¼ÆÊýÆ÷
+	unsigned char UsbOnline;					            //USBæ’å…¥çŠ¶æ€
+	unsigned int Capacity;						            //ç”µé‡
+	unsigned int voltage;							        //ç”µåŽ‹å€¼
+	uint32_t Counter;									    //è®¡æ•°å™¨
 }SocStruct;
 
 
 extern SocStruct socStr;
 
-void SOC_IIC_Init(void);									//IIC-IO³õÊ¼»¯
-void SOC_IIC_Start(void);									//²úÉúIICÆðÊ¼ÐÅºÅ
-void SOC_IIC_Stop(void);									//²úÉúIICÍ£Ö¹ÐÅºÅ
-u8 SOC_IIC_Wait_Ack(void);									//µÈ´ýÓ¦´ðÐÅºÅµ½À´
-void SOC_IIC_Ack(void);										//²úÉúACKÓ¦´ð
-void SOC_IIC_NAck(void);									//²»²úÉúACKÓ¦´ð	
-void SOC_IIC_Send_Byte(u8 txd);							    //IIC·¢ËÍÒ»¸ö×Ö½Ú
-u8 SOC_IIC_Read_Byte(unsigned char ack);		            //¶Á1¸ö×Ö½Ú
-u8 SOC_Write_Len(u8 reg,u8 len,u8 *buf);		            //IICÁ¬ÐøÐ´Ö¸¶¨³¤¶ÈÊý¾Ý
-u8 SOC_Write(u8 reg,u8 *buf);								//IICÐ´ÈëÊý¾Ý
-u8 SOC_Read_Len(u8 reg,u8 len,u8 *buf);			            //IICÁ¬Ðø¶ÁÈ¡Ö¸¶¨³¤¶ÈÊý¾Ý
-u8 SOC_Read(u8 reg,u8 *buf);								//IIC¶ÁÈ¡Ö¸¶¨µØÖ·µÄÊý¾Ý
+void SOC_IIC_Init(void);									//IIC-IOåˆå§‹åŒ–
+void SOC_IIC_Start(void);									//äº§ç”ŸIICèµ·å§‹ä¿¡å·
+void SOC_IIC_Stop(void);									//äº§ç”ŸIICåœæ­¢ä¿¡å·
+u8 SOC_IIC_Wait_Ack(void);									//ç­‰å¾…åº”ç­”ä¿¡å·åˆ°æ¥
+void SOC_IIC_Ack(void);										//äº§ç”ŸACKåº”ç­”
+void SOC_IIC_NAck(void);									//ä¸äº§ç”ŸACKåº”ç­”	
+void SOC_IIC_Send_Byte(u8 txd);							    //IICå‘é€ä¸€ä¸ªå­—èŠ‚
+u8 SOC_IIC_Read_Byte(unsigned char ack);		            //è¯»1ä¸ªå­—èŠ‚
+u8 SOC_Write_Len(u8 reg,u8 len,u8 *buf);		            //IICè¿žç»­å†™æŒ‡å®šé•¿åº¦æ•°æ®
+u8 SOC_Write(u8 reg,u8 *buf);								//IICå†™å…¥æ•°æ®
+u8 SOC_Read_Len(u8 reg,u8 len,u8 *buf);			            //IICè¿žç»­è¯»å–æŒ‡å®šé•¿åº¦æ•°æ®
+u8 SOC_Read(u8 reg,u8 *buf);								//IICè¯»å–æŒ‡å®šåœ°å€çš„æ•°æ®
 
-unsigned char SOC_HardwareInit(void);				        //µçÁ¿¼Æµ×²ã³õÊ¼»¯
-unsigned char SOC_UpdataConfigInfo(void);		            //¸üÐÂµç³ØÐÅÏ¢
-int SOC_Por(void);											//µçÁ¿¼ÆÉÏµç¸´Î»
-int SOC_GetCapacity(void);									//»ñÈ¡µçÁ¿
-unsigned int SOC_GetVol(void);							    //»ñÈ¡µçÑ¹Öµ
-void SOC_UpdateCapacity(void);							    //SOC¸üÐÂµç³ØµçÁ¿
-void SOC_UpdateVol(void);									//SOC¸üÐÂµç³ØµçÑ¹
-void SOC_UpdateUsbOnline(void);							    //USB²åÈë×´Ì¬¼ì²â
-void SOC_BatWork(void);									    //SOC¿ØÖÆÆ÷
+unsigned char SOC_HardwareInit(void);				        //ç”µé‡è®¡åº•å±‚åˆå§‹åŒ–
+unsigned char SOC_UpdataConfigInfo(void);		            //æ›´æ–°ç”µæ± ä¿¡æ¯
+int SOC_Por(void);											//ç”µé‡è®¡ä¸Šç”µå¤ä½
+int SOC_GetCapacity(void);									//èŽ·å–ç”µé‡
+unsigned int SOC_GetVol(void);							    //èŽ·å–ç”µåŽ‹å€¼
+void SOC_UpdateCapacity(void);							    //SOCæ›´æ–°ç”µæ± ç”µé‡
+void SOC_UpdateVol(void);									//SOCæ›´æ–°ç”µæ± ç”µåŽ‹
+void SOC_UpdateUsbOnline(void);							    //USBæ’å…¥çŠ¶æ€æ£€æµ‹
+void SOC_BatWork(void);									    //SOCæŽ§åˆ¶å™¨
 
-unsigned char SOC_Init(void);								//SOC³õÊ¼»¯
-void SOC_Timer(void);										//µçÁ¿¼ÆIC¿ØÖÆÊ±Ðò
-void SOC_Handle(void);										//µçÁ¿¼ÆIC¿ØÖÆÂß¼­
+unsigned char SOC_Init(void);								//SOCåˆå§‹åŒ–
+void SOC_Timer(void);										//ç”µé‡è®¡ICæŽ§åˆ¶æ—¶åº
+void SOC_Handle(void);										//ç”µé‡è®¡ICæŽ§åˆ¶é€»è¾‘
 #endif
 
 

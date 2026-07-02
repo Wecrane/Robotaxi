@@ -1,15 +1,15 @@
-#include "soc.h"
+ï»¿#include "soc.h"
 /*
 ********************************************************************************************************
-*                                               Ê¾Àı´úÂë
+*                                               ç¤ºä¾‹ä»£ç 
 *                                             EXAMPLE  CODE                                             
 *
 *                             (c) Copyright 2021; SaiShu.Lcc.; Leo
-*                                 °æÈ¨ËùÊô[±±¾©ÈüÊï¿Æ¼¼ÓĞÏŞ¹«Ë¾]
+*                                 ç‰ˆæƒæ‰€å±[åŒ—äº¬èµ›æ›™ç§‘æŠ€æœ‰é™å…¬å¸]
 *
-*               The code is for internal use only, not for commercial transactions(¿ªÔ´Ñ§Ï°,ÇëÎğÉÌÓÃ).
-*               The code ADAPTS the corresponding hardware circuit board(´úÂëÊ¹ÓÃCarDoÖÇ¿Ø°å), 
-*               the specific details consult the professional(»¶Ó­ÁªÏµÎÒÃÇ).
+*               The code is for internal use only, not for commercial transactions(å¼€æºå­¦ä¹ ,è¯·å‹¿å•†ç”¨).
+*               The code ADAPTS the corresponding hardware circuit board(ä»£ç ä½¿ç”¨CarDoæ™ºæ§æ¿), 
+*               the specific details consult the professional(æ¬¢è¿è”ç³»æˆ‘ä»¬).
 *********************************************************************************************************
 */
 
@@ -18,7 +18,7 @@ SocStruct socStr;
 //----------------------------------------------[UNIT-SOC_IIC]----------------------------------------------------------
 /********************************************************************************************************
 Function Name: IIC_Init
-Description  : IIC-IO³õÊ¼»¯
+Description  : IIC-IOåˆå§‹åŒ–
 ********************************************************************************************************/
 void SOC_IIC_Init(void)
 {			
@@ -36,7 +36,7 @@ void SOC_IIC_Init(void)
 
 
 /**
-* @brief				: ²úÉúIICÆğÊ¼ĞÅºÅ
+* @brief				: äº§ç”ŸIICèµ·å§‹ä¿¡å·
 * @param        : None 
 * @date					: None
 * @author       : Fqy
@@ -44,18 +44,18 @@ void SOC_IIC_Init(void)
 **/
 void SOC_IIC_Start(void)
 {
-		SOC_SDA_OUT();     	//sdaÏßÊä³ö
+		SOC_SDA_OUT();     	//sdaçº¿è¾“å‡º
 		SOC_IIC_SDA=1;	  	  
 		SOC_IIC_SCL=1;
 		Delay_Us(4);
 		SOC_IIC_SDA=0;				//START:when CLK is high,DATA change form high to low 
 		Delay_Us(4);
-		SOC_IIC_SCL=0;				//Ç¯×¡I2C×ÜÏß£¬×¼±¸·¢ËÍ»ò½ÓÊÕÊı¾İ 
+		SOC_IIC_SCL=0;				//é’³ä½I2Cæ€»çº¿ï¼Œå‡†å¤‡å‘é€æˆ–æ¥æ”¶æ•°æ® 
 }	  
 
 
 /**
-* @brief				: ²úÉúIICÍ£Ö¹ĞÅºÅ
+* @brief				: äº§ç”ŸIICåœæ­¢ä¿¡å·
 * @param        : None
 * @date					: None
 * @author       : Fqy
@@ -63,28 +63,28 @@ void SOC_IIC_Start(void)
 **/
 void SOC_IIC_Stop(void)
 {
-		SOC_SDA_OUT();				//sdaÏßÊä³ö
+		SOC_SDA_OUT();				//sdaçº¿è¾“å‡º
 		SOC_IIC_SCL=0;
 		SOC_IIC_SDA=0;				//STOP:when CLK is high DATA change form low to high
 		Delay_Us(4);
 		SOC_IIC_SCL=1; 
-		SOC_IIC_SDA=1;				//·¢ËÍI2C×ÜÏß½áÊøĞÅºÅ
+		SOC_IIC_SDA=1;				//å‘é€I2Cæ€»çº¿ç»“æŸä¿¡å·
 		Delay_Us(4);							   	
 }    
 
 
 /**
-* @brief				: µÈ´ıÓ¦´ğĞÅºÅµ½À´
+* @brief				: ç­‰å¾…åº”ç­”ä¿¡å·åˆ°æ¥
 * @param        : None
 * @date					: None
 * @author       : Fqy
-* @note         : ·µ»ØÖµ£º1£º½ÓÊÕÓ¦´ğÊ§°Ü £¬0£º½ÓÊÕÓ¦´ğ³É¹¦
+* @note         : è¿”å›å€¼ï¼š1ï¼šæ¥æ”¶åº”ç­”å¤±è´¥ ï¼Œ0ï¼šæ¥æ”¶åº”ç­”æˆåŠŸ
 **/
 
 uint8_t SOC_IIC_Wait_Ack(void)
 {
 		uint8_t ucErrTime=0;
-		SOC_SDA_IN();      					//SDAÉèÖÃÎªÊäÈë  
+		SOC_SDA_IN();      					//SDAè®¾ç½®ä¸ºè¾“å…¥  
 		SOC_IIC_SDA=1;Delay_Us(1);	   
 		SOC_IIC_SCL=1;Delay_Us(1);
 	
@@ -98,14 +98,14 @@ uint8_t SOC_IIC_Wait_Ack(void)
 			}
 		}
 		
-		SOC_IIC_SCL=0;							//Ê±ÖÓÊä³ö0 	 
+		SOC_IIC_SCL=0;							//æ—¶é’Ÿè¾“å‡º0 	 
 		
 		return 0;  
 } 
 
 
 /**
-* @brief				: ²úÉúACKÓ¦´ğ
+* @brief				: äº§ç”ŸACKåº”ç­”
 * @param        : None
 * @date					: None
 * @author       : Fqy
@@ -124,7 +124,7 @@ void SOC_IIC_Ack(void)
 
 
 /**
-* @brief				: ²»²úÉúACKÓ¦´ğ	
+* @brief				: ä¸äº§ç”ŸACKåº”ç­”	
 * @param        : None
 * @date					: None
 * @author       : Fqy
@@ -143,23 +143,23 @@ void SOC_IIC_NAck(void)
 
 
 /**
-* @brief				: IIC·¢ËÍÒ»¸ö×Ö½Ú
+* @brief				: IICå‘é€ä¸€ä¸ªå­—èŠ‚
 * @param        : None
 * @date					: None
 * @author       : Fqy
-* @note         : ·µ»Ø´Ó»úÓĞÎŞÓ¦´ğ£¬1£ºÓĞÓ¦´ğ£¬0£ºÎŞÓ¦´ğ	
+* @note         : è¿”å›ä»æœºæœ‰æ— åº”ç­”ï¼Œ1ï¼šæœ‰åº”ç­”ï¼Œ0ï¼šæ— åº”ç­”	
 **/		  
 void SOC_IIC_Send_Byte(uint8_t txd)
 {                        
     uint8_t t;   
 		SOC_SDA_OUT(); 	    
-    SOC_IIC_SCL=0;					//À­µÍÊ±ÖÓ¿ªÊ¼Êı¾İ´«Êä
+    SOC_IIC_SCL=0;					//æ‹‰ä½æ—¶é’Ÿå¼€å§‹æ•°æ®ä¼ è¾“
 	
     for(t=0;t<8;t++)
     {              
 			SOC_IIC_SDA=(txd&0x80)>>7;
 			txd<<=1; 	  
-			Delay_Us(2);   				//¶ÔTEA5767ÕâÈı¸öÑÓÊ±¶¼ÊÇ±ØĞëµÄ
+			Delay_Us(2);   				//å¯¹TEA5767è¿™ä¸‰ä¸ªå»¶æ—¶éƒ½æ˜¯å¿…é¡»çš„
 			SOC_IIC_SCL=1;
 			Delay_Us(2); 
 			SOC_IIC_SCL=0;	
@@ -169,16 +169,16 @@ void SOC_IIC_Send_Byte(uint8_t txd)
 
 
 /**
-* @brief				: ¶Á1¸ö×Ö½Ú
+* @brief				: è¯»1ä¸ªå­—èŠ‚
 * @param        : None
 * @date					: None
 * @author       : Fqy
-* @note         : ack=1Ê±£¬·¢ËÍACK£¬ack=0£¬·¢ËÍnACK 
+* @note         : ack=1æ—¶ï¼Œå‘é€ACKï¼Œack=0ï¼Œå‘é€nACK 
 **/  
 uint8_t SOC_IIC_Read_Byte(unsigned char ack)
 {
 		unsigned char i,receive=0;
-		SOC_SDA_IN();								//SDAÉèÖÃÎªÊäÈë
+		SOC_SDA_IN();								//SDAè®¾ç½®ä¸ºè¾“å…¥
 		
 		for(i=0;i<8;i++ )
 		{
@@ -192,39 +192,39 @@ uint8_t SOC_IIC_Read_Byte(unsigned char ack)
 		}			
 		
 		if (!ack)
-			SOC_IIC_NAck();//·¢ËÍnACK
+			SOC_IIC_NAck();//å‘é€nACK
 		else
-			SOC_IIC_Ack(); //·¢ËÍACK  
+			SOC_IIC_Ack(); //å‘é€ACK  
 		
 		return receive;
 }
 
 
 /**
-* @brief				: IICÁ¬ĞøĞ´Ö¸¶¨³¤¶ÈÊı¾İ
-* @param        : reg:¼Ä´æÆ÷µØÖ·£¬len:Ğ´Èë³¤¶È£bbuff:Êı¾İ
+* @brief				: IICè¿ç»­å†™æŒ‡å®šé•¿åº¦æ•°æ®
+* @param        : reg:å¯„å­˜å™¨åœ°å€ï¼Œlen:å†™å…¥é•¿åº¦î–¨buff:æ•°æ®
 * @date					: None
 * @author       : Fqy
-* @note         : ·µ»ØÖµ:0,£ºÕı³£,ÆäËû£º´íÎó´úÂë
+* @note         : è¿”å›å€¼:0,ï¼šæ­£å¸¸,å…¶ä»–ï¼šé”™è¯¯ä»£ç 
 **/
 uint8_t SOC_Write_Len(uint8_t reg,uint8_t len,uint8_t *buff)
 {
 		uint8_t i; 
 		SOC_IIC_Start(); 
 		SOC_IIC_Send_Byte(WRITE_CW2015);
-		if(SOC_IIC_Wait_Ack())							//µÈ´ıÓ¦´ğ
+		if(SOC_IIC_Wait_Ack())							//ç­‰å¾…åº”ç­”
 		{
 			SOC_IIC_Stop();		 
 			return 1;		
 		}
 		
-		SOC_IIC_Send_Byte(reg);						//Ğ´¼Ä´æÆ÷µØÖ·
-		SOC_IIC_Wait_Ack();								//µÈ´ıÓ¦´ğ
+		SOC_IIC_Send_Byte(reg);						//å†™å¯„å­˜å™¨åœ°å€
+		SOC_IIC_Wait_Ack();								//ç­‰å¾…åº”ç­”
 		
 		for(i=0;i<len;i++)
 		{
-			SOC_IIC_Send_Byte(buff[i]);				//·¢ËÍÊı¾İ
-			if(SOC_IIC_Wait_Ack())						//µÈ´ıACK
+			SOC_IIC_Send_Byte(buff[i]);				//å‘é€æ•°æ®
+			if(SOC_IIC_Wait_Ack())						//ç­‰å¾…ACK
 			{
 				SOC_IIC_Stop();	 
 				return 1;		 
@@ -237,7 +237,7 @@ uint8_t SOC_Write_Len(uint8_t reg,uint8_t len,uint8_t *buff)
 
 
 /**
-* @brief				: IICĞ´ÈëÊı¾İ
+* @brief				: IICå†™å…¥æ•°æ®
 * @param        : None
 * @date					: None
 * @author       : Fqy
@@ -247,18 +247,18 @@ uint8_t SOC_Write(uint8_t reg,uint8_t *buf)
 {
 		SOC_IIC_Start(); 
 		SOC_IIC_Send_Byte(WRITE_CW2015);
-		if(SOC_IIC_Wait_Ack())							//µÈ´ıÓ¦´ğ
+		if(SOC_IIC_Wait_Ack())							//ç­‰å¾…åº”ç­”
 		{
 			SOC_IIC_Stop();		 
 			return 1;		
 		}
 		
-		SOC_IIC_Send_Byte(reg);						//Ğ´¼Ä´æÆ÷µØÖ·
-		SOC_IIC_Wait_Ack();								//µÈ´ıÓ¦´ğ
+		SOC_IIC_Send_Byte(reg);						//å†™å¯„å­˜å™¨åœ°å€
+		SOC_IIC_Wait_Ack();								//ç­‰å¾…åº”ç­”
 		
-		SOC_IIC_Send_Byte(*buf);					//·¢ËÍÊı¾İ
+		SOC_IIC_Send_Byte(*buf);					//å‘é€æ•°æ®
 		
-		if(SOC_IIC_Wait_Ack())						//µÈ´ıACK
+		if(SOC_IIC_Wait_Ack())						//ç­‰å¾…ACK
 		{
 			SOC_IIC_Stop();	 
 			return 1;		 
@@ -271,43 +271,43 @@ uint8_t SOC_Write(uint8_t reg,uint8_t *buf)
 
 
 /**
-* @brief				: IICÁ¬Ğø¶ÁÈ¡Ö¸¶¨³¤¶ÈÊı¾İ
-* @param        : reg£ºÒª¶ÁÈ¡µÄ¼Ä´æÆ÷µØÖ·£¬len:Òª¶ÁÈ¡µÄ³¤¶È£¬buff:¶ÁÈ¡µ½µÄÊı¾İ´æ´¢Çø
+* @brief				: IICè¿ç»­è¯»å–æŒ‡å®šé•¿åº¦æ•°æ®
+* @param        : regï¼šè¦è¯»å–çš„å¯„å­˜å™¨åœ°å€ï¼Œlen:è¦è¯»å–çš„é•¿åº¦ï¼Œbuff:è¯»å–åˆ°çš„æ•°æ®å­˜å‚¨åŒº
 * @date					: None
 * @author       : Fqy
-* @note         : ·µ»ØÖµ:0£ºÕı³££¬ÆäËû£º´íÎó´úÂë
+* @note         : è¿”å›å€¼:0ï¼šæ­£å¸¸ï¼Œå…¶ä»–ï¼šé”™è¯¯ä»£ç 
 **/
 uint8_t SOC_Read_Len(uint8_t reg,uint8_t len,uint8_t *buff)
 { 
 		SOC_IIC_Start(); 
 		SOC_IIC_Send_Byte(WRITE_CW2015);
-		if(SOC_IIC_Wait_Ack())									//µÈ´ıÓ¦´ğ
+		if(SOC_IIC_Wait_Ack())									//ç­‰å¾…åº”ç­”
 		{
 			SOC_IIC_Stop();		 
 			return 1;		
 		}
-		SOC_IIC_Send_Byte(reg);								//Ğ´¼Ä´æÆ÷µØÖ·
-		SOC_IIC_Wait_Ack();										//µÈ´ıÓ¦´ğ
+		SOC_IIC_Send_Byte(reg);								//å†™å¯„å­˜å™¨åœ°å€
+		SOC_IIC_Wait_Ack();										//ç­‰å¾…åº”ç­”
 		SOC_IIC_Start();
 		SOC_IIC_Send_Byte(READ_CW2015);
-		SOC_IIC_Wait_Ack();										//µÈ´ıÓ¦´ğ 
+		SOC_IIC_Wait_Ack();										//ç­‰å¾…åº”ç­” 
 		
 		while(len)
 		{
-			if(len==1)*buff=SOC_IIC_Read_Byte(0);	//¶ÁÊı¾İ,·¢ËÍnACK 
-			else *buff=SOC_IIC_Read_Byte(1);			//¶ÁÊı¾İ,·¢ËÍACK  
+			if(len==1)*buff=SOC_IIC_Read_Byte(0);	//è¯»æ•°æ®,å‘é€nACK 
+			else *buff=SOC_IIC_Read_Byte(1);			//è¯»æ•°æ®,å‘é€ACK  
 			len--;
 			buff++; 
 		}    
-		SOC_IIC_Stop();												//²úÉúÒ»¸öÍ£Ö¹Ìõ¼ş 
+		SOC_IIC_Stop();												//äº§ç”Ÿä¸€ä¸ªåœæ­¢æ¡ä»¶ 
 		
 		return 0;	
 }
 
 
 /**
-* @brief				: IIC¶ÁÈ¡Ö¸¶¨µØÖ·µÄÊı¾İ
-* @param        : reg£ºÒª¶ÁÈ¡µÄ¼Ä´æÆ÷µØÖ·£¬buff:¶ÁÈ¡µ½µÄÊı¾İ´æ´¢Çø
+* @brief				: IICè¯»å–æŒ‡å®šåœ°å€çš„æ•°æ®
+* @param        : regï¼šè¦è¯»å–çš„å¯„å­˜å™¨åœ°å€ï¼Œbuff:è¯»å–åˆ°çš„æ•°æ®å­˜å‚¨åŒº
 * @date					: None
 * @author       : Fqy
 * @note         : None
@@ -316,18 +316,18 @@ uint8_t SOC_Read(uint8_t reg,uint8_t *buff)
 { 
 		SOC_IIC_Start(); 
 		SOC_IIC_Send_Byte(WRITE_CW2015);
-		if(SOC_IIC_Wait_Ack())									//µÈ´ıÓ¦´ğ
+		if(SOC_IIC_Wait_Ack())									//ç­‰å¾…åº”ç­”
 		{
 			SOC_IIC_Stop();		 
 			return 1;		
 		}
-		SOC_IIC_Send_Byte(reg);								//Ğ´¼Ä´æÆ÷µØÖ·
-		SOC_IIC_Wait_Ack();										//µÈ´ıÓ¦´ğ
+		SOC_IIC_Send_Byte(reg);								//å†™å¯„å­˜å™¨åœ°å€
+		SOC_IIC_Wait_Ack();										//ç­‰å¾…åº”ç­”
 		SOC_IIC_Start();
 		SOC_IIC_Send_Byte(READ_CW2015);
-		SOC_IIC_Wait_Ack();										//µÈ´ıÓ¦´ğ 
-		*buff = SOC_IIC_Read_Byte(0);					//¶ÁÊı¾İ,·¢ËÍnACK 
-		SOC_IIC_Stop();												//²úÉúÒ»¸öÍ£Ö¹Ìõ¼ş 
+		SOC_IIC_Wait_Ack();										//ç­‰å¾…åº”ç­” 
+		*buff = SOC_IIC_Read_Byte(0);					//è¯»æ•°æ®,å‘é€nACK 
+		SOC_IIC_Stop();												//äº§ç”Ÿä¸€ä¸ªåœæ­¢æ¡ä»¶ 
 		
 		return 0;	
 }
@@ -345,12 +345,12 @@ unsigned char if_quickstart =0;
 unsigned char reset_loop =0;
 
 /**
-* @brief				: ¸üĞÂµç³ØĞÅÏ¢
+* @brief				: æ›´æ–°ç”µæ± ä¿¡æ¯
 * @param        : None
 * @date					: None
 * @author       : None
-* @note         : Õâ¸öº¯ÊıµÄ×÷ÓÃÊÇ¸üĞÂicÄÚµÄµç³ØprofileĞÅÏ¢£¬Ò»°ãÖ»ÓĞÔÚic VDDµôµçºóÔÙÉÏµçÊ±²ÅÖ´ĞĞ 
-									return 1 : i2c¶ÁĞ´´í£¬ return 2 : Ğ¾Æ¬´¦ÓÚsleepÄ£Ê½ return 3 : Ğ´ÈëµÄprofileĞÅÏ¢¶Á³öºóÓë´úÂëÖĞµÄ²»Ò»ÖÂ
+* @note         : è¿™ä¸ªå‡½æ•°çš„ä½œç”¨æ˜¯æ›´æ–°icå†…çš„ç”µæ± profileä¿¡æ¯ï¼Œä¸€èˆ¬åªæœ‰åœ¨ic VDDæ‰ç”µåå†ä¸Šç”µæ—¶æ‰æ‰§è¡Œ 
+									return 1 : i2cè¯»å†™é”™ï¼Œ return 2 : èŠ¯ç‰‡å¤„äºsleepæ¨¡å¼ return 3 : å†™å…¥çš„profileä¿¡æ¯è¯»å‡ºåä¸ä»£ç ä¸­çš„ä¸ä¸€è‡´
 **/
 unsigned char SOC_UpdataConfigInfo(void)
 {
@@ -425,11 +425,11 @@ unsigned char SOC_UpdataConfigInfo(void)
 
 
 /**
-* @brief				: µçÁ¿¼Æµ×²ã³õÊ¼»¯
+* @brief				: ç”µé‡è®¡åº•å±‚åˆå§‹åŒ–
 * @param        : None
 * @date					: None
 * @author       : None
-* @note         : return 1 : i2c¶ÁĞ´´í£¬ return 2 : Ğ¾Æ¬´¦ÓÚsleepÄ£Ê½ return 3 : Ğ´ÈëµÄprofileĞÅÏ¢¶Á³öºóÓë´úÂëÖĞµÄ²»Ò»ÖÂ return 4 : Ğ¾Æ¬Æô¶¯ºó30sÄÚ¶ÁµçÁ¿ÖµÒ»Ö±Òì³£
+* @note         : return 1 : i2cè¯»å†™é”™ï¼Œ return 2 : èŠ¯ç‰‡å¤„äºsleepæ¨¡å¼ return 3 : å†™å…¥çš„profileä¿¡æ¯è¯»å‡ºåä¸ä»£ç ä¸­çš„ä¸ä¸€è‡´ return 4 : èŠ¯ç‰‡å¯åŠ¨å30så†…è¯»ç”µé‡å€¼ä¸€ç›´å¼‚å¸¸
 **/
 unsigned char SOC_HardwareInit(void)
 {
@@ -524,11 +524,11 @@ unsigned char SOC_HardwareInit(void)
 
 
 /**
-* @brief				: ÊÍ·ÅalrtÒı½Å
+* @brief				: é‡Šæ”¾alrtå¼•è„š
 * @param        : None 
 * @date					: None 
 * @author       : None
-* @note         : µ±Ò»´Îalrt ÊÂ¼şµ½À´Ê±£¬cw2015 ic»áÀ­µÍarlt pin²úÉúÖĞ¶Ï£¬ÕâÊ±ĞèÒª¶Ô06¼Ä´æÆ÷µÄ×î¸ßbitÎ»Çå0£¬²ÅÄÜÈÃcw2015 icÊÍ·Åalrt pin ÏÂÃæº¯ÊıµÄ×÷ÓÃÊÇÊÍ·Åalrt pin
+* @note         : å½“ä¸€æ¬¡alrt äº‹ä»¶åˆ°æ¥æ—¶ï¼Œcw2015 icä¼šæ‹‰ä½arlt pinäº§ç”Ÿä¸­æ–­ï¼Œè¿™æ—¶éœ€è¦å¯¹06å¯„å­˜å™¨çš„æœ€é«˜bitä½æ¸…0ï¼Œæ‰èƒ½è®©cw2015 icé‡Šæ”¾alrt pin ä¸‹é¢å‡½æ•°çš„ä½œç”¨æ˜¯é‡Šæ”¾alrt pin
 **/
 unsigned char SOC_ReleaseAlrtPin(void)
 {
@@ -555,12 +555,12 @@ unsigned char SOC_ReleaseAlrtPin(void)
 
 
 /**
-* @brief				: ¸üĞÂµÍµçÁ¿±¨¾¯Öµ
+* @brief				: æ›´æ–°ä½ç”µé‡æŠ¥è­¦å€¼
 * @param        : None
 * @date					: None
 * @author       : None
-* @note         : º¯ÊıµÄ×÷ÓÃÊÇ¸üĞÂĞÂµÄµÍµç¸æ¾¯ÖµÎªÉÏ´ÎµÄ -1£¬ ±ÈÈçÎÒÃÇµÄ´úÂë¿ªÊ¼µÄÊ±ºòÉè¶¨µÄµÍµç¸æ¾¯ÖµÊÇ10£¬ÄÇµ±µçÁ¿½µµ½10ºó
-									Ö÷¿Ø´¦ÀíÍêÖĞ¶Ïºó£¬ÎÒ°ÑĞÂµÄµÍµç¸æ¾¯Öµ9Ğ´ÔÚÁË¶ÔÓ¦µÄ¼Ä´æÆ÷ÖĞ¡£ ATHDÊÇ08¼Ä´æÆ÷µÄÇ°5¸öbit
+* @note         : å‡½æ•°çš„ä½œç”¨æ˜¯æ›´æ–°æ–°çš„ä½ç”µå‘Šè­¦å€¼ä¸ºä¸Šæ¬¡çš„ -1ï¼Œ æ¯”å¦‚æˆ‘ä»¬çš„ä»£ç å¼€å§‹çš„æ—¶å€™è®¾å®šçš„ä½ç”µå‘Šè­¦å€¼æ˜¯10ï¼Œé‚£å½“ç”µé‡é™åˆ°10å
+									ä¸»æ§å¤„ç†å®Œä¸­æ–­åï¼Œæˆ‘æŠŠæ–°çš„ä½ç”µå‘Šè­¦å€¼9å†™åœ¨äº†å¯¹åº”çš„å¯„å­˜å™¨ä¸­ã€‚ ATHDæ˜¯08å¯„å­˜å™¨çš„å‰5ä¸ªbit
 **/
 int8_t SOC_UpdateAthd()
 {
@@ -592,7 +592,7 @@ int8_t SOC_UpdateAthd()
 
 
 /**
-* @brief				: ÖĞ¶Ï·şÎñº¯Êı
+* @brief				: ä¸­æ–­æœåŠ¡å‡½æ•°
 * @param        : None
 * @date					: None
 * @author       : None
@@ -601,7 +601,7 @@ int8_t SOC_UpdateAthd()
 static void ALRT_ISR() //interrupt 
 {
     /*User can do something when alrt */
-	/*¿Í»§¿ÉÒÔÔÚÕâÀï¼ÓÈëµ±ÖĞ¶Ïµ½À´Ê±Ïë×öµÄ²Ù×÷*/
+	/*å®¢æˆ·å¯ä»¥åœ¨è¿™é‡ŒåŠ å…¥å½“ä¸­æ–­åˆ°æ¥æ—¶æƒ³åšçš„æ“ä½œ*/
     SOC_ReleaseAlrtPin();
 		SOC_UpdateAthd();
     /*User can write new alrt to CONFIG resiger*/
@@ -610,7 +610,7 @@ static void ALRT_ISR() //interrupt
 
 
 /**
-* @brief				: µçÁ¿¼ÆÉÏµç¸´Î»
+* @brief				: ç”µé‡è®¡ä¸Šç”µå¤ä½
 * @param        : None
 * @date					: None
 * @author       : None
@@ -640,7 +640,7 @@ int SOC_Por(void)
 
 
 /**
-* @brief				: SOC»ñÈ¡µç³ØµçÁ¿
+* @brief				: SOCè·å–ç”µæ± ç”µé‡
 * @param        : None
 * @date					: None
 * @author       : None
@@ -662,7 +662,7 @@ int SOC_GetCapacity(void)
 	}
         
 	cw_capacity = reg_val;
-	/*¼ÙÉèic³öÏÖÎÊÌâ£¬¶ÁÈ¡µçÁ¿²»ÔÚºÏÀíÖµ·¶Î§ÄÚ5´Î£¬ÖØÆôic¡£Èç¹ûÖĞ¼ä¶Áµ½ÕıÈ·µÄÖµ£¬ÄÇÃ´5´ÎµÄ¼ÆÊıÆ÷Çå0£¬ÕıÈ·ÏÔÊ¾*/
+	/*å‡è®¾icå‡ºç°é—®é¢˜ï¼Œè¯»å–ç”µé‡ä¸åœ¨åˆç†å€¼èŒƒå›´å†…5æ¬¡ï¼Œé‡å¯icã€‚å¦‚æœä¸­é—´è¯»åˆ°æ­£ç¡®çš„å€¼ï¼Œé‚£ä¹ˆ5æ¬¡çš„è®¡æ•°å™¨æ¸…0ï¼Œæ­£ç¡®æ˜¾ç¤º*/
 	if (cw_capacity > 100)
 		{
                 // "get cw_capacity error; cw_capacity = %d\n"
@@ -678,10 +678,10 @@ int SOC_GetCapacity(void)
         reset_loop =0;
     }
 	
-	/*Èç¹ûÊÇ³äµç×´Ì¬£¬µçÁ¿Ó¦¸ÃÊÇÏòÉÏÔö¼ÓµÄ£¬²åÈë³äµçÆ÷Ê±Èç¹û±¾´Î¶ÁÈ¡µÄµçÁ¿±ÈÉÏ´ÎĞ¡£¬ÏÔÊ¾ÉÏ´ÎµçÁ¿¡£*/
-	/*Ê²Ã´Çé¿öÏÂ»á³öÏÖÕâÖÖÎÊÌâÄØ£¬ÒòÎªÎÒË¾µçÁ¿¼ÆÓĞĞ¡ÊıÎ»£¬±ÈÈç±¾´ÎµçÁ¿0x04¼Ä´æÆ÷¶Á³öµÄÖµÊÇ9.01£¬ÒòÎª´úÂëÖ»¶Á03¼Ä´æÆ÷£¬ËùÒÔ¸ø¿Í»§ÏÔÊ¾µÄÖµÊÇ9£¬µ«ÏÂ´Î¶ÁÈ¡µÄµçÁ¿ÊÇ8.99*/
-	/*ÄÇÃ´ÏÂ´ÎÏÔÊ¾¸ø¿Í»§µÄµçÁ¿ÊÇ8£¬´Ó¿Í»§ÏÔÊ¾ÉÏÀ´¿´²»Ì«ºÃ¿´£¬ËùÒÔ×öÁËÕâ¸ö¡£*/
-	/*·ÅµçÊ±×öÁËÍ¬ÑùµÄ´¦Àí*/
+	/*å¦‚æœæ˜¯å……ç”µçŠ¶æ€ï¼Œç”µé‡åº”è¯¥æ˜¯å‘ä¸Šå¢åŠ çš„ï¼Œæ’å…¥å……ç”µå™¨æ—¶å¦‚æœæœ¬æ¬¡è¯»å–çš„ç”µé‡æ¯”ä¸Šæ¬¡å°ï¼Œæ˜¾ç¤ºä¸Šæ¬¡ç”µé‡ã€‚*/
+	/*ä»€ä¹ˆæƒ…å†µä¸‹ä¼šå‡ºç°è¿™ç§é—®é¢˜å‘¢ï¼Œå› ä¸ºæˆ‘å¸ç”µé‡è®¡æœ‰å°æ•°ä½ï¼Œæ¯”å¦‚æœ¬æ¬¡ç”µé‡0x04å¯„å­˜å™¨è¯»å‡ºçš„å€¼æ˜¯9.01ï¼Œå› ä¸ºä»£ç åªè¯»03å¯„å­˜å™¨ï¼Œæ‰€ä»¥ç»™å®¢æˆ·æ˜¾ç¤ºçš„å€¼æ˜¯9ï¼Œä½†ä¸‹æ¬¡è¯»å–çš„ç”µé‡æ˜¯8.99*/
+	/*é‚£ä¹ˆä¸‹æ¬¡æ˜¾ç¤ºç»™å®¢æˆ·çš„ç”µé‡æ˜¯8ï¼Œä»å®¢æˆ·æ˜¾ç¤ºä¸Šæ¥çœ‹ä¸å¤ªå¥½çœ‹ï¼Œæ‰€ä»¥åšäº†è¿™ä¸ªã€‚*/
+	/*æ”¾ç”µæ—¶åšäº†åŒæ ·çš„å¤„ç†*/
 	if(((socStr.UsbOnline == 1) && (cw_capacity == (socStr.Capacity - 1)))
 			|| ((socStr.UsbOnline == 0) && (cw_capacity == (socStr.Capacity + 1))))
 	{
@@ -692,10 +692,10 @@ int SOC_GetCapacity(void)
 		}
 	}
 	
-		/*Õâ¶ÎÊÇ¿Í»§³£¼ûµÄÎÊÌâ£¬¿Í»§Ê¹ÓÃµÄcharger ic£¨³äµçic£©¾«¶È²»ÊÇºÜ¸ß£¬ÓĞĞ©icÖ»ÄÜ°Ñµç³Ø³äµçµ½4.1V£¬Èç¹ûÌáÈ¡µç³ØÇúÏßÊ±Âú³äµçÑ¹ÌáµÄÊÇ4.2V£¬ÄÇÃ´¾ÃÓÀÔ¶ÏÔÊ¾²»ÁË100%*/
-		/*Óöµ½ÕâÖÖÎÊÌâÓĞÁ½ÖÖ·½·¨£¬1¡¢ÈçÎÒĞ´µÄ´úÂëÕâÑùÏÔÊ¾¸ø¿Í»§Ò»¸ö¼ÙµÄÖµ£¬Ò»µãµãÔö¼Óµ½100¡£
-		2¡¢ÁíÍâÊÇĞŞ¸Äprofile£¬½µµÍÏÔÊ¾100%Ê±µÄµçÑ¹µã£¨ÕâÑù×öºóÈç¹û»¹ÊÇ»áÓĞĞ©charger icÖ»ÄÜÈÃµç³Ø³äµ½4.0¾ÍÓÖÓĞÎÊÌâÁË£©¡£
-		ÒÔÇ°µÄoppoµÄÒ»¿îchargerÓöµ½ÕâÑùµÄÎÊÌâ
+		/*è¿™æ®µæ˜¯å®¢æˆ·å¸¸è§çš„é—®é¢˜ï¼Œå®¢æˆ·ä½¿ç”¨çš„charger icï¼ˆå……ç”µicï¼‰ç²¾åº¦ä¸æ˜¯å¾ˆé«˜ï¼Œæœ‰äº›icåªèƒ½æŠŠç”µæ± å……ç”µåˆ°4.1Vï¼Œå¦‚æœæå–ç”µæ± æ›²çº¿æ—¶æ»¡å……ç”µå‹æçš„æ˜¯4.2Vï¼Œé‚£ä¹ˆä¹…æ°¸è¿œæ˜¾ç¤ºä¸äº†100%*/
+		/*é‡åˆ°è¿™ç§é—®é¢˜æœ‰ä¸¤ç§æ–¹æ³•ï¼Œ1ã€å¦‚æˆ‘å†™çš„ä»£ç è¿™æ ·æ˜¾ç¤ºç»™å®¢æˆ·ä¸€ä¸ªå‡çš„å€¼ï¼Œä¸€ç‚¹ç‚¹å¢åŠ åˆ°100ã€‚
+		2ã€å¦å¤–æ˜¯ä¿®æ”¹profileï¼Œé™ä½æ˜¾ç¤º100%æ—¶çš„ç”µå‹ç‚¹ï¼ˆè¿™æ ·åšåå¦‚æœè¿˜æ˜¯ä¼šæœ‰äº›charger icåªèƒ½è®©ç”µæ± å……åˆ°4.0å°±åˆæœ‰é—®é¢˜äº†ï¼‰ã€‚
+		ä»¥å‰çš„oppoçš„ä¸€æ¬¾chargeré‡åˆ°è¿™æ ·çš„é—®é¢˜
 		*/
 	if((socStr.UsbOnline == 1) && (cw_capacity >= 95) && (cw_capacity <= socStr.Capacity) )
 	{     
@@ -713,7 +713,7 @@ int SOC_GetCapacity(void)
 			cw_capacity = socStr.Capacity; 
 		}
 	}
-	/*Õâ¶ÎµÄ´úÂëÊÇµ±µçÁ¿ÊÇÍ¨¹ıÉÏµ½´úÂëĞŞÕıÉÏÈ¥µÄ¼ÙµÄÖµ£¬ÄÇÃ´ÒªÓÃ¼ÙµÄ·½·¨ĞŞÕıÏÂÀ´£¬±ÜÃâ100Ö±½ÓÌø±ä»ØÕæÊµÖµµÄÇé¿ö*/
+	/*è¿™æ®µçš„ä»£ç æ˜¯å½“ç”µé‡æ˜¯é€šè¿‡ä¸Šåˆ°ä»£ç ä¿®æ­£ä¸Šå»çš„å‡çš„å€¼ï¼Œé‚£ä¹ˆè¦ç”¨å‡çš„æ–¹æ³•ä¿®æ­£ä¸‹æ¥ï¼Œé¿å…100ç›´æ¥è·³å˜å›çœŸå®å€¼çš„æƒ…å†µ*/
     else if((socStr.UsbOnline == 0) && (cw_capacity <= socStr.Capacity ) && (cw_capacity >= 90) && (no_charger_full_jump == 1))
 	{
 		// avoid battery level jump to CW_BAT
@@ -742,7 +742,7 @@ int SOC_GetCapacity(void)
   		allow_no_charger_full =0;
     }
 	
-	/*ic³ö´íÁË£¬³äÁËºÜ¾ÃÒ»Ö±»¹ÊÇ0%£¬Ò»°ãÎÒÃÇÓÃ°ë¸öĞ¡Ê±£¬ÄÇÃ´ÖØÆôÏÂic*/
+	/*icå‡ºé”™äº†ï¼Œå……äº†å¾ˆä¹…ä¸€ç›´è¿˜æ˜¯0%ï¼Œä¸€èˆ¬æˆ‘ä»¬ç”¨åŠä¸ªå°æ—¶ï¼Œé‚£ä¹ˆé‡å¯ä¸‹ic*/
 	if((socStr.UsbOnline > 0) && (cw_capacity == 0))
 	{		  
 		allow_charger_always_zero++;
@@ -766,7 +766,7 @@ int SOC_GetCapacity(void)
 
 
 /**
-* @brief				: »ñÈ¡µçÑ¹Öµ
+* @brief				: è·å–ç”µå‹å€¼
 * @param        : None
 * @date					: None
 * @author       : None
@@ -814,12 +814,12 @@ unsigned int SOC_GetVol(void)
 	ad_value -= ad_value_min;
 	ad_value -= ad_value_max;
 	ad_value = ad_value  * 305 / 1000;
-	return(ad_value);       //14Î»ADC×ª»»Öµ
+	return(ad_value);       //14ä½ADCè½¬æ¢å€¼
 }
 
 
 /**
-* @brief				: SOC¸üĞÂµç³ØµçÁ¿
+* @brief				: SOCæ›´æ–°ç”µæ± ç”µé‡
 * @param        : None
 * @date					: None
 * @author       : None
@@ -832,7 +832,7 @@ void SOC_UpdateCapacity(void)
 	if((cw_capacity >= -5) && (cw_capacity <= 100) && (socStr.Capacity != cw_capacity))
 	{       
 		socStr.Capacity = cw_capacity;
-		cw_capacity += 5;				//ÓÅ»¯µç³ØµçÁ¿³ä²»ÂúµÄÎÊÌâ
+		cw_capacity += 5;				//ä¼˜åŒ–ç”µæ± ç”µé‡å……ä¸æ»¡çš„é—®é¢˜
 		if(cw_capacity>100)
 			icarStr.Electricity = 100;
 		else if(cw_capacity<0)
@@ -844,7 +844,7 @@ void SOC_UpdateCapacity(void)
 
 
 /**
-* @brief				: SOC¸üĞÂµç³ØµçÑ¹
+* @brief				: SOCæ›´æ–°ç”µæ± ç”µå‹
 * @param        : None
 * @date					: None
 * @author       : None
@@ -865,7 +865,7 @@ void SOC_UpdateVol(void)
 		icarStr.Voltage = (float)cw_voltage*3.f/1000.f;
 	}
 	
-	if(icarStr.Voltage < 11.3f)	//µçÑ¹<11.3v¿ªÊ¼±¨¾¯
+	if(icarStr.Voltage < 11.3f)	//ç”µå‹<11.3vå¼€å§‹æŠ¥è­¦
 	{
 		uSocErrorCnt ++;
 		if(uSocErrorCnt > 2)
@@ -882,7 +882,7 @@ void SOC_UpdateVol(void)
 
 
 /**
-* @brief				: USB²åÈë×´Ì¬¼ì²â
+* @brief				: USBæ’å…¥çŠ¶æ€æ£€æµ‹
 * @param        : None
 * @date					: None
 * @author       : None
@@ -891,8 +891,8 @@ void SOC_UpdateVol(void)
 void SOC_UpdateUsbOnline(void)
 {
 	if(0) 
-	//ÕâÀïÇë×¢Òâ£¬ÕâÀïÊÇ¿Í»§ĞèÒª×Ô¼ºÅäÖÃĞŞ¸ÄµÄµØ·½
-	//ÇëĞŞ¸Ä´úÂë±£Ö¤DC²åÈëÊ±ÅäÖÃsoc_Struct.usb_onlineÎª 1£¬DC²»ÔÚÊ±ÅäÖÃsoc_Struct.usb_onlineÎª0
+	//è¿™é‡Œè¯·æ³¨æ„ï¼Œè¿™é‡Œæ˜¯å®¢æˆ·éœ€è¦è‡ªå·±é…ç½®ä¿®æ”¹çš„åœ°æ–¹
+	//è¯·ä¿®æ”¹ä»£ç ä¿è¯DCæ’å…¥æ—¶é…ç½®soc_Struct.usb_onlineä¸º 1ï¼ŒDCä¸åœ¨æ—¶é…ç½®soc_Struct.usb_onlineä¸º0
 	{
 		socStr.UsbOnline = 1;
 	}else{
@@ -902,7 +902,7 @@ void SOC_UpdateUsbOnline(void)
 
 
 /**
-* @brief				: SOC¿ØÖÆÆ÷
+* @brief				: SOCæ§åˆ¶å™¨
 * @param        : None
 * @date					: None
 * @author       : None
@@ -917,11 +917,11 @@ void SOC_BatWork(void)
 
 
 /**
-* @brief				: SOC³õÊ¼»¯
+* @brief				: SOCåˆå§‹åŒ–
 * @param        : None
 * @date					: None
 * @author       : None
-* @note         : return 1 : i2c¶ÁĞ´´í£¬ return 2 : Ğ¾Æ¬´¦ÓÚsleepÄ£Ê½ return 3 : Ğ´ÈëµÄprofileĞÅÏ¢¶Á³öºóÓë´úÂëÖĞµÄ²»Ò»ÖÂ return 4 : Ğ¾Æ¬Æô¶¯ºó30sÄÚ¶ÁµçÁ¿ÖµÒ»Ö±Òì³£
+* @note         : return 1 : i2cè¯»å†™é”™ï¼Œ return 2 : èŠ¯ç‰‡å¤„äºsleepæ¨¡å¼ return 3 : å†™å…¥çš„profileä¿¡æ¯è¯»å‡ºåä¸ä»£ç ä¸­çš„ä¸ä¸€è‡´ return 4 : èŠ¯ç‰‡å¯åŠ¨å30så†…è¯»ç”µé‡å€¼ä¸€ç›´å¼‚å¸¸
 **/
 unsigned char SOC_Init(void)
 {
@@ -946,7 +946,7 @@ unsigned char SOC_Init(void)
 
 
 /**
-* @brief				: µçÁ¿¼ÆIC¿ØÖÆÊ±Ğò
+* @brief				: ç”µé‡è®¡ICæ§åˆ¶æ—¶åº
 * @param        : None
 * @date					: None
 * @author       : Leo
@@ -961,7 +961,7 @@ void SOC_Timer(void)
 
 
 /**
-* @brief				: µçÁ¿¼ÆIC¿ØÖÆÂß¼­
+* @brief				: ç”µé‡è®¡ICæ§åˆ¶é€»è¾‘
 * @param        : None
 * @date					: None
 * @author       : Leo

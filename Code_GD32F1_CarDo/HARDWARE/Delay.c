@@ -1,24 +1,24 @@
-#include "delay.h"
+ï»¿#include "delay.h"
 /*
 ********************************************************************************************************
-*                                               Ê¾Àı´úÂë
+*                                               ç¤ºä¾‹ä»£ç 
 *                                             EXAMPLE  CODE                                             
 *
 *                             (c) Copyright 2021; SaiShu.Lcc.; Leo
-*                                 °æÈ¨ËùÊô[±±¾©ÈüÊï¿Æ¼¼ÓĞÏŞ¹«Ë¾]
+*                                 ç‰ˆæƒæ‰€å±[åŒ—äº¬èµ›æ›™ç§‘æŠ€æœ‰é™å…¬å¸]
 *
-*               The code is for internal use only, not for commercial transactions(¿ªÔ´Ñ§Ï°,ÇëÎğÉÌÓÃ).
-*               The code ADAPTS the corresponding hardware circuit board(´úÂëÊ¹ÓÃCarDoÖÇ¿Ø°å), 
-*               the specific details consult the professional(»¶Ó­ÁªÏµÎÒÃÇ).
+*               The code is for internal use only, not for commercial transactions(å¼€æºå­¦ä¹ ,è¯·å‹¿å•†ç”¨).
+*               The code ADAPTS the corresponding hardware circuit board(ä»£ç ä½¿ç”¨CarDoæ™ºæ§æ¿), 
+*               the specific details consult the professional(æ¬¢è¿è”ç³»æˆ‘ä»¬).
 *********************************************************************************************************
 */
 
 /**
-* @brief        »úĞµÑÓÊ±º¯Êı
-* @param        us£ºÎ¢Ãë
-* @ref          2021Äê11ÔÂ20ÈÕ 11:27:46
+* @brief        æœºæ¢°å»¶æ—¶å‡½æ•°
+* @param        usï¼šå¾®ç§’
+* @ref          2021å¹´11æœˆ20æ—¥ 11:27:46
 * @author       Leo
-* @note         »ùÓÚ72MHzÖ÷Æµ
+* @note         åŸºäº72MHzä¸»é¢‘
 **/
 void Delay_Us(u32 us)
 {
@@ -35,11 +35,11 @@ void Delay_Us(u32 us)
 
 
 /**
-* @brief        »úĞµÑÓÊ±º¯Êı
-* @param        ms£ººÁÃë
-* @ref          2021Äê11ÔÂ20ÈÕ 11:27:43
+* @brief        æœºæ¢°å»¶æ—¶å‡½æ•°
+* @param        msï¼šæ¯«ç§’
+* @ref          2021å¹´11æœˆ20æ—¥ 11:27:43
 * @author       Leo
-* @note         »ùÓÚ72MHzÖ÷Æµ
+* @note         åŸºäº72MHzä¸»é¢‘
 **/
 void Delay_Ms(u16 ms)
 {

@@ -1,20 +1,20 @@
-#ifndef __RGB_H__
+ï»¿#ifndef __RGB_H__
 #define __RGB_H__
 
 /*-----------------------------------------  I N C L U D E S  -----------------------------------------*/
 #include "main.h"
 
 /*---------------------------------------  D E F I N I T I O N  ---------------------------------------*/
-#define RGB_NUM                     7	            //ÓĞ¶àÉÙ¿ÅWS2812D¼¶Áª
-#define RGB_COLOR_WHITE             0xFFFFFF	    //°×É« 
-#define RGB_COLOR_BLACK             0x000000	    //ºÚÉ«
-#define RGB_COLOR_RED               0xFF0000	    //ºìÉ«
-#define RGB_COLOR_GREEN             0x00FF00	    //ÂÌÉ«
-#define RGB_COLOR_BLUE              0x0000FF	    //À¶É«
+#define RGB_NUM                     7	            //æœ‰å¤šå°‘é¢—WS2812Dçº§è”
+#define RGB_COLOR_WHITE             0xFFFFFF	    //ç™½è‰² 
+#define RGB_COLOR_BLACK             0x000000	    //é»‘è‰²
+#define RGB_COLOR_RED               0xFF0000	    //çº¢è‰²
+#define RGB_COLOR_GREEN             0x00FF00	    //ç»¿è‰²
+#define RGB_COLOR_BLUE              0x0000FF	    //è“è‰²
 
 
 /**
-* @brief    RGBµÆÏà¹Ø
+* @brief    RGBç¯ç›¸å…³
 **/
 typedef struct 
 {

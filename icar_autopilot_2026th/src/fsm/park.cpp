@@ -79,7 +79,7 @@ void FsmPark::run(Mat &img)
 
     stopping = false; // 停车等待标志
     speedUp++;
-    if (speedUp > 1000) // 出库缓加速计数器
+    if (speedUp > 1000) // 出库缓加速计时
         speedUp = 1000;
 
     if (params->ctrl.stop || waiting) // 禁行区不进行车库图像处理
@@ -140,10 +140,11 @@ void FsmPark::run(Mat &img)
             timeout++;
         if (timeout > 80) // 超时退出停车状态
             reset();      // 停车场数据复位
+
         if (findSymbols(params->resultsSnapshot, LABEL_PARK)) // 搜索AI标志：停车场
             countSes = 0;
 
-        if (countSes > 30)         // 停车场Park标志丢失后，倒计数25场图像 开始左转向: 25帧
+        if (countSes > 30)         // 停车场Park标志丢失后，倒计时15场图像开始左转向: 25场
             setStep(Step::FORKIN); // 设置停车场新步骤
 
         // 检测入库AI标志
@@ -179,7 +180,7 @@ void FsmPark::run(Mat &img)
         replanTracking();                             // 车道线重绘（岔路左转）
         if (findSymbols(params->resultsSnapshot, LABEL_GATE)) // 搜索AI标志：道闸
             countRes++;
-        if (countRes > 2 || timeout > 24) // 转向超时处理
+        if (countRes > 2 || timeout > 24) // 转向超时：
         {
             spots.reset(); // 车位信息复位
 
@@ -202,7 +203,7 @@ void FsmPark::run(Mat &img)
         break;
     }
 
-    case Step::TRACKIN: // 入库巡线控制
+    case Step::TRACKIN: // 入库巡线中
     {
         timeout++;  // 超时计数
         countSes++; // 图像场次计数
@@ -259,14 +260,14 @@ void FsmPark::run(Mat &img)
                 // 根据目标车位选择对应侧的叉（解决巡线时左偏）
                 if (rightSide && spots.forks.size() >= 2)
                 {
-                    // 选右侧的车位
+                    // 选右侧的叉
                     float cx0 = spots.forks[0].x + spots.forks[0].width / 2;
                     float cx1 = spots.forks[1].x + spots.forks[1].width / 2;
                     direction = (cx0 > cx1) ? spots.forks[0] : spots.forks[1];
                 }
                 else if (!rightSide && spots.forks.size() >= 2)
                 {
-                    // 选左侧的车位
+                    // 选左侧的叉
                     float cx0 = spots.forks[0].x + spots.forks[0].width / 2;
                     float cx1 = spots.forks[1].x + spots.forks[1].width / 2;
                     direction = (cx0 < cx1) ? spots.forks[0] : spots.forks[1];
@@ -277,7 +278,7 @@ void FsmPark::run(Mat &img)
                 }
             }
 
-            PointX start = PointX(ROWSIMAGE - 20, COLSIMAGE / 2); // 补线起点：车底
+            PointX start = PointX(ROWSIMAGE - 20, COLSIMAGE / 2); // 补线起点：车头
             if (countIn < 50)                                     // 起点矫正
             {
                 if (params->track->pointsEdgeLeft.size() > ROWSIMAGE / 5 && params->track->pointsEdgeRight.size() > ROWSIMAGE / 5)
@@ -307,13 +308,13 @@ void FsmPark::run(Mat &img)
         if (spots.forks.size() == 2) // 当AI图像同时检测到两个岔路箭头时判断车位是否空闲
         {
             std::cout << "[Park] Found 2 forks, checking spots..." << std::endl;
-            // 已通过setParkSpotOverride指定目标车位，非目标车位由FORKIN init标记为占用
-            // 不进行车辆检测（避免假车/他车误分类到目标车位；PredictResult默认未初始化）
-            // carPark.score为随机值会导致所有车位被误判为已占用状态
+            // 已通过setParkSpotOverride指定目标车位，非目标车位由FORKIN init标记，
+            // 不进行车辆检测（避免假车/他车误分类到目标车位；PredictResult默认未初始化，
+            // carPark.score为随机值会导致所有车位被误判为已占用）
             for (int i = 0; i < 4; i++)
             {
                 if (spots.counter[i] > 4)
-                    spots.spotEnable[i] = false; // 停车位已占用
+                    spots.spotEnable[i] = false; // 停车位已占
             }
 
             // 驶入车位编号确认（用较小阈值使checked尽早完成，让spotUp/spotDown控制入库时机）
@@ -439,7 +440,8 @@ void FsmPark::run(Mat &img)
             PointX midPoint = PointX((startPoint.x + endPoint.x) * 0.5, (startPoint.y + endPoint.y) * 0.5); // 入库补线中点
             vector<PointX> repairPoints = {startPoint, midPoint, endPoint};
             params->track->pointsEdgeLeft = Bezier(0.02, repairPoints); // 三阶贝塞尔曲线拟合
-            // 右车位
+
+            // 右车道
             startPoint = PointX(ROWSIMAGE - 30, COLSIMAGE * 0.8);                                    // 入库补线起点:固定左下角
             endPoint = PointX(50, COLSIMAGE * 0.65);                                                 // 入库补线终点
             midPoint = PointX((startPoint.x + endPoint.x) * 0.5, (startPoint.y + endPoint.y) * 0.5); // 入库补线中点
@@ -523,7 +525,7 @@ void FsmPark::run(Mat &img)
                 direction = resLeft;
             else
                 direction = spots.forks[0];
-            PointX start = PointX(ROWSIMAGE - 20, COLSIMAGE / 2);                // 补线起点：车底
+            PointX start = PointX(ROWSIMAGE - 20, COLSIMAGE / 2);                // 补线起点：车头
             PointX end = PointX(direction.y, direction.x + direction.width / 2); // 补线终点：AI标志
             PointX mid = PointX((start.x + end.x) / 2, (start.y + end.y) / 2);   // 补线中点
             vector<PointX> repairPoints = {start, mid, end};
@@ -552,6 +554,7 @@ void FsmPark::run(Mat &img)
         speedUp = 0;
         timeout++;
         replanTracking(); // 车道线重绘（岔路左转）
+
         // 搜索左转标志
         bool leftSign = false;
         for (int i = 0; i < params->resultsSnapshot.size(); i++) // 搜索左转箭头
@@ -594,7 +597,7 @@ void FsmPark::show(Mat &img)
     putText(img, "[5] Park", Point(COLSIMAGE / 2 - 50, 20),
             cv::FONT_HERSHEY_TRIPLEX, 0.5, cv::Scalar(0, 255, 0), 0.5);
 
-    // 绘制边缘线
+    // 绘制边缘点
     for (int i = 0; i < params->track->pointsEdgeLeft.size(); i++)
     {
         circle(img, Point(params->track->pointsEdgeLeft[i].y, params->track->pointsEdgeLeft[i].x), 2,
@@ -638,7 +641,7 @@ void FsmPark::show(Mat &img)
         for (int i = 0; i < spots.forksIpm.size(); i++)
             circle(imgIpm, Point(spots.forksIpm[i].x, spots.forksIpm[i].y), 3, Scalar(0, 255, 0), -1);
 
-        // 绘制所有4个车位标签（实际布局：左上1，左下2，右上3，右下4）
+        // 绘制所有4个车位标签（实际布局：左前=1，左后=2，右后=3，右前=4）
         // 绿色=空闲(spotEnable=true)，红色=占用(spotEnable=false)
         if (spots.forks.size() > 0)
         {
@@ -716,6 +719,7 @@ void FsmPark::setParkSpotOccupied(int spotNumber)
 
         // 在计数器中增加，使其被判定为已占用
         spots.counter[spotNumber - 1] = 5; // 设置足够大的计数值
+
         // 为其他停车位设置不占用状态
         for (int i = 0; i < 4; i++)
         {
@@ -742,7 +746,7 @@ void FsmPark::reset()
     step = Step::NONE; // 停车步骤
     waiting = false;   // 停车等待使能
     countWait = 0;     // 停车等待计数器
-    countOut = 0;      // 出库检测计数器
+    countOut = 0;      // 出库检测计数
     countIn = 0;       // 入库矫正计数器
     speedUp = 0;       // 出库加速延迟计数器
     countFlow = 0;     // 直行计数器
@@ -792,7 +796,7 @@ void FsmPark::replanTracking()
 /**
  * @brief 停车入库车道线重绘
  *
- * @param left true：左侧| false：右侧
+ * @param left true：左转 | false：右转
  */
 void FsmPark::replanTracking(bool left)
 {

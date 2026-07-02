@@ -1,4 +1,4 @@
-#include  "imu.h" 
+ï»¿#include  "imu.h" 
 
 
 IMU_STA ImuStructure;
@@ -13,7 +13,7 @@ IMU_STA ImuStructure;
 ****************************************************************************** */
 void IMU_IIC_Delay(void)
 {
-    u8 i=30; //ÕâÀï¿ÉÒÔÓÅ»¯ËÙ¶È	£¬¾­²âÊÔ×îµÍµ½5»¹ÄÜĞ´Èë
+    u8 i=30; //è¿™é‡Œå¯ä»¥ä¼˜åŒ–é€Ÿåº¦	ï¼Œç»æµ‹è¯•æœ€ä½åˆ°5è¿˜èƒ½å†™å…¥
     while(i)
     {
         i--;
@@ -32,10 +32,10 @@ bool IMU_IIC_Start(void)
     SDA_H;
     SCL_H;
     IMU_IIC_Delay();
-    if(!SDA_read)return false;	//SDAÏßÎªµÍµçÆ½Ôò×ÜÏßÃ¦,ÍË³ö
+    if(!SDA_read)return false;	//SDAçº¿ä¸ºä½ç”µå¹³åˆ™æ€»çº¿å¿™,é€€å‡º
     SDA_L;
     IMU_IIC_Delay();
-    if(SDA_read) return false;	//SDAÏßÎª¸ßµçÆ½Ôò×ÜÏß³ö´í,ÍË³ö
+    if(SDA_read) return false;	//SDAçº¿ä¸ºé«˜ç”µå¹³åˆ™æ€»çº¿å‡ºé”™,é€€å‡º
     SDA_L;
     IMU_IIC_Delay();
     return true;
@@ -105,7 +105,7 @@ void IMU_IIC_NoAck(void)
 * Output         : None
 * Return         : Wheather	 Reserive Slave Acknowledge Single
 ****************************************************************************** */
-bool IMU_IIC_WaitAck(void) 	 //·µ»ØÎª:=1ÓĞACK,=0ÎŞACK
+bool IMU_IIC_WaitAck(void) 	 //è¿”å›ä¸º:=1æœ‰ACK,=0æ— ACK
 {
     SCL_L;
     IMU_IIC_Delay();
@@ -131,7 +131,7 @@ bool IMU_IIC_WaitAck(void) 	 //·µ»ØÎª:=1ÓĞACK,=0ÎŞACK
 * Output         : None
 * Return         : None
 ****************************************************************************** */
-void IMU_IIC_SendByte(u8 SendByte) //Êı¾İ´Ó¸ßÎ»µ½µÍÎ»//
+void IMU_IIC_SendByte(u8 SendByte) //æ•°æ®ä»é«˜ä½åˆ°ä½ä½//
 {
     u8 i=8;
     while(i--)
@@ -157,7 +157,7 @@ void IMU_IIC_SendByte(u8 SendByte) //Êı¾İ´Ó¸ßÎ»µ½µÍÎ»//
 * Output         : None
 * Return         : Date From Slave
 ****************************************************************************** */
-unsigned char IMU_IIC_RadeByte(void)  //Êı¾İ´Ó¸ßÎ»µ½µÍÎ»
+unsigned char IMU_IIC_RadeByte(void)  //æ•°æ®ä»é«˜ä½åˆ°ä½ä½
 {
     u8 i=8;
     u8 ReceiveByte=0;
@@ -192,12 +192,12 @@ unsigned char IMU_IIC_RadeByte(void)  //Êı¾İ´Ó¸ßÎ»µ½µÍÎ»
 bool IMU_IIC_SingleWrite(unsigned char SlaveAddress,unsigned char REG_Address,unsigned char REG_data)		     //void
 {
     if(!IMU_IIC_Start())return false;
-    IMU_IIC_SendByte(SlaveAddress);   //·¢ËÍÉè±¸µØÖ·+Ğ´ĞÅºÅ//IMU_IIC_SendByte(((REG_Address & 0x0700) >>7) | SlaveAddress & 0xFFFE);//ÉèÖÃ¸ßÆğÊ¼µØÖ·+Æ÷¼şµØÖ·
+    IMU_IIC_SendByte(SlaveAddress);   //å‘é€è®¾å¤‡åœ°å€+å†™ä¿¡å·//IMU_IIC_SendByte(((REG_Address & 0x0700) >>7) | SlaveAddress & 0xFFFE);//è®¾ç½®é«˜èµ·å§‹åœ°å€+å™¨ä»¶åœ°å€
     if(!IMU_IIC_WaitAck()) {
         IMU_IIC_Stop();
         return false;
     }
-    IMU_IIC_SendByte(REG_Address );   //ÉèÖÃµÍÆğÊ¼µØÖ·
+    IMU_IIC_SendByte(REG_Address );   //è®¾ç½®ä½èµ·å§‹åœ°å€
     IMU_IIC_WaitAck();
     IMU_IIC_SendByte(REG_data);
     IMU_IIC_WaitAck();
@@ -223,7 +223,7 @@ unsigned char IMU_IIC_SingleRead(unsigned char SlaveAddress,unsigned char REG_Ad
         IMU_IIC_Stop();
         return false;
     }
-    IMU_IIC_SendByte((u8) REG_Address);   //ÉèÖÃµÍÆğÊ¼µØÖ·
+    IMU_IIC_SendByte((u8) REG_Address);   //è®¾ç½®ä½èµ·å§‹åœ°å€
     IMU_IIC_WaitAck();
     IMU_IIC_Start();
     IMU_IIC_SendByte(SlaveAddress+1);
@@ -237,7 +237,7 @@ unsigned char IMU_IIC_SingleRead(unsigned char SlaveAddress,unsigned char REG_Ad
 }
 
 /**
-* @Description  : IMU³õÊ¼»¯£¨MPU6050£©
+* @Description  : IMUåˆå§‹åŒ–ï¼ˆMPU6050ï¼‰
 * @params       : 
 * @Date         : 
 * @author       : Leo
@@ -245,7 +245,7 @@ unsigned char IMU_IIC_SingleRead(unsigned char SlaveAddress,unsigned char REG_Ad
 **/
 void IMU_Init(void)
 {
-    //IMU-GPIO³õÊ¼»¯
+    //IMU-GPIOåˆå§‹åŒ–
     GPIO_InitTypeDef  GPIO_InitStructure;
 
     GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_13 | GPIO_Pin_14;
@@ -257,12 +257,12 @@ void IMU_Init(void)
     /*
        IMU_IIC_SingleWrite(MPU6050_Addr,PWR_M, 0x80);   //
        IMU_IIC_SingleWrite(MPU6050_Addr,SMPL, 0x07);    //
-       IMU_IIC_SingleWrite(MPU6050_Addr,DLPF, 0x1E);    //¡À2000¡ã
+       IMU_IIC_SingleWrite(MPU6050_Addr,DLPF, 0x1E);    //Â±2000Â°
        IMU_IIC_SingleWrite(MPU6050_Addr,INT_C, 0x00 );  //
        IMU_IIC_SingleWrite(MPU6050_Addr,PWR_M, 0x00);   //
     */
     Delay_Ms(5);
-    IMU_IIC_SingleWrite(MPU6050_Addr,PWR_MGMT_1, 	0x00);	//½â³ıĞİÃß×´Ì¬
+    IMU_IIC_SingleWrite(MPU6050_Addr,PWR_MGMT_1, 	0x00);	//è§£é™¤ä¼‘çœ çŠ¶æ€
     IMU_IIC_SingleWrite(MPU6050_Addr,SMPLRT_DIV, 	0x07);
     IMU_IIC_SingleWrite(MPU6050_Addr,CONFIG, 			0x06);
     IMU_IIC_SingleWrite(MPU6050_Addr,GYRO_CONFIG, 	0x18);
@@ -271,7 +271,7 @@ void IMU_Init(void)
 
 
 /**
-* @Description  : IMU¶ÁÈ¡¹ßĞÔÊı¾İ
+* @Description  : IMUè¯»å–æƒ¯æ€§æ•°æ®
 * @params       : 
 * @Date         : 
 * @author       : Leo
@@ -281,22 +281,22 @@ void IMU_Handle(void)
 {
     if(ImuStructure.Counter > 1000)	//10ms
     {
-        unsigned char buff[12];     //½ÓÊÕÊı¾İ»º´æÇø
+        unsigned char buff[12];     //æ¥æ”¶æ•°æ®ç¼“å­˜åŒº
         
         buff[0]=IMU_IIC_SingleRead(MPU6050_Addr,GYRO_XOUT_L);
         buff[1]=IMU_IIC_SingleRead(MPU6050_Addr,GYRO_XOUT_H);
         ImuStructure.GyroX =	(buff[1]<<8)|buff[0];
-        ImuStructure.GyroX /= 16.4; 						   //¶ÁÈ¡¼ÆËãXÖáÊı¾İ
+        ImuStructure.GyroX /= 16.4; 						   //è¯»å–è®¡ç®—Xè½´æ•°æ®
 
         buff[2]=IMU_IIC_SingleRead(MPU6050_Addr,GYRO_YOUT_L);
         buff[3]=IMU_IIC_SingleRead(MPU6050_Addr,GYRO_YOUT_H);
         ImuStructure.GyroY =	(buff[3]<<8)|buff[2];
-        ImuStructure.GyroY /=16.4; 						   	//¶ÁÈ¡¼ÆËãYÖáÊı¾İ
+        ImuStructure.GyroY /=16.4; 						   	//è¯»å–è®¡ç®—Yè½´æ•°æ®
     
         buff[4]=IMU_IIC_SingleRead(MPU6050_Addr,GYRO_ZOUT_L);
         buff[5]=IMU_IIC_SingleRead(MPU6050_Addr,GYRO_ZOUT_H);
         ImuStructure.GyroZ =	(buff[5]<<8)|buff[4];
-        ImuStructure.GyroZ /=16.4; 					       //¶ÁÈ¡¼ÆËãZÖáÊı¾İ
+        ImuStructure.GyroZ /=16.4; 					       //è¯»å–è®¡ç®—Zè½´æ•°æ®
 
         buff[6]=IMU_IIC_SingleRead(MPU6050_Addr,ACCEL_XOUT_L);
         buff[7]=IMU_IIC_SingleRead(MPU6050_Addr,ACCEL_XOUT_H);
@@ -315,7 +315,7 @@ void IMU_Handle(void)
 }
 
 /**
-* @Description  : IMUÏß³Ì¿ØÖÆÆ÷
+* @Description  : IMUçº¿ç¨‹æ§åˆ¶å™¨
 * @params       : 
 * @Date         : 
 * @author       : Leo

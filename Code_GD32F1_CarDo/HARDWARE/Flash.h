@@ -1,11 +1,11 @@
-#ifndef __FLASH_H__
+ï»¿#ifndef __FLASH_H__
 #define __FLASH_H__
 
 #include "main.h"
 
 #define FLASH_SIZE				12   
-#define FLASH_ADDR_START 		0x08000000+1024*63                              //×îºóÒ»¸öÉÈÇøÓÃÓÚ´æ´¢ÓÃ»§Êı¾İ                                                                                                                                                                                            
-#define FLASH_DATA_OK			0x5F											//Flash´æ´¢±êÖ¾
+#define FLASH_ADDR_START 		0x08000000+1024*63                              //æœ€åä¸€ä¸ªæ‰‡åŒºç”¨äºå­˜å‚¨ç”¨æˆ·æ•°æ®                                                                                                                                                                                            
+#define FLASH_DATA_OK			0x5F											//Flashå­˜å‚¨æ ‡å¿—
 
 extern bool flashSaveEnable;
 

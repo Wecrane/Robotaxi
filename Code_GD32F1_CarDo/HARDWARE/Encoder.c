@@ -1,20 +1,20 @@
-#include "encoder.h"
+ï»¿#include "encoder.h"
 /*
 ********************************************************************************************************
-*                                               Ê¾Àı´úÂë
+*                                               ç¤ºä¾‹ä»£ç 
 *                                             EXAMPLE  CODE                                             
 *
 *                             (c) Copyright 2021; SaiShu.Lcc.; Leo
-*                                 °æÈ¨ËùÊô[±±¾©ÈüÊï¿Æ¼¼ÓĞÏŞ¹«Ë¾]
+*                                 ç‰ˆæƒæ‰€å±[åŒ—äº¬èµ›æ›™ç§‘æŠ€æœ‰é™å…¬å¸]
 *
-*               The code is for internal use only, not for commercial transactions(¿ªÔ´Ñ§Ï°,ÇëÎğÉÌÓÃ).
-*               The code ADAPTS the corresponding hardware circuit board(´úÂëÊ¹ÓÃCarDoÖÇ¿Ø°å), 
-*               the specific details consult the professional(»¶Ó­ÁªÏµÎÒÃÇ).
+*               The code is for internal use only, not for commercial transactions(å¼€æºå­¦ä¹ ,è¯·å‹¿å•†ç”¨).
+*               The code ADAPTS the corresponding hardware circuit board(ä»£ç ä½¿ç”¨CarDoæ™ºæ§æ¿), 
+*               the specific details consult the professional(æ¬¢è¿è”ç³»æˆ‘ä»¬).
 *********************************************************************************************************
 */
 
 /**
-* @brief        ±àÂëÆ÷³õÊ¼»¯
+* @brief        ç¼–ç å™¨åˆå§‹åŒ–
 * @param        
 * @ref          
 * @author       Leo
@@ -52,7 +52,7 @@ void ENCODER_Init(void)
 
 
 /**
-* @brief        ±àÂëÆ÷×ªËÙ²ÉÑù
+* @brief        ç¼–ç å™¨è½¬é€Ÿé‡‡æ ·
 * @param        
 * @ref          
 * @author       Leo
@@ -66,10 +66,10 @@ void ENCODER_RevSample(void)
     if(motorStr.EncoderValue > 32767)
         motorStr.EncoderValue = motorStr.EncoderValue - 65536;
     
-    //PID¸º·´À¡Êı¾İÊäÈë
+    //PIDè´Ÿåé¦ˆæ•°æ®è¾“å…¥
     pidStr.vi_FeedBack = motorStr.EncoderValue;
     
-    //¼ÆËãÊµ¼ÊËÙ¶È	---		m/s
+    //è®¡ç®—å®é™…é€Ÿåº¦	---		m/s
     icarStr.SpeedFeedback = (float)(motorStr.EncoderValue * PI * motorStr.DiameterWheel)/ MOTOR_CONTROL_CYCLE / motorStr.EncoderLine / 4.0f / motorStr.ReductionRatio; //  m/s
     
     

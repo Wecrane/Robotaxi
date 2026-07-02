@@ -81,6 +81,7 @@ void FsmStop::run(Mat &img)
 
         if (countRec > 2)
             setStep(Step::ENABLE); // 设置新状态
+
         if (countRec > 0) // 识别AI标志后开始场次计数
         {
             countSes++;
@@ -166,6 +167,7 @@ void FsmStop::show(Mat &img)
     {
         drawPolygon(img, polyRoad, false, true); // 绘制赛道多边形
         drawPolygon(img, polyCar, false, true);  // 绘制车辆多边形
+
         putText(img, "Overlap:" + doble2String(overlap, 2),
                 Point(100, ROWSIMAGE - 60), FONT_HERSHEY_TRIPLEX, 0.5,
                 Scalar(0, 0, 255), 0.5);
@@ -187,18 +189,18 @@ double FsmStop::getRoadCarPloy(PredictResult result)
     PointX ppoliy;
     if (params->track->pointsEdgeLeft.size() < 5 && params->track->pointsEdgeRight.size() > 5) // 右单边
     {
-        // [1]左上角
+        // [1]左上点
         ppoliy.x = params->track->pointsEdgeRight[params->track->pointsEdgeRight.size() - 1].x;
         ppoliy.y = 1;
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x)); // 1
-        // [2]左下角
+        // [2]左下点
         ppoliy.x = params->track->pointsEdgeRight[0].x;
         ppoliy.y = 1;
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x)); // 2
     }
     else
     {
-        // [1]左上角
+        // [1]左上点
         ppoliy = params->track->pointsEdgeLeft[params->track->pointsEdgeLeft.size() - 1];
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x)); // 1
         ppoliy = params->track->pointsEdgeLeft[params->track->pointsEdgeLeft.size() * 0.8];
@@ -209,24 +211,24 @@ double FsmStop::getRoadCarPloy(PredictResult result)
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x)); // 1
         ppoliy = params->track->pointsEdgeLeft[params->track->pointsEdgeLeft.size() * 0.2];
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x)); // 1
-        // [2]左下角
+        // [2]左下点
         ppoliy = params->track->pointsEdgeLeft[0];
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x)); // 2
     }
 
     if (params->track->pointsEdgeLeft.size() > 5 && params->track->pointsEdgeRight.size() < 5) // 左单边
     {
-        //[3] 右下角
+        //[3] 右下点
         ppoliy.x = params->track->pointsEdgeLeft[0].x;
         ppoliy.y = COLSIMAGE - 1;
 
-        //[4] 右上角
+        //[4] 右上点
         ppoliy.x = params->track->pointsEdgeLeft[params->track->pointsEdgeLeft.size() - 1].x;
         ppoliy.y = COLSIMAGE - 1;
     }
     else
     {
-        //[3] 右下角
+        //[3] 右下点
         ppoliy = params->track->pointsEdgeRight[0];
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x));
         ppoliy = params->track->pointsEdgeRight[params->track->pointsEdgeRight.size() * 0.2];
@@ -237,7 +239,7 @@ double FsmStop::getRoadCarPloy(PredictResult result)
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x));
         ppoliy = params->track->pointsEdgeRight[params->track->pointsEdgeRight.size() * 0.8];
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x));
-        //[4] 右上角
+        //[4] 右上点
         ppoliy = params->track->pointsEdgeRight[params->track->pointsEdgeRight.size() - 1];
         polyRoad.push_back(cv::Point(ppoliy.y, ppoliy.x));
     }
@@ -252,7 +254,7 @@ double FsmStop::getRoadCarPloy(PredictResult result)
 }
 
 /**
- * @brief 计算两个多边形图形的面积重叠率
+ * @brief 计算两个多边形图形的面积重叠度
  *
  * @param polyA 多边形顶点
  * @param polyB
@@ -263,6 +265,7 @@ double FsmStop::getOverlapArea(const std::vector<cv::Point> &polyA, const std::v
     // 创建两个多边形的掩模
     cv::Mat maskA = cv::Mat::zeros(500, 500, CV_8UC1);
     cv::Mat maskB = cv::Mat::zeros(500, 500, CV_8UC1); // 智能车
+
     // 填充多边形
     cv::fillConvexPoly(maskA, polyA, cv::Scalar(255));
     cv::fillConvexPoly(maskB, polyB, cv::Scalar(255));
@@ -275,7 +278,7 @@ double FsmStop::getOverlapArea(const std::vector<cv::Point> &polyA, const std::v
     double areaB = cv::countNonZero(maskB);
     double areaAnd = cv::countNonZero(intersection);
 
-    // 计算重合率
+    // 计算重合度
     double overlap = (areaB > 0) ? (areaAnd / areaB) : 0;
 
     return overlap;

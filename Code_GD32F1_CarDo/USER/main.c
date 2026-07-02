@@ -1,19 +1,19 @@
-/* Includes ------------------------------------------------------------------*/
+ï»¿/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
 
-/**@mainpage                ¡¾CarDO¡¿ÖÇÄÜÆû³µ¾ºÈü - ¿ªÔ´ÖÇ¿Ø°å
+/**@mainpage                ã€CarDOã€‘æ™ºèƒ½æ±½è½¦ç«èµ› - å¼€æºæ™ºæ§æ¿
 * <table>
 * <tr><th>Project       <td>IntelligentCar
 * <tr><th>Author        <td>Leo
 * <tr><th>copyright     <td>Copyright@2016-2022 BjssTech, Ltd.All Rights Reserved.
 **********************************************************************************
 * </table>
-* @section      CarDoÖÇ¿Ø°åÇ¶ÈëÊ½´úÂë
+* @section      CarDoæ™ºæ§æ¿åµŒå…¥å¼ä»£ç 
 *
-* @section      [µç»úÇı¶¯][¶æ»úÇı¶¯][USBÍ¨ĞÅ][ÈË»ú½»»¥][×Ô¼ì]
+* @section      [ç”µæœºé©±åŠ¨][èˆµæœºé©±åŠ¨][USBé€šä¿¡][äººæœºäº¤äº’][è‡ªæ£€]
 *
-* @section      ±±¾©ÈüÊï¿Æ¼¼ÓĞÏŞ¹«Ë¾£ºhttps://bjsstech.com/
+* @section      åŒ—äº¬èµ›æ›™ç§‘æŠ€æœ‰é™å…¬å¸ï¼šhttps://bjsstech.com/
 * <table>
 * <tr><th>Date          <th>Version     <th>Author      <th>Content         </tr>
 * <tr><td>2022/02/09    <td>V1.0        <td>Leo         <td>InitialVersion  </tr>
@@ -27,31 +27,31 @@
 
 int main(void)
 {
-    Delay_Ms(100);                      //Æô¶¯ÑÓÊ±£ºµÈ´ıÏµÍ³ÎÈ¶¨
-    FLASH_LoadAllConfig();              //¼ÓÔØÏµÍ³ÅäÖÃ
+    Delay_Ms(100);                      //å¯åŠ¨å»¶æ—¶ï¼šç­‰å¾…ç³»ç»Ÿç¨³å®š
+    FLASH_LoadAllConfig();              //åŠ è½½ç³»ç»Ÿé…ç½®
     
-    ICAR_Init();                        //ÖÇÄÜ³µ²ÎÊı³õÊ¼»¯
-    ENCODER_Init();                     //±àÂëÆ÷³õÊ¼»¯
-    GPIO_Initialize();                  //GPIO³õÊ¼»¯
-    PID_Init();                         //PID²ÎÊı³õÊ¼»¯
-    MOTOR_Init();                       //µç»ú³õÊ¼»¯
-    SERVO_Init();                       //¶æ»ú³õÊ¼»¯
-    USB_Edgeboard_Init();               //USBÍ¨ĞÅ³õÊ¼»¯
-    SOC_Init();							//µçÁ¿¼Æ³õÊ¼»¯
-    RGB_Init();                         //RGBµÆÍ¨ĞÅ³õÊ¼»¯
+    ICAR_Init();                        //æ™ºèƒ½è½¦å‚æ•°åˆå§‹åŒ–
+    ENCODER_Init();                     //ç¼–ç å™¨åˆå§‹åŒ–
+    GPIO_Initialize();                  //GPIOåˆå§‹åŒ–
+    PID_Init();                         //PIDå‚æ•°åˆå§‹åŒ–
+    MOTOR_Init();                       //ç”µæœºåˆå§‹åŒ–
+    SERVO_Init();                       //èˆµæœºåˆå§‹åŒ–
+    USB_Edgeboard_Init();               //USBé€šä¿¡åˆå§‹åŒ–
+    SOC_Init();							//ç”µé‡è®¡åˆå§‹åŒ–
+    RGB_Init();                         //RGBç¯é€šä¿¡åˆå§‹åŒ–
     
-    Delay_Ms(100);                      //Æô¶¯ÑÓÊ±£ºµÈ´ıÏµÍ³ÎÈ¶¨
+    Delay_Ms(100);                      //å¯åŠ¨å»¶æ—¶ï¼šç­‰å¾…ç³»ç»Ÿç¨³å®š
     
-    TIM2_Init();                        //ÏµÍ³Ö÷Ïß³Ì¶¨Ê±Æ÷³õÊ¼»¯
-    GPIO_BuzzerEnable(BuzzerSysStart);  //¿ª»úÒôĞ§
+    TIM2_Init();                        //ç³»ç»Ÿä¸»çº¿ç¨‹å®šæ—¶å™¨åˆå§‹åŒ–
+    GPIO_BuzzerEnable(BuzzerSysStart);  //å¼€æœºéŸ³æ•ˆ
     
 	while(1)
 	{
-        GPIO_Handle();                  //GPIO¿ØÖÆ£ºLED/·äÃùÆ÷
-        SOC_Handle();                   //µçÁ¿¼Æ²ÉÑù
-        ICAR_Handle();                  //ÖÇÄÜ³µ¿ØÖÆ  
-        FLASH_Handle();                 //Flash´æ´¢
-        USB_Edgeboard_Handle();         //USBÍ¨ĞÅ¿ØÖÆ
+        GPIO_Handle();                  //GPIOæ§åˆ¶ï¼šLED/èœ‚é¸£å™¨
+        SOC_Handle();                   //ç”µé‡è®¡é‡‡æ ·
+        ICAR_Handle();                  //æ™ºèƒ½è½¦æ§åˆ¶  
+        FLASH_Handle();                 //Flashå­˜å‚¨
+        USB_Edgeboard_Handle();         //USBé€šä¿¡æ§åˆ¶
 	}
     return 0;
 }

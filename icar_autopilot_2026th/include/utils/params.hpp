@@ -72,16 +72,12 @@ struct Control
     int outlineCooldown = 0;      // outlineCheck冷却计数器（停车场出库后暂时禁用）
     bool yforkReset = false;      // Y型岔路复位标志（park退出时设置）
 
-    // 遥测数据（由下位机上报，icar.hpp帧首同步）
+    //[P1-6] 下位机遥测数据（由icar.hpp running()帧首同步）
+    float speedFeedback = 0.0f;   // 编码器反馈速度 m/s
     uint8_t batteryPercent = 0;   // 电池电量百分比 0~100
     float batteryVoltage = 0.0f;  // 电池电压 V
-    float speedFeedback = 0.0f;   // 编码器反馈速度 m/s
     uint16_t errorCode = 0;       // 下位机故障码 bit0=舵机 bit4=编码器断线
     uint8_t selfcheckStep = 0;    // 自检当前步骤
-
-    // 终点停车测距（P1-3）
-    double odometry = 0.0;        // 编码器积分距离 m（cross STOP步清零后累加）
-    bool crossFinishBuzzer = false; // 终点停车完成→触发蜂鸣完赛信号
 };
 /**
  * @brief 控制器核心参数
@@ -320,8 +316,8 @@ public:
     Config config;                      // 系统配置
     FsmMode mode, modeLast;             // FSM状态场景
     shared_ptr<Track> track;            // 赛道识别类
-    std::vector<PredictResult> results;         // AI推理结果（AI线程写入，需mtxRes锁）
-    std::vector<PredictResult> resultsSnapshot; // 主线程快照（runFsm帧首加锁拷贝，FSM只读无锁安全）
+    std::vector<PredictResult> results; // AI推理结果(仅AI线程写入! FSM线程禁止直接读取)
+    std::vector<PredictResult> resultsSnapshot; //[P0-2] 帧首快照(FSM线程安全读取)
     int totalLaps;                      // 总圈数
     int currentLap;                     // 当前圈数
     int crossStop;                      // 第几次检测到cross停车

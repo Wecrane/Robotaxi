@@ -1,27 +1,27 @@
-#ifndef __SERVO_H__
+ï»¿#ifndef __SERVO_H__
 #define __SERVO_H__
 
 #include "main.h"
 
 
-#define  SERVO_PWM_MAX					2500						//¶æ»ú·½Ïò×î´óPWM£º180¡ã
-#define  SERVO_PWM_MIN					500							//¶æ»ú·½Ïò×îĞ¡PWM£º0¡ã
-#define  SERVO_PWM_MAX_L				1150						//¶æ»ú×óÏò×ª½Ç×î´óÖµPWM
-#define  SERVO_PWM_MAX_R				1850						//¶æ»úÓÒÏò×ª½Ç×î´óÖµPWM
-#define  SERVO_PWM_MIDDLE				1500						//¶æ»úÖĞÖµPWM
+#define  SERVO_PWM_MAX					2500						//èˆµæœºæ–¹å‘æœ€å¤§PWMï¼š180Â°
+#define  SERVO_PWM_MIN					500							//èˆµæœºæ–¹å‘æœ€å°PWMï¼š0Â°
+#define  SERVO_PWM_MAX_L				1150						//èˆµæœºå·¦å‘è½¬è§’æœ€å¤§å€¼PWM
+#define  SERVO_PWM_MAX_R				1850						//èˆµæœºå³å‘è½¬è§’æœ€å¤§å€¼PWM
+#define  SERVO_PWM_MIDDLE				1500						//èˆµæœºä¸­å€¼PWM
 
-#define  SERVO_ANGLE_MAX				38.0f						//¶æ»ú
+#define  SERVO_ANGLE_MAX				38.0f						//èˆµæœº
 
 
 
 /**
-* @brief    ¶æ»úÏà¹Ø
+* @brief    èˆµæœºç›¸å…³
 **/
 typedef struct
 {
-	uint16_t thresholdMiddle;                   //¶æ»úÖĞÖµPWM
-    uint16_t thresholdLeft;                     //¶æ»ú×óÏò×ª½Ç×î´óÖµPWM
-    uint16_t thresholdRight;                    //¶æ»úÓÒÏò×ª½Ç×î´óÖµPWM
+	uint16_t thresholdMiddle;                   //èˆµæœºä¸­å€¼PWM
+    uint16_t thresholdLeft;                     //èˆµæœºå·¦å‘è½¬è§’æœ€å¤§å€¼PWM
+    uint16_t thresholdRight;                    //èˆµæœºå³å‘è½¬è§’æœ€å¤§å€¼PWM
 }ServoStruct;
 
 extern ServoStruct servoStr;

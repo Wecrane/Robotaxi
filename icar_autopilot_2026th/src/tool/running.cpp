@@ -186,12 +186,6 @@ private:
             params->mode == FsmMode::YFORK) // 状态复位
             params->mode = FsmMode::NORMAL;
 
-        // [修复] 统一快照AI推理结果，消除后续所有FSM与AI线程的数据竞争
-        {
-            std::lock_guard<std::mutex> lock(mtxRes);
-            params->resultsSnapshot = params->results;
-        }
-
         fsmFactory.stop->run(img); // 停车区识别与规划
         params->mode = fsmFactory.stop->getMode();
         fsmFactory.cross->run(img); // 斑马线停车识别与规划

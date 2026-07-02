@@ -40,8 +40,7 @@ int main(int argc, char const *argv[])
         return -1;
 
     printf("Boot is running!\n");
-    server.uart.enableInspector(); // 使能下位机遥测上报
-
+    server.uart.enableInspector(); //[P1-6] 使能下位机遥测上报
     while (1)
     {
         if (server.startApp)
@@ -53,7 +52,7 @@ int main(int argc, char const *argv[])
         else
             server.uart.sendHeart(); // 发送心跳信号
 
-        // 转发遥测数据到上位机
+        //[P1-6] 转发遥测数据到上位机(icar主进程)
         if (server.startApp && server.uart.telemetryUpdated)
         {
             server.uart.telemetryUpdated = false;
@@ -69,6 +68,13 @@ int main(int argc, char const *argv[])
         }
 
         usleep(200 * 1000); // us延迟
+
+        //[审查修复] 每5秒重发enableInspector，防MCU复位后遥测失效
+        static int reinspCnt = 0;
+        if (++reinspCnt >= 25) { // 25*200ms = 5s
+            reinspCnt = 0;
+            server.uart.enableInspector();
+        }
 
         if (server.uart.killAll) // 强制杀进程
         {
@@ -87,7 +93,7 @@ int main(int argc, char const *argv[])
             {
                 printf("App icar-v1 is running!\n");
                 // system("gnome-terminal export DISPLAY=:0.0 --working-directory=/root/workspace/icar_autopilot_2025th/build -- ./icar");
-                launchCmd("/root/workspace/icar_autopilot_2025th/build/", "./icar", false);
+                launchCmd("/root/workspace/icar_autopilot_2026th/build/", "./icar", false); //[修复] 路径修正2025th→2026th
                 server.startApp = true;
             }
             else

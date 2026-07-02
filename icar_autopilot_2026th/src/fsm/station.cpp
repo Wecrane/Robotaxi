@@ -77,7 +77,7 @@ void FsmStation::run(Mat &img)
     {
     case Step::NONE:
     {
-        // 施工区进入后2秒再开始检测（让车走过前面N个框）
+        // 施工区进入后等4秒再开始检测（让车走过前面N个框）
         if (params->busyZone && busyEntryDelay > 0)
         {
             busyEntryDelay--;
@@ -207,7 +207,7 @@ void FsmStation::run(Mat &img)
         params->ctrl.stop = true;
         stopCounter++;
         printf("[Station] Stop %d/30\n", stopCounter);
-        if (stopCounter > 30) // 停车30帧
+        if (stopCounter > 30) // 停车约1秒
         {
             printf("[Station] Stop end, resume\n");
             params->stationStopCompleted = true; // 通知yfork边线突变可以退出了

@@ -1,4 +1,4 @@
-#ifndef __GPIO_H__
+﻿#ifndef __GPIO_H__
 #define __GPIO_H__
 
 /*-----------------------------------------  I N C L U D E S  -----------------------------------------*/
@@ -18,39 +18,38 @@
 
 /*---------------------------------------  D E F I N I T I O N  ---------------------------------------*/
 /**
-* @brief    ��������Ч
+* @brief    蜂鸣器音效
 **/
 typedef enum 
 {
-    BuzzerOk = 0,						//ȷ����ʾ��
-	BuzzerWarnning,						//������ʾ��
-	BuzzerSysStart,						//������ʾ��
-    BuzzerDing,                         //��=====(������*)
-    BuzzerFinish,                       //������ʾ��
+    BuzzerOk = 0,						//确认提示音
+	BuzzerWarnning,						//报警提示音
+	BuzzerSysStart,						//开机提示音
+    BuzzerDing,                         //叮=====(￣▽￣*)
+    BuzzerFinish,                       //结束提示音
 }BuzzerEnum;
 
 
 /**
-* @brief    ������LED���
+* @brief    按键和LED相关
 **/
 typedef struct 
 {
-	bool KeyPress;					    //按键标志-B
+	bool KeyPress;					    //按键输入-B
 	uint16_t CounterLed;				//LED闪烁计数器
-	uint16_t KeyDebounce;				//按键消抖计数器(ms) [P3-4]
 }GpioStruct;
 
 
 /**
-* @brief    ���������
+* @brief    蜂鸣器相关
 **/
 typedef struct 
 {
-	bool Enable;						//ʹ�ܱ�־
-	uint16_t Times;					    //���д���
-	uint16_t Counter;				    //������
-	uint16_t Cut;					    //���ʱ��
-	bool Silent;						//�Ƿ���÷�����
+	bool Enable;						//使能标志
+	uint16_t Times;					    //鸣叫次数
+	uint16_t Counter;				    //计数器
+	uint16_t Cut;					    //间隔时间
+	bool Silent;						//是否禁用蜂鸣器
 }BuzzerStruct;
 
 

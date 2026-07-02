@@ -1,16 +1,16 @@
-#include "Icar.h"
+ï»¿#include "Icar.h"
 
 /*
 ********************************************************************************************************
-*                                               Ê¾Àı´úÂë
+*                                               ç¤ºä¾‹ä»£ç 
 *                                             EXAMPLE  CODE                                             
 *
 *                             (c) Copyright 2021; SaiShu.Lcc.; Leo
-*                                 °æÈ¨ËùÊô[±±¾©ÈüÊï¿Æ¼¼ÓĞÏŞ¹«Ë¾]
+*                                 ç‰ˆæƒæ‰€å±[åŒ—äº¬èµ›æ›™ç§‘æŠ€æœ‰é™å…¬å¸]
 *
-*               The code is for internal use only, not for commercial transactions(¿ªÔ´Ñ§Ï°,ÇëÎğÉÌÓÃ).
-*               The code ADAPTS the corresponding hardware circuit board(´úÂëÊ¹ÓÃCarDoÖÇ¿Ø°å), 
-*               the specific details consult the professional(»¶Ó­ÁªÏµÎÒÃÇ).
+*               The code is for internal use only, not for commercial transactions(å¼€æºå­¦ä¹ ,è¯·å‹¿å•†ç”¨).
+*               The code ADAPTS the corresponding hardware circuit board(ä»£ç ä½¿ç”¨CarDoæ™ºæ§æ¿), 
+*               the specific details consult the professional(æ¬¢è¿è”ç³»æˆ‘ä»¬).
 *********************************************************************************************************
 */
 
@@ -18,7 +18,7 @@
 IcarStruct icarStr;
 
 /**
-* @Description  : ÖÇÄÜ³µ²ÎÊı³õÊ¼»¯
+* @Description  : æ™ºèƒ½è½¦å‚æ•°åˆå§‹åŒ–
 * @params       : 
 * @Date         : 
 * @author       : Leo
@@ -26,10 +26,10 @@ IcarStruct icarStr;
 **/
 void ICAR_Init(void)
 {
-	icarStr.Electricity = 0;				    //µçÁ¿ĞÅÏ¢
-	icarStr.Voltage = 0;						//µçÑ¹
-	icarStr.SpeedSet = 0.0f;				    //µç»úÄ¿±êËÙ¶È£ºm/s	
-	icarStr.SpeedFeedback = 0.0f;		        //µç»úÄ£ĞÍÊµ²âËÙ¶È£ºm/s
+	icarStr.Electricity = 0;				    //ç”µé‡ä¿¡æ¯
+	icarStr.Voltage = 0;						//ç”µå‹
+	icarStr.SpeedSet = 0.0f;				    //ç”µæœºç›®æ ‡é€Ÿåº¦ï¼šm/s	
+	icarStr.SpeedFeedback = 0.0f;		        //ç”µæœºæ¨¡å‹å®æµ‹é€Ÿåº¦ï¼šm/s
 	icarStr.SpeedMaxRecords = 0.0f;
     icarStr.ServoPwmSet = servoStr.thresholdMiddle;
 }
@@ -37,7 +37,7 @@ void ICAR_Init(void)
 
 
 /**
-* @brief        ÖÇÄÜ³µ×ÛºÏ´¦ÀíÏß³Ì¼ÆÊıÆ÷
+* @brief        æ™ºèƒ½è½¦ç»¼åˆå¤„ç†çº¿ç¨‹è®¡æ•°å™¨
 * @param        
 * @ref          
 * @author       Leo
@@ -45,7 +45,7 @@ void ICAR_Init(void)
 **/
 void ICAR_Timer(void)
 {
-    //°´¼ü
+    //æŒ‰é”®
     if(gpioStr.KeyPress)
     {
         icarStr.counterKeyA++;
@@ -56,14 +56,14 @@ void ICAR_Timer(void)
             icarStr.keyPressed = true;
     }
     
-    //±Õ»·³å´Ì
+    //é—­ç¯å†²åˆº
     if(icarStr.sprintEnable)
     {
         icarStr.counterSprint++;
-        if(icarStr.counterSprint == 2000)//µÈ´ıÆô¶¯Ê±¼ä2s
+        if(icarStr.counterSprint == 2000)//ç­‰å¾…å¯åŠ¨æ—¶é—´2s
         {
             RGB_SetAllColor(RGB_COLOR_GREEN);
-            icarStr.SpeedSet = 2.0f;    //µç»úÄ¿±êËÙ¶È£ºm/s	
+            icarStr.SpeedSet = 2.0f;    //ç”µæœºç›®æ ‡é€Ÿåº¦ï¼šm/s	
         }
     }
     else
@@ -72,21 +72,21 @@ void ICAR_Timer(void)
     }
     
     
-    //×Ô¼ì¼ÆÊ±
+    //è‡ªæ£€è®¡æ—¶
     if(icarStr.selfcheckEnable)
     {
         icarStr.counterSelfcheck++;
         icarStr.counterModuleCheck++;
         switch((uint8_t)icarStr.selfcheckStep)
         {
-            case Selfcheck_None:            //¿ªÊ¼²âÊÔ
+            case Selfcheck_None:            //å¼€å§‹æµ‹è¯•
                 if(icarStr.counterSelfcheck > 500)//500ms
                 {
                     icarStr.selfcheckStep = Selfcheck_MotorA;
                     icarStr.counterSelfcheck = 0;
                 }
                 break;
-            case Selfcheck_MotorA:          //µç»ú²âÊÔA
+            case Selfcheck_MotorA:          //ç”µæœºæµ‹è¯•A
                 if(icarStr.counterSelfcheck > 2000)//2s
                 {
                     icarStr.selfcheckStep = Selfcheck_MotorB;
@@ -95,13 +95,13 @@ void ICAR_Timer(void)
                     icarStr.counterModuleCheck = 0;
                 }
                 break;
-            case Selfcheck_MotorB:          //µç»ú²âÊÔ
+            case Selfcheck_MotorB:          //ç”µæœºæµ‹è¯•
                 if(icarStr.counterSelfcheck > 3000)//3s
                 {
                     icarStr.counterSelfcheck = 3000;
                 }
                 break;
-            case Selfcheck_MotorC:          //µç»ú²âÊÔ
+            case Selfcheck_MotorC:          //ç”µæœºæµ‹è¯•
                 if(icarStr.counterSelfcheck > 2000)//2s
                 {
                     icarStr.selfcheckStep = Selfcheck_MotorD;
@@ -110,13 +110,13 @@ void ICAR_Timer(void)
                     icarStr.counterModuleCheck = 0;
                 }
                 break;
-            case Selfcheck_MotorD:          //µç»ú²âÊÔ
+            case Selfcheck_MotorD:          //ç”µæœºæµ‹è¯•
                 if(icarStr.counterSelfcheck > 3000)//3s
                 {
                     icarStr.counterSelfcheck = 3000;
                 }
                 break;
-            case Selfcheck_MotorE:          //µç»ú²âÊÔ
+            case Selfcheck_MotorE:          //ç”µæœºæµ‹è¯•
                 if(icarStr.counterSelfcheck > 2000)//2s
                 {
                     icarStr.selfcheckStep = Selfcheck_MotorF;
@@ -124,13 +124,13 @@ void ICAR_Timer(void)
                     icarStr.counterModuleCheck = 0;
                 }
                 break;
-            case Selfcheck_MotorF:          //µç»ú²âÊÔ
+            case Selfcheck_MotorF:          //ç”µæœºæµ‹è¯•
                 if(icarStr.counterSelfcheck > 2000)//2s
                 {
                     icarStr.counterSelfcheck = 2000;
                 }
                 break;
-            case Selfcheck_MotorG:          //µç»ú²âÊÔ
+            case Selfcheck_MotorG:          //ç”µæœºæµ‹è¯•
                 if(icarStr.counterSelfcheck > 2000)//2s
                 {
                     icarStr.selfcheckStep = Selfcheck_MotorH;
@@ -138,19 +138,19 @@ void ICAR_Timer(void)
                     icarStr.counterModuleCheck = 0;
                 }
                 break;
-            case Selfcheck_MotorH:          //µç»ú²âÊÔ
+            case Selfcheck_MotorH:          //ç”µæœºæµ‹è¯•
                 if(icarStr.counterSelfcheck > 2000)//2s
                 {
                     icarStr.counterSelfcheck = 2000;
                 }
                 break;
-            case Selfcheck_ServoA:          //¶æ»ú²âÊÔ
+            case Selfcheck_ServoA:          //èˆµæœºæµ‹è¯•
                 if(icarStr.counterSelfcheck > 5000)//2s
                 {
                     icarStr.counterSelfcheck = 5000;
                 }
                 break;
-            case Selfcheck_Com:             //Í¨ĞÅ²âÊÔ
+            case Selfcheck_Com:             //é€šä¿¡æµ‹è¯•
                 if(icarStr.counterSelfcheck > 1000)//1s
                 {
                     icarStr.selfcheckStep = Selfcheck_Buzzer;
@@ -158,19 +158,19 @@ void ICAR_Timer(void)
                     icarStr.counterModuleCheck = 0;
                 }
                 break;
-            case Selfcheck_Buzzer:          //·äÃùÆ÷²âÊÔ
+            case Selfcheck_Buzzer:          //èœ‚é¸£å™¨æµ‹è¯•
                 if(icarStr.counterSelfcheck > 5000)//2s
                 {
                     icarStr.counterSelfcheck = 5000;
                 }
                 break;
-            case Selfcheck_RgbLed:          //µÆĞ§²âÊÔ
+            case Selfcheck_RgbLed:          //ç¯æ•ˆæµ‹è¯•
                 if(icarStr.counterSelfcheck > 4000)//2s
                 {
                     icarStr.counterSelfcheck = 4000;
                 }
                 break;
-            case Selfcheck_Key:             //°´¼ü²âÊÔ
+            case Selfcheck_Key:             //æŒ‰é”®æµ‹è¯•
                 if(icarStr.counterSelfcheck > 5000)//2s
                 {
                     icarStr.counterSelfcheck = 5000;
@@ -183,7 +183,7 @@ void ICAR_Timer(void)
 
 
 /**
-* @Description  : ÖÇÄÜ³µ×ÛºÏ´¦Àíº¯Êı
+* @Description  : æ™ºèƒ½è½¦ç»¼åˆå¤„ç†å‡½æ•°
 * @params       : 
 * @Date         : 
 * @author       : Leo
@@ -191,14 +191,14 @@ void ICAR_Timer(void)
 **/
 void ICAR_Handle(void)
 {
-    //°´¼üµ²Î»²Ù×÷
+    //æŒ‰é”®æŒ¡ä½æ“ä½œ
     if(icarStr.keyPressed)
     {
-        if(icarStr.counterKeyA > 100)   //100msÓĞĞ§
-            USB_Edgeboard_TransmitKey(icarStr.counterKeyA); //·¢ËÍ°´¼üÊ±³¤
+        if(icarStr.counterKeyA > 100)   //100msæœ‰æ•ˆ
+            USB_Edgeboard_TransmitKey(icarStr.counterKeyA); //å‘é€æŒ‰é”®æ—¶é•¿
         
-        //±Õ»·³å´Ì
-        if(icarStr.counterKeyA > 2000 && !icarStr.selfcheckEnable)//°´ÏÂ2s£¬±Õ»·³å´Ì
+        //é—­ç¯å†²åˆº
+        if(icarStr.counterKeyA > 2000 && !icarStr.selfcheckEnable)//æŒ‰ä¸‹2sï¼Œé—­ç¯å†²åˆº
         {
             icarStr.counterSprint = 0;
             icarStr.sprintEnable = true;
@@ -208,25 +208,25 @@ void ICAR_Handle(void)
         icarStr.counterKeyA = 0;
         icarStr.keyPressed = false;
         
-        if(icarStr.selfcheckEnable)//×Ô¼ì²âÊÔ°´¼üºÃ»µ
+        if(icarStr.selfcheckEnable)//è‡ªæ£€æµ‹è¯•æŒ‰é”®å¥½å
         {
             icarStr.errorCode &= ~(1<<8);
         }
     }
     
-    //±Õ»·³å´Ì£¨²âÊÔµç»ú£©
+    //é—­ç¯å†²åˆºï¼ˆæµ‹è¯•ç”µæœºï¼‰
     if(icarStr.sprintEnable)
     {
-        if(icarStr.counterSprint > 3000)//³å´ÌÊ±¼ä£º3s
+        if(icarStr.counterSprint > 3000)//å†²åˆºæ—¶é—´ï¼š3s
         {
             GPIO_BuzzerEnable(BuzzerFinish);
             RGB_SetAllColor(RGB_COLOR_RED);
-            icarStr.SpeedSet = 0.f;    //µç»úÄ¿±êËÙ¶È£ºm/s	
+            icarStr.SpeedSet = 0.f;    //ç”µæœºç›®æ ‡é€Ÿåº¦ï¼šm/s	
             icarStr.sprintEnable = false;
         }
     }   
     
-    //ÖÇÄÜ³µ×Ô¼ì
+    //æ™ºèƒ½è½¦è‡ªæ£€
     if(icarStr.selfcheckEnable)
     {
         ICAR_Selfcheck();
@@ -235,7 +235,7 @@ void ICAR_Handle(void)
 
 
 /**
-* @brief        ¿ØÖÆ°åÖØÆô
+* @brief        æ§åˆ¶æ¿é‡å¯
 * @param        
 * @ref          
 * @author       Leo
@@ -253,9 +253,9 @@ void ICAR_Reboot(void)
 
 
 
-//----------------------------------------------[UNIT-ÖÇÄÜÆû³µ×Ô¼ìÏà¹Ø]----------------------------------------------------------
+//----------------------------------------------[UNIT-æ™ºèƒ½æ±½è½¦è‡ªæ£€ç›¸å…³]----------------------------------------------------------
 /**
-* @brief        ÖÇÄÜ³µ×Ô¼ì
+* @brief        æ™ºèƒ½è½¦è‡ªæ£€
 * @param        
 * @ref          
 * @author       Leo
@@ -267,18 +267,18 @@ void ICAR_Selfcheck(void)
     static bool errorPID;
     switch(icarStr.selfcheckStep)
     {
-        case Selfcheck_None:            //¿ªÊ¼²âÊÔ
+        case Selfcheck_None:            //å¼€å§‹æµ‹è¯•
             motorStr.CloseLoop = false; 
             icarStr.timesSendStep = 0;       
             break;
-        case Selfcheck_MotorA:          //µç»úÕı×ªÆô¶¯
+        case Selfcheck_MotorA:          //ç”µæœºæ­£è½¬å¯åŠ¨
             motorStr.CloseLoop = false;
             icarStr.SpeedSet = 25.0f;   //25%
             icarStr.errorCode |= (1<<1);
             icarStr.errorCode |= (1<<2);
             errorMotor = true;
             break;  
-        case Selfcheck_MotorB:          //µç»úÕı×ª²ÉÑù
+        case Selfcheck_MotorB:          //ç”µæœºæ­£è½¬é‡‡æ ·
             if(ICAR_SpeedSample()>0.5)
             {
                 icarStr.errorCode &= ~(1<<1);
@@ -290,7 +290,7 @@ void ICAR_Selfcheck(void)
                 errorMotor = false;
                 GPIO_BuzzerEnable(BuzzerDing);
             }
-            else if(icarStr.counterSelfcheck >= 3000)//³¬Ê±
+            else if(icarStr.counterSelfcheck >= 3000)//è¶…æ—¶
             {
                 if(icarStr.timesSendStep < 5)
                 {
@@ -300,11 +300,11 @@ void ICAR_Selfcheck(void)
                 icarStr.counterSelfcheck = 0;
             }
             break;  
-        case Selfcheck_MotorC:          //µç»ú·´×ªÆô¶¯
+        case Selfcheck_MotorC:          //ç”µæœºåè½¬å¯åŠ¨
             motorStr.CloseLoop = false;
             icarStr.SpeedSet = -25.0f;          
             break;  
-        case Selfcheck_MotorD:          //µç»ú·´×ª²ÉÑù
+        case Selfcheck_MotorD:          //ç”µæœºåè½¬é‡‡æ ·
             if(ICAR_SpeedSample()<-0.5)
             {
                 if(!errorMotor)
@@ -316,7 +316,7 @@ void ICAR_Selfcheck(void)
                 icarStr.counterModuleCheck = 0;
                 GPIO_BuzzerEnable(BuzzerDing);
             }
-            else if(icarStr.counterSelfcheck >= 3000)//³¬Ê±
+            else if(icarStr.counterSelfcheck >= 3000)//è¶…æ—¶
             {
                 icarStr.errorCode |= (1<<1);
                 
@@ -327,13 +327,13 @@ void ICAR_Selfcheck(void)
                 }            
             }
             break;  
-        case Selfcheck_MotorE:          //µç»ú±Õ»·Õı´«Æô¶¯
+        case Selfcheck_MotorE:          //ç”µæœºé—­ç¯æ­£ä¼ å¯åŠ¨
             icarStr.SpeedSet = 1.0f;
             motorStr.CloseLoop = true;
             icarStr.errorCode |= (1<<3);
             errorPID = true;
             break; 
-        case Selfcheck_MotorF:          //µç»ú±Õ»·Õı´«²ÉÑù
+        case Selfcheck_MotorF:          //ç”µæœºé—­ç¯æ­£ä¼ é‡‡æ ·
             if( CMATH_AbsFloat(ICAR_SpeedSample()-icarStr.SpeedSet) < 0.3)
             {
                 icarStr.errorCode &= ~(1<<3); 
@@ -344,7 +344,7 @@ void ICAR_Selfcheck(void)
                 errorPID = false;
                 GPIO_BuzzerEnable(BuzzerDing);
             }
-            else if(icarStr.counterSelfcheck >= 2000)//³¬Ê±
+            else if(icarStr.counterSelfcheck >= 2000)//è¶…æ—¶
             {
                 USB_Edgeboard_Selfcheck(Selfcheck_MotorF);
                 icarStr.selfcheckStep = Selfcheck_ServoA;
@@ -353,13 +353,13 @@ void ICAR_Selfcheck(void)
                 icarStr.counterModuleCheck = 0;
             }
             break;
-        case Selfcheck_MotorG:          //µç»ú±Õ»··´×ªÆô¶¯
+        case Selfcheck_MotorG:          //ç”µæœºé—­ç¯åè½¬å¯åŠ¨
             motorStr.CloseLoop = true;
             icarStr.SpeedSet = -1.0f;
             icarStr.errorCode |= (1<<3);
             icarStr.timesSendStep = 0; 
             break; 
-        case Selfcheck_MotorH:          //µç»ú±Õ»··´×ª²ÉÑù
+        case Selfcheck_MotorH:          //ç”µæœºé—­ç¯åè½¬é‡‡æ ·
             if( CMATH_AbsFloat(ICAR_SpeedSample()-icarStr.SpeedSet) < 0.3 && !errorPID)
             {
                 icarStr.errorCode &= ~(1<<3);
@@ -370,7 +370,7 @@ void ICAR_Selfcheck(void)
                 icarStr.counterModuleCheck = 0;
                 GPIO_BuzzerEnable(BuzzerDing);
             }
-            else if(icarStr.counterSelfcheck >= 2000)//³¬Ê±
+            else if(icarStr.counterSelfcheck >= 2000)//è¶…æ—¶
             {
                 USB_Edgeboard_Selfcheck(Selfcheck_MotorH);
                 icarStr.selfcheckStep = Selfcheck_ServoA;
@@ -380,58 +380,58 @@ void ICAR_Selfcheck(void)
             }
             break;
             
-        case Selfcheck_ServoA:          //¶æ»ú²âÊÔ
+        case Selfcheck_ServoA:          //èˆµæœºæµ‹è¯•
             motorStr.CloseLoop = false;
             icarStr.SpeedSet = 0.0f;
             icarStr.timesSendStep = 0; 
             ICAR_ServoCheck();
-            if(icarStr.counterSelfcheck >= 2000 && icarStr.timesSendStep < 5)//³¬Ê±
+            if(icarStr.counterSelfcheck >= 2000 && icarStr.timesSendStep < 5)//è¶…æ—¶
             {
                 USB_Edgeboard_Selfcheck(Selfcheck_ServoA);
                 icarStr.timesSendStep++;
             }
             break;
             
-        case Selfcheck_Com:             //Í¨ĞÅ²âÊÔ
+        case Selfcheck_Com:             //é€šä¿¡æµ‹è¯•
             icarStr.ServoPwmSet = servoStr.thresholdMiddle;
             SERVO_AngleControl(icarStr.ServoPwmSet);
             icarStr.selfcheckStep = Selfcheck_Buzzer;
             break;
         
-        case Selfcheck_Buzzer:          //·äÃùÆ÷²âÊÔ
+        case Selfcheck_Buzzer:          //èœ‚é¸£å™¨æµ‹è¯•
             ICAR_BuzzerCheck();
-            if(icarStr.counterSelfcheck >= 1000 && icarStr.timesSendStep < 5)//³¬Ê±
+            if(icarStr.counterSelfcheck >= 1000 && icarStr.timesSendStep < 5)//è¶…æ—¶
             {
                 USB_Edgeboard_Selfcheck(Selfcheck_Buzzer);
                 icarStr.timesSendStep++;
             }
             break;
-        case Selfcheck_RgbLed:          //µÆĞ§²âÊÔ
+        case Selfcheck_RgbLed:          //ç¯æ•ˆæµ‹è¯•
             ICAR_RgbCheck();
-            if(icarStr.counterSelfcheck >= 1000 && icarStr.timesSendStep < 5)//³¬Ê±
+            if(icarStr.counterSelfcheck >= 1000 && icarStr.timesSendStep < 5)//è¶…æ—¶
             {
                 USB_Edgeboard_Selfcheck(Selfcheck_RgbLed);
                 icarStr.timesSendStep++;
             }
             break;
-        case Selfcheck_Key:             //°´¼ü²âÊÔ
-            if(icarStr.counterSelfcheck >= 1000 && icarStr.timesSendStep < 5)//³¬Ê±
+        case Selfcheck_Key:             //æŒ‰é”®æµ‹è¯•
+            if(icarStr.counterSelfcheck >= 1000 && icarStr.timesSendStep < 5)//è¶…æ—¶
             {
                 USB_Edgeboard_Selfcheck(Selfcheck_Key);
                 icarStr.timesSendStep++;
             }
             break;
-        case Selfcheck_Finish:          //²âÊÔÍê³É
+        case Selfcheck_Finish:          //æµ‹è¯•å®Œæˆ
             GPIO_BuzzerEnable(BuzzerFinish);
             icarStr.selfcheckEnable = false;
-            ICAR_Reboot();//ÖØÆô
+            ICAR_Reboot();//é‡å¯
             break;
     }
  
 }
 
 /**
-* @brief        ×Ô¼ìÁ÷³Ì¿ØÖÆ
+* @brief        è‡ªæ£€æµç¨‹æ§åˆ¶
 * @param        
 * @ref          
 * @author       Leo
@@ -443,7 +443,7 @@ void ICAR_SelfcheckControl(uint8_t step)
     resStep = step;
     if(step == (uint8_t)Selfcheck_None)
     {
-        RGB_SetAllColor(RGB_COLOR_GREEN);   //¿ªÆôÂÌÉ«µÆ¹â
+        RGB_SetAllColor(RGB_COLOR_GREEN);   //å¼€å¯ç»¿è‰²ç¯å…‰
         GPIO_BuzzerEnable(BuzzerSysStart);
         icarStr.selfcheckEnable = true;
         icarStr.counterSelfcheck = 0;
@@ -461,7 +461,7 @@ void ICAR_SelfcheckControl(uint8_t step)
 }
 
 /**
-* @brief        ±Õ»·ËÙ¶È²ÉÑù
+* @brief        é—­ç¯é€Ÿåº¦é‡‡æ ·
 * @param        
 * @ref          
 * @author       Leo
@@ -504,7 +504,7 @@ float ICAR_SpeedSample(void)
 }
 
 /**
-* @brief        ¶æ»ú²âÊÔ
+* @brief        èˆµæœºæµ‹è¯•
 * @param        
 * @ref          
 * @author       Leo
@@ -531,7 +531,7 @@ bool ICAR_ServoCheck(void)
 }
 
 /**
-* @brief        ·äÃùÆ÷²âÊÔ
+* @brief        èœ‚é¸£å™¨æµ‹è¯•
 * @param        
 * @ref          
 * @author       Leo
@@ -569,7 +569,7 @@ bool ICAR_BuzzerCheck(void)
 }
 
 /**
-* @brief        RGBµÆ²âÊÔ
+* @brief        RGBç¯æµ‹è¯•
 * @param        
 * @ref          
 * @author       Leo
@@ -598,8 +598,8 @@ void ICAR_RgbCheck(void)
     }  
 }
 /**
-* @brief        ¸¡µãÊıÅÅĞò
-* @param        buff:Êı¾İ´æ´¢Êı×é£¬start£ºÆğÊ¼Î»£¬len£ºÅÅĞò³¤¶È
+* @brief        æµ®ç‚¹æ•°æ’åº
+* @param        buff:æ•°æ®å­˜å‚¨æ•°ç»„ï¼Œstartï¼šèµ·å§‹ä½ï¼Œlenï¼šæ’åºé•¿åº¦
 * @ref          
 * @author       Leo
 * @note         
@@ -623,8 +623,8 @@ void ICAR_SortFloat(float *buff, uint8_t start, uint8_t len)
 
 
 /**
-* @brief        ¸¡µãÊı¾ø¶ÔÖµº¯Êı
-* @param        data£ºÒªÇó¾ø¶ÔÖµµÄµ¥¾«¶È¸¡µãÊı
+* @brief        æµ®ç‚¹æ•°ç»å¯¹å€¼å‡½æ•°
+* @param        dataï¼šè¦æ±‚ç»å¯¹å€¼çš„å•ç²¾åº¦æµ®ç‚¹æ•°
 * @ref          
 * @author       Leo
 * @note         

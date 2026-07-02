@@ -1,4 +1,4 @@
-/**
+ï»¿/**
   ******************************************************************************
   * @file    stm32f10x.h
   * @author  MCD Application Team
@@ -15,15 +15,15 @@
   *          is using in the C source code, usually in main.c. This file contains:
   *           - Configuration section that allows to select:
   *              - The device used in the target application
-  *              - To use or not the peripheral’s drivers in application code(i.e. 
-  *                code will be based on direct access to peripheral’s registers 
+  *              - To use or not the peripheralæŠ¯ drivers in application code(i.e. 
+  *                code will be based on direct access to peripheralæŠ¯ registers 
   *                rather than drivers API), this option is controlled by 
   *                "#define USE_STDPERIPH_DRIVER"
   *              - To change few application-specific parameters such as the HSE 
   *                crystal frequency
   *           - Data structures and the address mapping for all peripherals
   *           - Peripheral's registers declarations and bits definition
-  *           - Macros to access peripheral’s registers hardware
+  *           - Macros to access peripheralæŠ¯ registers hardware
   *
   ******************************************************************************
   * @attention
@@ -125,7 +125,7 @@
  * @brief In the following line adjust the External High Speed oscillator (HSE) Startup 
    Timeout value 
    */
-/*ÐÞ¸ÄÍâ²¿¾§ÕñÆðÕñ³¬Ê±Ê±¼ä*/
+/*ä¿®æ”¹å¤–éƒ¨æ™¶æŒ¯èµ·æŒ¯è¶…æ—¶æ—¶é—´*/
 #define HSE_STARTUP_TIMEOUT   ((uint16_t)0xffff) /*!< Time out for HSE start up */
 
 #define HSI_VALUE    ((uint32_t)8000000) /*!< Value of the Internal oscillator in Hz*/

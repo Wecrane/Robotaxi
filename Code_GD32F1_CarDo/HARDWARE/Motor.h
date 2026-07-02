@@ -6,25 +6,25 @@
 
 /*---------------------------------------  D E F I N I T I O N  ---------------------------------------*/
 
-#define  MOTOR_PWM_MAX   			1500		//OCR=95%,��ֹ��ռ�ձ���������MOS��
+#define  MOTOR_PWM_MAX   			1500		//OCR=95%,禁止满占空比输出，造成MOS损坏
 #define  MOTOR_PWM_MIN			    -1500		//OCR=95%
-#define  MOTOR_SPEED_MAX		    10.0f	 	//������ת��(m/s) (0.017,8.04)
-#define  PI					        3.141593f   //��
-#define  MOTOR_CONTROL_CYCLE	    0.01f    	//�����������T��10ms
+#define  MOTOR_SPEED_MAX		    10.0f	 	//电机最大转速(m/s) (0.017,8.04)
+#define  PI					        3.141593f   //π
+#define  MOTOR_CONTROL_CYCLE	    0.01f    	//电机控制周期T：10ms
 
 /**
-* @brief    ������
+* @brief    电机相关
 **/
 typedef struct 
 {
-	float ReductionRatio ;					    //������ٱ�
-	float EncoderLine ; 						//����������=��դ��16*4
-	signed int EncoderValue;				    //������ʵʱ�ٶ�
-	float DiameterWheel;						//����ֱ����mm
-	bool CloseLoop;							    //����ģʽ
-	uint16_t Counter;							//�̼߳�����
-	signed int PwmOutput;						//[P0-3] 当前PWM输出值
-	uint16_t FaultCnt;							//[P0-3] 编码器故障连续计数
+	float ReductionRatio ;					    //电机减速比
+	float EncoderLine ; 						//编码器线数=光栅数16*4
+	signed int EncoderValue;				    //编码器实时速度
+	float DiameterWheel;						//轮子直径：mm
+	bool CloseLoop;							    //开环模式
+	uint16_t Counter;							//线程计数器
+	signed int PwmOutput;						//[P0-3] 实际PWM输出值(用于故障检测)
+	uint8_t FaultCnt;							//[P0-3] 编码器断线连续计数
 	bool FaultLatched;							//[P0-3] 故障锁存标志
 }MotorStruct;
 

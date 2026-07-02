@@ -93,6 +93,10 @@ public:
             return false;
         }
 
+        //[修复] 允许端口复用，防止重启时TIME_WAIT导致bind失败
+        int opt = 1;
+        setsockopt(socketId, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
         // 绑定套接字到地址和端口
         address.sin_family = AF_INET;
         address.sin_addr.s_addr = INADDR_ANY;
@@ -135,10 +139,10 @@ public:
      */
     void closeServer()
     {
-        // 关闭套接字
+        //[修复] 先关闭fd让阻塞的accept/recv返回，再join线程，避免死锁
+        if (newSocket > 0) close(newSocket);
+        if (socketId > 0) close(socketId);
         threadRes.join();
-        close(newSocket);
-        close(socketId);
         uart.close(); // 串口通信关闭
     }
 

@@ -1,15 +1,15 @@
-#include "pid.h"
+ï»¿#include "pid.h"
 /*
 ********************************************************************************************************
-*                                               Ê¾Àý´úÂë
+*                                               ç¤ºä¾‹ä»£ç 
 *                                             EXAMPLE  CODE                                             
 *
 *                             (c) Copyright 2021; SaiShu.Lcc.; Leo
-*                                 °æÈ¨ËùÊô[±±¾©ÈüÊï¿Æ¼¼ÓÐÏÞ¹«Ë¾]
+*                                 ç‰ˆæƒæ‰€å±ž[åŒ—äº¬èµ›æ›™ç§‘æŠ€æœ‰é™å…¬å¸]
 *
-*               The code is for internal use only, not for commercial transactions(¿ªÔ´Ñ§Ï°,ÇëÎðÉÌÓÃ).
-*               The code ADAPTS the corresponding hardware circuit board(´úÂëÊ¹ÓÃCarDoÖÇ¿Ø°å), 
-*               the specific details consult the professional(»¶Ó­ÁªÏµÎÒÃÇ).
+*               The code is for internal use only, not for commercial transactions(å¼€æºå­¦ä¹ ,è¯·å‹¿å•†ç”¨).
+*               The code ADAPTS the corresponding hardware circuit board(ä»£ç ä½¿ç”¨CarDoæ™ºæŽ§æ¿), 
+*               the specific details consult the professional(æ¬¢è¿Žè”ç³»æˆ‘ä»¬).
 *********************************************************************************************************
 */
 
@@ -17,7 +17,7 @@ PIDStruct pidStr;
 
 
 /**
-* @brief        PID²ÎÊý³õÊ¼»¯
+* @brief        PIDå‚æ•°åˆå§‹åŒ–
 * @param        
 * @ref          
 * @author       Leo
@@ -37,7 +37,7 @@ void PID_Init(void)
 
 
 /**
-* @brief        PIDËÙ¿ØÄ£ÐÍ
+* @brief        PIDé€ŸæŽ§æ¨¡åž‹
 * @param        
 * @ref          
 * @author       Leo
@@ -60,7 +60,7 @@ signed int PID_MoveCalculate(PIDStruct *pp)
     }
     else								
     { 
-//PID»ý·Ö°üºÍ£¬±ØÒªÊ±ºòÆôÓÃ£¬Ïû¶¶
+//PIDç§¯åˆ†åŒ…å’Œï¼Œå¿…è¦æ—¶å€™å¯ç”¨ï¼Œæ¶ˆæŠ–
 //				I_error = pp -> v_Ki * error;
 //				if(I_error >= (VV_MAX/5))
 //				{

@@ -1,15 +1,15 @@
-#include "motor.h"
+﻿#include "motor.h"
 /*
 ********************************************************************************************************
-*                                               ʾ������
+*                                               示例代码
 *                                             EXAMPLE  CODE                                             
 *
 *                             (c) Copyright 2021; SaiShu.Lcc.; Leo
-*                                 ��Ȩ����[��������Ƽ����޹�˾]
+*                                 版权所属[北京赛曙科技有限公司]
 *
-*               The code is for internal use only, not for commercial transactions(��Դѧϰ,��������).
-*               The code ADAPTS the corresponding hardware circuit board(����ʹ��CarDo�ǿذ�), 
-*               the specific details consult the professional(��ӭ��ϵ����).
+*               The code is for internal use only, not for commercial transactions(开源学习,请勿商用).
+*               The code ADAPTS the corresponding hardware circuit board(代码使用CarDo智控板), 
+*               the specific details consult the professional(欢迎联系我们).
 *********************************************************************************************************
 */
 
@@ -17,14 +17,15 @@ MotorStruct motorStr;
 
 
 /**
-* @brief        ������Ƴ�ʼ��?* @param        
+* @brief        电机控制初始化
+* @param        
 * @ref          
 * @author       Leo
 * @note         
 **/
 void MOTOR_Init(void)
 {
-    //PWM-IO��ʼ��
+    //PWM-IO初始化
     GPIO_InitTypeDef GPIO_InitStructure;
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_AFIO, ENABLE);  
     GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_8; 			//PWM
@@ -32,13 +33,13 @@ void MOTOR_Init(void)
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; 
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 	
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14; 			//�������IO
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14; 			//电机方向IO
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;          
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; 
     GPIO_Init(GPIOB, &GPIO_InitStructure);
     GPIO_SetBits(GPIOB,GPIO_Pin_14);	
 	
-    //TIM��ʼ��
+    //TIM初始化
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;  
     TIM_OCInitTypeDef TIM_OCInitStructure;  
     TIM_BDTRInitTypeDef TIM_BDTRInitStructure; 
@@ -46,12 +47,12 @@ void MOTOR_Init(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
     TIM_TimeBaseStructure.TIM_Prescaler = 2;  										
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  
-    TIM_TimeBaseStructure.TIM_Period = 2000-1;   //72M  3��Ƶ =  12KHz PWM
+    TIM_TimeBaseStructure.TIM_Period = 2000-1;   //72M  3分频 =  12KHz PWM
     TIM_TimeBaseStructure.TIM_ClockDivision = 0;   
     TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;     
     TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);    
       
-    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;   //����PWMģʽΪ���ϼ���ģʽ 
+    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;   //设置PWM模式为向上计数模式 
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;  
     TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High;  
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;  
@@ -85,20 +86,18 @@ void MOTOR_Init(void)
 		
     MOTOR_SetPwmValue(0);
     
-    //���ģ�ͳ�ʼ��?    motorStr.EncoderLine = 512.0f; 							//����������=��դ��16*4				
-    motorStr.ReductionRatio = 2.7f;							//������ٱ�?							
+    //电机模型初始化
+    motorStr.EncoderLine = 512.0f; 							//编码器线数=光栅数16*4				
+    motorStr.ReductionRatio = 2.7f;							//电机减速比								
     motorStr.EncoderValue = 0;
-    motorStr.DiameterWheel = 0.064f;//68cm					//����ֱ��:m
-    motorStr.CloseLoop = true;                              //Ĭ�ϱջ�ģʽ
-    motorStr.PwmOutput = 0;
-    motorStr.FaultCnt = 0;
-    motorStr.FaultLatched = false;
+    motorStr.DiameterWheel = 0.064f;//68cm					//轮子直径:m
+    motorStr.CloseLoop = true;                              //默认闭环模式
 }
 
 
 /**
-* @brief        ������PWM����
-* @param        pwm��-2000~2000
+* @brief        电机输出PWM设置
+* @param        pwm：-2000~2000
 * @ref          
 * @author       Leo
 * @note         
@@ -123,15 +122,14 @@ void MOTOR_SetPwmValue(signed int pwm)
         pwm = -pwm;
 
         TIM_SetCompare1(TIM1,pwm);
-    }
-
-    //[P0-3] 追踪当前PWM输出值（限幅后的实际写入值，用于编码器故障检测）
-    motorStr.PwmOutput = pwm;
+    }	
+    motorStr.PwmOutput = pwm; //[P0-3] 追踪实际PWM输出(用于故障检测)
 }
 
 
 /**
-* @brief        ����ջ��ٿ�?* @param        speed���ٶ�m/s
+* @brief        电机闭环速控
+* @param        speed：速度m/s
 * @ref          
 * @author       Leo
 * @note         
@@ -150,7 +148,8 @@ void MOTOR_ControlLoop(float speed)
 
 
 /**
-* @brief        ��������߳�?* @param        
+* @brief        电机控制线程
+* @param        
 * @ref          
 * @author       Leo
 * @note         
@@ -158,15 +157,41 @@ void MOTOR_ControlLoop(float speed)
 void MOTOR_Timer(void)
 {
     motorStr.Counter++;
-    if(motorStr.Counter >= 10)							    //主控周期:10ms
+    if(motorStr.Counter >= 10)							    //速控:10ms
     {
-        ENCODER_RevSample();								//编码器采�?
-        //[P0-4] &&替代||：必须同时满足冲刺使能、上位机连接，防止单条件绕过保护
-        if(!motorStr.FaultLatched && (icarStr.sprintEnable || icarStr.selfcheckEnable) && usbStr.connected)
+        ENCODER_RevSample();								//编码器采样
+
+        //[P0-3] 编码器断线故障检测：EncoderValue==0且PWM>100连续20周期→紧急停车
+        if(!motorStr.FaultLatched) //[审查修复] 锁存后不再重复检测，保留FaultCnt证据
+        {
+            if(motorStr.EncoderValue == 0 && motorStr.PwmOutput > 100)
+            {
+                motorStr.FaultCnt++;
+                if(motorStr.FaultCnt >= 20) //200ms连续故障
+                {
+                    motorStr.FaultLatched = true;
+                    icarStr.errorCode |= 0x10; //bit4:编码器断线
+                }
+            }
+            else
+            {
+                motorStr.FaultCnt = 0;
+            }
+        }
+
+        //[P0-3] 故障锁存：一旦触发，每周期强制停车直至系统复位
+        if(motorStr.FaultLatched)
+        {
+            MOTOR_SetPwmValue(0);
+            motorStr.Counter = 0;
+            return;
+        }
+
+        if(icarStr.sprintEnable || icarStr.selfcheckEnable || usbStr.connected) //[审查修复] 回退&&为||，增加selfcheckEnable确保自检可用
         {
             if(motorStr.CloseLoop)
             {
-                MOTOR_ControlLoop(icarStr.SpeedSet);		//闭环控制
+                MOTOR_ControlLoop(icarStr.SpeedSet);		//闭环速控
             }
             else//开环百分比控制
             {
@@ -174,35 +199,14 @@ void MOTOR_Timer(void)
                     icarStr.SpeedSet = 100;
                 else if(icarStr.SpeedSet < -100)
                     icarStr.SpeedSet = -100;
-                signed int speedRate = MOTOR_PWM_MAX/100.f*icarStr.SpeedSet; //输出速度百分�?
+                signed int speedRate = MOTOR_PWM_MAX/100.f*icarStr.SpeedSet; //开环：百分比%
                 
-                MOTOR_SetPwmValue(speedRate);		//开环控制
+                MOTOR_SetPwmValue(speedRate);		//开环速控
             }
         }
         else
         {
             MOTOR_SetPwmValue(0);
-        }
-
-        //[P0-3] 编码器故障检测：EncoderValue==0且PwmOutput>100，连续20周期(200ms)触发紧急停车
-        //       启动豁免：电机曾转动过(abs(EncoderValue)>5)后才使能检测
-        if(!motorStr.FaultLatched)
-        {
-            if(motorStr.EncoderValue == 0 && motorStr.PwmOutput > 100)
-            {
-                motorStr.FaultCnt++;
-                if(motorStr.FaultCnt >= 20)
-                {
-                    motorStr.FaultLatched = true;			//锁存故障
-                    MOTOR_SetPwmValue(0);					//紧急停车
-                    icarStr.errorCode |= 0x10;				//故障码bit4:编码器断线
-                    motorStr.FaultCnt = 0;
-                }
-            }
-            else
-            {
-                motorStr.FaultCnt = 0;						//条件不满足立即清�?防偶发零值累�?
-            }
         }
        
         motorStr.Counter = 0;

@@ -1,4 +1,4 @@
-/**
+ï»¿/**
   ******************************************************************************
   * @file    stm32f10x_i2c.h
   * @author  MCD Application Team
@@ -344,7 +344,7 @@ typedef struct
   */
 
 /* --EV6 */
-//ºêµØÖ·¶¨Òå¸Ä±ä
+//å®åœ°å€å®šä¹‰æ”¹å˜
 #define  I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED        ((uint32_t)0x00070002)  /* BUSY, MSL, ADDR, TXE and TRA flags */
 #define  I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED           ((uint32_t)0x00030002)  /* BUSY, MSL and ADDR flags */
 /* --EV9 */
@@ -423,7 +423,7 @@ typedef struct
 /* --EV1  (all the events below are variants of EV1) */   
 /* 1) Case of One Single Address managed by the slave */
 #define  I2C_EVENT_SLAVE_RECEIVER_ADDRESS_MATCHED          ((uint32_t)0x00020002) /* BUSY and ADDR flags */
-//ºêµØÖ·¶¨Òå¸Ä±ä
+//å®åœ°å€å®šä¹‰æ”¹å˜
 #define  I2C_EVENT_SLAVE_TRANSMITTER_ADDRESS_MATCHED       ((uint32_t)0x00060002) /* TRA, BUSY, TXE and ADDR flags */
 
 /* 2) Case of Dual address managed by the slave */

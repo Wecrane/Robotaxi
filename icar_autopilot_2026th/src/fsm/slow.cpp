@@ -66,12 +66,14 @@ void FsmSlow::run(Mat &img)
     switch (step)
     {
     case Step::NONE: // AI标志检测
+
         params->ctrl.slow = false; // 清除慢行标志
         for (int i = 0; i < params->resultsSnapshot.size(); i++)
         {
             if (params->resultsSnapshot[i].type == LABEL_LIMIT) // AI识别标志
             {
-                if (params->resultsSnapshot[i].height < 100 && params->resultsSnapshot[i].width < 80) // 标志位置过滤
+                if (params->resultsSnapshot[i].height < 100 && params->resultsSnapshot[i].width < 80 &&
+                    (params->resultsSnapshot[i].y + params->resultsSnapshot[i].height) > ROWSIMAGE * 0.2) //[修复] 进入时也加位置过滤
                 {
                     countRec++;
                     break;
@@ -95,6 +97,13 @@ void FsmSlow::run(Mat &img)
     case Step::ENABLE: // 慢行阶段
     {
         timeout++;
+        //[修复] 超时强制退出：300帧(10秒)后仍未检测到UNLIMIT则退出慢行
+        if (timeout > 300)
+        {
+            setStep(Step::NONE);
+            params->ctrl.slow = false;
+            break;
+        }
         params->ctrl.slow = true; // 设置慢行标志
 
         bool seenUnlimit = false;
@@ -130,7 +139,7 @@ void FsmSlow::run(Mat &img)
             else
             {
                 unlimitDelay++; // UNLIMIT消失，累计丢失帧数
-                if (unlimitDelay > 3)
+                if (unlimitDelay > 8) //[修复] 3→8帧(267ms)，容忍短暂检测抖动
                     setStep(Step::NONE);
             }
         }
@@ -143,19 +152,24 @@ void FsmSlow::run(Mat &img)
                 countSes = 0;
             }
         }
-
-        // [P1-4] 超时保护：UNLIMIT漏检时强制退出慢行区（10秒=300帧@30fps）
-        if (timeout > 300)
-        {
-            setStep(Step::NONE);
-            timeout = 0;
-        }
         break;
     }
 
     default:
         break;
     }
+}
+
+/**
+ * @brief 圈数变更时复位慢行状态
+ */
+void FsmSlow::resetLap()
+{
+    setStep(Step::NONE);
+    countRec = 0;
+    countSes = 0;
+    timeout = 0;
+    unlimitDelay = 0;
 }
 
 /**
@@ -182,6 +196,6 @@ void FsmSlow::setStep(Step st)
     step = st;
     countRec = 0;     // AI场景识别计数器
     countSes = 0;     // 场次计数器
-    timeout = 0;      // 超时退出计数器
+    timeout = 0;      // 超时计数器
     unlimitDelay = 0; // 解除限速延时计数器
 }

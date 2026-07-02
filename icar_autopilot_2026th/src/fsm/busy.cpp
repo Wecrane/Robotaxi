@@ -82,11 +82,13 @@ void FsmBusy::run(Mat &img)
         recoveryFrames--;
 
     enable = false; // 场景检测使能标志
-    // 行驶通过施工区模式（退出手动接管后）：左转标志触发退出转向，和出停车场一样
+
+    // 行驶通过施工区模式（退出手动接管后）：左转标志触发退出转向，和出停车场一致
     if (drivingThrough)
     {
         if (!exiting)
         {
+            drivingTimeout++; //[修复] 递增超时计数器
             // 施工区停靠模式：等待station完成停车后再检测左转
             bool stationActive = params->stationStarted && !params->stationStopCompleted;
             bool waitStationStop = false;
@@ -101,7 +103,7 @@ void FsmBusy::run(Mat &img)
                 else if (params->config.currentLapConfig->busyStopPoint == 1 &&
                          stationExitCooldown < 30)
                 {
-                    // 第一个框：停车后1秒再检测左转
+                    // 第一个框：停车后等1秒再检测左转
                     stationExitCooldown++;
                     waitStationStop = true;
                 }
@@ -109,6 +111,14 @@ void FsmBusy::run(Mat &img)
 
             if (!stationActive && !waitStationStop)
             {
+                //[修复] 超时强制退出：10秒未检测到左转标志则直接结束施工区模式
+                if (drivingTimeout > 300)
+                {
+                    drivingThrough = false;
+                    params->busyZone = false;
+                    printf("[Busy] Driving-through timeout, force exit\n");
+                    return;
+                }
                 // 等待检测左转标志，触发退出转向
                 for (int i = 0; i < params->resultsSnapshot.size(); i++)
                 {
@@ -166,7 +176,7 @@ void FsmBusy::run(Mat &img)
                 enable = false;
                 countRes = 0;
                 params->busyZone = false;  // 施工区结束
-                params->ctrl.countAcc = 0; // 出库缓加速，约0.7s后恢复正常速度
+                params->ctrl.countAcc = 0; // 出库缓加速，约1.7s后恢复正常速度
                 params->track->pointsEdgeLeft.clear();
                 params->track->pointsEdgeRight.clear();
                 printf("[Busy] Exit turn complete, returning to normal mode\n");
@@ -211,7 +221,7 @@ void FsmBusy::run(Mat &img)
                 // 持续检测，触发手动接管
                 if (countRec > 3)
                 {
-                    cout << "[Busy] === 手动接管检测 ===" << endl;
+                    cout << "[Busy] === 手动接管检查 ===" << endl;
                     cout << "[Busy] countRec: " << countRec << endl;
                     cout << "[Busy] waitingForTakeover: " << waitingForTakeover << endl;
                     cout << "[Busy] manualTakeover: " << manualTakeover << endl;
@@ -334,7 +344,7 @@ void FsmBusy::handleParkingSpot()
         {
             if (params->resultsSnapshot[i].type == LABEL_STATION)
             {
-                // 检测到停靠区，开始停车计数
+                // 检测到停靠区，开始停车计时
                 if (!params->stationStarted)
                 {
                     params->stationStarted = true;
@@ -355,7 +365,7 @@ void FsmBusy::handleParkingSpot()
                         stopCounter++;
                         printf("[Busy] Station stop %d/30\n", stopCounter);
 
-                        // 停车1秒（30帧）
+                        // 停车约1秒（30帧）
                         if (stopCounter > 30)
                         {
                             printf("[Busy] Parking completed at station spot %d\n", parkingTargetSpot);
@@ -449,7 +459,9 @@ void FsmBusy::endManualTakeover()
     countSes = 0;
     busyStopCount = 0;
     busyStopMaskTime = 0;
+    recoveryFrames = 90; //[修复] 接管结束后3秒内不重触发
     params->busyZone = true; // 标记施工区状态
+
     // 重置停车相关变量
     stationStarted = false;
     pressTimer = 0;

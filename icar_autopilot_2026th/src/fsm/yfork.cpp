@@ -92,7 +92,7 @@ void FsmYfork::show(Mat &img)
     putText(img, "[9] Yfork", Point(COLSIMAGE / 2 - 50, 20),
             cv::FONT_HERSHEY_TRIPLEX, 0.5, cv::Scalar(0, 255, 0), 0.5);
 
-    // 绘制赛道边缘线
+    // 绘制赛道边缘点
     for (int i = 0; i < params->track->pointsEdgeLeft.size(); i++)
     {
         circle(img, Point(params->track->pointsEdgeLeft[i].y, params->track->pointsEdgeLeft[i].x), 2,
@@ -185,7 +185,7 @@ bool FsmYfork::handle(Mat &img)
                 step = Step::DECIDE;
                 counterYfork = 0;
                 timeout = 0;
-                printf("[Yfork] V尖 row=%d col=%d\n", tipRow, tipCol);
+                printf("[Yfork] V尖: row=%d col=%d\n", tipRow, tipCol);
             }
         }
         return forkSeen; // 检测到fork进入YFORK模式减速，引导在V尖找到后才开始
@@ -213,7 +213,7 @@ bool FsmYfork::handle(Mat &img)
         // 引导期间屏蔽station检测，但V尖消失后放开让station能检测停车框
         params->yforkGuiding = (holdRow > 0) && (!vloss || vlossTimer < 5);
 
-        // 左岔路：V尖消失后左边线突变→已右拐驶出岔路
+        // 左岔路：V尖消失后左边线突变 → 已右拐驶出岔路
         //   - 当前圈启用了station时：阻止突变退出，等先停好车
         bool stationEnabled = params->config.currentLapConfig->station;
         bool stationBusy = stationEnabled && !params->stationStopCompleted;
@@ -230,7 +230,7 @@ bool FsmYfork::handle(Mat &img)
             countRes = cur;
         }
 
-        // 右岔路：右边缘突变→已左拐驶出岔路
+        // 右岔路：右边缘突变 → 已左拐驶出岔路
         if (!stationBusy && !selectLeft && tipRow == 0 && params->track->pointsEdgeRight.size() > 4)
         {
             int cur = params->track->pointsEdgeRight.back().y;
@@ -244,7 +244,7 @@ bool FsmYfork::handle(Mat &img)
             countRes = cur;
         }
 
-        // 超时退出（启用了station等多等帧等停车→突变）
+        // 超时退出（启用了station等多等帧等停车+突变）
         int exitTimeout = stationEnabled ? 200 : 120;
         if (timeout > exitTimeout)
         {
@@ -327,7 +327,7 @@ bool FsmYfork::findVTip(const Mat &img)
         return false;
     }
 
-    // 只用Track的岔路红点：选最远处的（row最小= 岛尖端）
+    // 只用Track的岔路红点：选最远处的（row最小 = 岛尖）
     int bestRow = 0, bestCol = 0;
     for (const auto &p : params->track->spurroad)
     {
@@ -343,7 +343,7 @@ bool FsmYfork::findVTip(const Mat &img)
         tipRow = bestRow;
         tipCol = bestCol;
 
-        // 红点到达图像下方 →标记消失
+        // 红点到达图像下方 → 标记消失
         if (tipRow > ROWSIMAGE * 0.7)
         {
             vloss = true;
@@ -353,7 +353,7 @@ bool FsmYfork::findVTip(const Mat &img)
         return true;
     }
 
-    // 红点从有到无 →标记消失，后续不再接受新红点
+    // 红点从有到无 → 标记消失，后续不再接受新红点
     if (tipRow > 0)
         vloss = true;
 
@@ -363,13 +363,14 @@ bool FsmYfork::findVTip(const Mat &img)
 }
 
 /**
- * @brief 车道线重绘：保留自然检测边线 + V尖屏障线引导进入岔路
+ * @brief 车道线重绘：保留自然检测边缘 + V尖屏障线引导进入岔路
  *
- * @param left true=左分支 false=右分支
+ * @param left true=左分支, false=右分支
  */
 void FsmYfork::replanTracking(bool left, const Mat &img)
 {
     findVTip(img); // 更新V尖位置
+
     int vRow = tipRow;
     int vCol = tipCol;
 
@@ -448,8 +449,8 @@ void FsmYfork::replanTracking(bool left, const Mat &img)
     }
     else
     {
-        // 右分支：左边线 = 岛右边界(尖↑) + 直线屏障(尖↓→左下角) (镜像左分支)
-        // 岛在二值图中为黑，从V尖往右找第一个白色赛道边线就是岛右边界
+        // 右分支：左边缘 = 岛右边界(尖↑) + 直线屏障(尖↓→左下角) (镜像左分支)
+        // 岛在二值图中为黑，从V尖往右找第一个白点=赛道边线就是岛右边界
         vector<PointX> island;
         for (int row = vRow; row >= ROWSIMAGE / 4; row--)
         {
@@ -490,6 +491,13 @@ void FsmYfork::replanTracking(bool left, const Mat &img)
         params->track->pointsEdgeLeft = island;
         params->track->pointsEdgeLeft.insert(params->track->pointsEdgeLeft.end(),
                                              barrier.begin(), barrier.end());
+
+        //[修复] 右分支：补全右边缘贝塞尔引导线（镜像左分支）
+        PointX rightStart = PointX(ROWSIMAGE - 10, COLSIMAGE - 60);
+        PointX rightEnd = PointX(ROWSIMAGE / 3, COLSIMAGE - 1);
+        PointX rightMid = PointX((rightStart.x + rightEnd.x) * 0.3f, (rightStart.y + rightEnd.y) * 0.5f);
+        vector<PointX> rightPoints = {rightStart, rightMid, rightEnd};
+        params->track->pointsEdgeRight = Bezier(0.02f, rightPoints);
     }
     printf("[Yfork] replan dir=%s tip=(%d,%d)\n", left ? "L" : "R", tipRow, tipCol);
 }

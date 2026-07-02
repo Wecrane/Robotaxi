@@ -20,11 +20,11 @@ metadata:
 
 | 项目 | 值 |
 |------|-----|
-| EdgeBoard IP | **10.25.139.199** (WiFi固定) |
-| 电脑 IP | **10.25.139.188** (WiFi固定) |
-| SSH | `ssh root@10.25.139.199` 密码 root |
-| VNC | `10.25.139.199:5902` 密码 root |
-| Samba | `\\10.25.139.199\root\root\workspace` 密码 root |
+| EdgeBoard IP | **192.168.137.199** (WiFi固定) |
+| 电脑 IP | **192.168.137.1** (WiFi固定) |
+| SSH | `ssh root@192.168.137.199` 密码 root |
+| VNC | `192.168.137.199:5902` 密码 root |
+| Samba | `\\192.168.137.199\root\root\workspace` 密码 root |
 | 代码路径(EdgeBoard) | `~/workspace/icar_autopilot_2026th/` |
 | 完整技术手册 | `docs/完全参赛指南与技术手册_V5.md` |
 
@@ -72,7 +72,7 @@ code/
 ## 编译运行
 
 ```bash
-ssh root@10.25.139.199
+ssh root@192.168.137.199
 cd ~/workspace/icar_autopilot_2026th/build
 cmake .. && make -j4
 ./icar                           # 纯自动
