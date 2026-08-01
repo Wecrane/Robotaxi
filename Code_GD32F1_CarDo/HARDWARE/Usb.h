@@ -6,7 +6,7 @@
 
 #define USB_FRAME_HEAD				 0x42				 //USB通信序列帧头
 #define USB_FRAME_LENMIN  			 4					 //USB通信序列字节最短长度
-#define USB_FRAME_LENMAX			 30					 //USB通信序列字节最长长度
+#define USB_FRAME_LENMAX			 12					 //USB通信序列字节最长长度
 
 #define USB_ADDR_HEART               0x00                //监测软件心跳
 #define USB_ADDR_CONTROL             0x01                //智能车控制
@@ -20,7 +20,11 @@
 //仅限自检软件通信使用
 #define USB_ADDR_INSPECTOR           0x0A                //智能车自检软件连接心跳
 #define USB_ADDR_SELFCHECK           0x0B                //智能车自检开始
+#define USB_ADDR_CLEARFAULT          0x0C                //清除/探测恢复锁存故障
 #define USB_ADDR_SPEEDBACK           0x08                //车速信息反馈：m/s
+
+#define USB_CONTROL_TIMEOUT_MS       300                 //控制帧超时后强制停车
+#define USB_CONTROL_SPEED_LIMIT      2.0f                //上位机控制速度硬限幅(m/s)
 
 
 typedef struct 
@@ -31,10 +35,12 @@ typedef struct
 	uint8_t receiveBuff[USB_FRAME_LENMAX];	                //USB接收队列：临时接收
 	uint8_t receiveBuffFinished[USB_FRAME_LENMAX];	        //USB接收队列：校验成功
 	uint16_t counter;										//计数器
-    uint16_t counterDrop;                                   //掉线计数器    
+    uint16_t counterDrop;                                   //掉线计数器 
+    uint16_t counterControlDrop;                            //控制帧超时计数器(ms)
     
     uint16_t counterSend;                                   //自检数据发送计数器
     bool connected;                                         //上位机通信连接状态
+    bool controlActive;                                     //已收到连续控制指令
     bool inspectorEnable;                                   //智能汽车自检软件连接使能
 }UsbStruct;
 

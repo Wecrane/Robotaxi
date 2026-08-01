@@ -62,6 +62,8 @@ void USB_Edgeboard_Init(void)
     usbStr.receiveStart = false;
     usbStr.receiveIndex = 0;
     usbStr.connected = false;
+    usbStr.counterControlDrop = 0;
+    usbStr.controlActive = false;
     usbStr.inspectorEnable = false;
 }
 
@@ -144,6 +146,18 @@ void USART1_IRQHandler(void)
                     bint16_Union.U8_Buff[0] = usbStr.receiveBuffFinished[7];
                     bint16_Union.U8_Buff[1] = usbStr.receiveBuffFinished[8];
                     
+                    // Fail closed: malformed/out-of-range data must stop rather
+                    // than being converted into a maximum-speed command.
+                    if(!(bint32_Union.Float == bint32_Union.Float) ||
+                       bint32_Union.Float > USB_CONTROL_SPEED_LIMIT ||
+                       bint32_Union.Float < -USB_CONTROL_SPEED_LIMIT)
+                        bint32_Union.Float = 0.0f;
+
+                    if(bint16_Union.U16 < 1000 || bint16_Union.U16 > 2000)
+                        bint16_Union.U16 = servoStr.thresholdMiddle;
+
+                    usbStr.counterControlDrop = 0;
+                    usbStr.controlActive = true;
                     SERVO_SetPwmValueCorrect(bint16_Union.U16);
                     icarStr.ServoPwmSet = bint16_Union.U16;         //方向
                     icarStr.SpeedSet = bint32_Union.Float;          //速度				
@@ -177,6 +191,22 @@ void USART1_IRQHandler(void)
 **/
 void USB_Edgeboard_Timr(void)
 {
+    // A heartbeat/diagnostic frame proves that boot is alive, not that the
+    // driving process is healthy. Only fresh control frames keep motion alive.
+    if(usbStr.controlActive)
+    {
+        if(usbStr.counterControlDrop < USB_CONTROL_TIMEOUT_MS)
+            usbStr.counterControlDrop++;
+        else
+        {
+            usbStr.controlActive = false;
+            icarStr.sprintEnable = false;
+            icarStr.SpeedSet = 0.0f;
+            MOTOR_SetPwmValue(0);
+            SERVO_SetPwmValue(servoStr.thresholdMiddle);
+        }
+    }
+
     if(usbStr.connected)//USB通信掉线检测
     {
         usbStr.counterDrop++;
@@ -187,6 +217,8 @@ void USB_Edgeboard_Timr(void)
             icarStr.selfcheckEnable = false;
             icarStr.sprintEnable = false;			//[P0-4] 掉线时清除冲刺使能
             icarStr.SpeedSet = 0;					//[P0-4] 掉线时清零速度设定
+            usbStr.controlActive = false;
+            usbStr.counterControlDrop = 0;
             MOTOR_SetPwmValue(0);                       //[审查修复] 先停止电机
             SERVO_SetPwmValue(servoStr.thresholdMiddle);//[审查修复] 再回正舵机(用SetPwmValue避免校准偏移重复叠加)
         }
@@ -271,6 +303,12 @@ void USB_Edgeboard_Handle(void)
                         GPIO_BuzzerEnable(BuzzerDing);
                     else if(usbStr.receiveBuffFinished[3] == 5)     //SystemStart
                         GPIO_BuzzerEnable(BuzzerSysStart);
+                    else if(usbStr.receiveBuffFinished[3] == 6)     //Continuous: uint16 ms
+                    {
+                        bint16_Union.U8_Buff[0] = usbStr.receiveBuffFinished[4];
+                        bint16_Union.U8_Buff[1] = usbStr.receiveBuffFinished[5];
+                        GPIO_BuzzerContinuous(bint16_Union.U16);
+                    }
                     
                     break;
                 
@@ -290,6 +328,11 @@ void USB_Edgeboard_Handle(void)
                         motorStr.CloseLoop = true;
                     
                     icarStr.SpeedSet = 0;
+                    GPIO_BuzzerEnable(BuzzerDing);
+                    break;
+
+                case USB_ADDR_CLEARFAULT:        //清除/探测恢复锁存故障
+                    MOTOR_RequestEncoderFaultRecovery();
                     GPIO_BuzzerEnable(BuzzerDing);
                     break;
                 

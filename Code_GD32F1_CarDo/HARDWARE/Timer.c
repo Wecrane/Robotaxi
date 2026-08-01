@@ -54,6 +54,12 @@ void TIM2_Init(void)
 **/
 void TIM2_IRQHandler(void)    //1ms触发一次
 {
+    if(TIM_GetITStatus(TIM2, TIM_IT_CC4) == SET)      //蜂鸣器连续音调比较中断
+    {
+        TIM_ClearITPendingBit(TIM2, TIM_IT_CC4);
+        GPIO_BuzzerToneIrq();
+    }
+    
     if(TIM_GetITStatus(TIM2, TIM_IT_Update) == SET)		//溢出中断
     {	
         GPIO_Timer();			//GPIO外设线程

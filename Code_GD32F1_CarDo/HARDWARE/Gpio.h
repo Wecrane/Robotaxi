@@ -46,9 +46,11 @@ typedef struct
 typedef struct 
 {
 	bool Enable;						//使能标志
+    bool Continuous;                    //连续蜂鸣模式：在指定时长内连续翻转蜂鸣器IO
 	uint16_t Times;					    //鸣叫次数
 	uint16_t Counter;				    //计数器
 	uint16_t Cut;					    //间隔时间
+    uint16_t ToneHalfPeriodUs;          //连续蜂鸣半周期，单位us；由TIM2比较中断驱动
 	bool Silent;						//是否禁用蜂鸣器
 }BuzzerStruct;
 
@@ -60,6 +62,8 @@ void GPIO_Initialize(void);
 void GPIO_Timer(void);
 void GPIO_Handle(void);
 void GPIO_BuzzerEnable(BuzzerEnum buzzer);
+void GPIO_BuzzerContinuous(uint16_t durationMs);
+void GPIO_BuzzerToneIrq(void);
 
 #endif
 

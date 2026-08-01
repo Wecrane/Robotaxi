@@ -223,14 +223,20 @@ void USB_Inspector_Handle(void)
                 case USB_ADDR_BUZZER :      //蜂鸣器音效
                     if(usbInspector.receiveBuffFinished[3] == 1)          //OK
                         GPIO_BuzzerEnable(BuzzerOk);
-                    else if(usbInspector.receiveBuffFinished[3] == 1)     //Warnning
+                    else if(usbInspector.receiveBuffFinished[3] == 2)     //Warnning
                         GPIO_BuzzerEnable(BuzzerWarnning);
-                    else if(usbInspector.receiveBuffFinished[3] == 1)     //Finish
+                    else if(usbInspector.receiveBuffFinished[3] == 3)     //Finish
                         GPIO_BuzzerEnable(BuzzerFinish);
-                    else if(usbInspector.receiveBuffFinished[3] == 1)     //Ding
+                    else if(usbInspector.receiveBuffFinished[3] == 4)     //Ding
                         GPIO_BuzzerEnable(BuzzerDing);
-                    else if(usbInspector.receiveBuffFinished[3] == 1)     //SystemStart
+                    else if(usbInspector.receiveBuffFinished[3] == 5)     //SystemStart
                         GPIO_BuzzerEnable(BuzzerSysStart);
+                    else if(usbInspector.receiveBuffFinished[3] == 6)     //Continuous: uint16 ms
+                    {
+                        bint16_Union.U8_Buff[0] = usbInspector.receiveBuffFinished[4];
+                        bint16_Union.U8_Buff[1] = usbInspector.receiveBuffFinished[5];
+                        GPIO_BuzzerContinuous(bint16_Union.U16);
+                    }
                     
                     break;
                 

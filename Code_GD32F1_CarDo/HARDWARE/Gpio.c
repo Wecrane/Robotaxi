@@ -68,7 +68,9 @@ void GPIO_Initialize(void)
     buzzerStr.Counter = 0;
     buzzerStr.Cut = 0;
     buzzerStr.Enable = false;
+    buzzerStr.Continuous = false;
     buzzerStr.Times = 0;
+    buzzerStr.ToneHalfPeriodUs = 250;
 }
 
 
@@ -139,6 +141,19 @@ void GPIO_Handle(void)
     //蜂鸣器控制
     if(buzzerStr.Enable && !buzzerStr.Silent)
     {
+        if(buzzerStr.Continuous)
+        {
+            if(buzzerStr.Cut <= buzzerStr.Counter)
+            {
+                TIM_ITConfig(TIM2, TIM_IT_CC4, DISABLE);
+                BUZZER_OFF;
+                buzzerStr.Enable = false;
+                buzzerStr.Continuous = false;
+                buzzerStr.Counter = 0;
+            }
+            return;
+        }
+        
         if(buzzerStr.Times<=0)
         {
             BUZZER_OFF;
@@ -173,6 +188,8 @@ void GPIO_Handle(void)
 **/
 void GPIO_BuzzerEnable(BuzzerEnum buzzer)
 {
+    TIM_ITConfig(TIM2, TIM_IT_CC4, DISABLE);
+    buzzerStr.Continuous = false;
 	switch(buzzer)
 	{
 		case BuzzerOk:
@@ -207,6 +224,61 @@ void GPIO_BuzzerEnable(BuzzerEnum buzzer)
 	}
 	
     buzzerStr.Counter = 0;
+}
+
+
+/**
+* @brief        蜂鸣器连续鸣叫
+* @param        durationMs：连续蜂鸣时间，单位ms；范围10~10000ms
+* @ref
+* @author       Codex
+* @note         用于Robotaxi鸣笛任务，保持蜂鸣器GPIO为ON，到时自动关闭
+**/
+void GPIO_BuzzerContinuous(uint16_t durationMs)
+{
+    if(durationMs < 10)
+        durationMs = 10;
+    else if(durationMs > 10000)
+        durationMs = 10000;
+    
+    buzzerStr.Cut = durationMs;
+    buzzerStr.Counter = 0;
+    buzzerStr.Times = 0;
+    buzzerStr.ToneHalfPeriodUs = 250;   //250us翻转一次，约2kHz连续可听方波
+    buzzerStr.Continuous = true;
+    buzzerStr.Enable = true;
+    BUZZER_OFF;
+    
+    TIM_SetCompare4(TIM2, (uint16_t)((TIM2->CNT + buzzerStr.ToneHalfPeriodUs) % 1000));
+    TIM_ClearITPendingBit(TIM2, TIM_IT_CC4);
+    TIM_ITConfig(TIM2, TIM_IT_CC4, ENABLE);
+}
+
+
+/**
+* @brief        连续蜂鸣音调中断处理
+* @param
+* @ref
+* @author       Codex
+* @note         由TIM2 CC4比较中断调用，不改变TIM2 1ms系统节拍
+**/
+void GPIO_BuzzerToneIrq(void)
+{
+    uint16_t nextCompare;
+    
+    if(buzzerStr.Enable && buzzerStr.Continuous && !buzzerStr.Silent)
+    {
+        BUZZER_REV;
+        nextCompare = (uint16_t)(TIM2->CCR4 + buzzerStr.ToneHalfPeriodUs);
+        if(nextCompare >= 1000)
+            nextCompare -= 1000;
+        TIM_SetCompare4(TIM2, nextCompare);
+    }
+    else
+    {
+        TIM_ITConfig(TIM2, TIM_IT_CC4, DISABLE);
+        BUZZER_OFF;
+    }
 }
 
 

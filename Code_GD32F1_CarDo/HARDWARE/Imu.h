@@ -32,7 +32,12 @@
 
 //****************************
 
-#define	MPU6050_Addr   0xD0	  //定义器件在IIC总线中的从地址,根据ALT  ADDRESS地址引脚不同修改
+#define	MPU6050_Addr      0xD0	  //默认IIC写地址，AD0=0
+#define	MPU6050_Addr_ALT  0xD2	  //备用IIC写地址，AD0=1
+
+// PB14 is used by MOTOR direction on this board. Keep IMU bus disabled
+// until the real SDA/SCL pins are confirmed and changed below.
+#define IMU_SOFT_IIC_ENABLE 0
 
 //************************************
 /*模拟IIC端口输出输入定义*/
@@ -55,6 +60,18 @@ typedef struct
 	short GyroX;												//X轴角速度
 	short GyroY;												//Y轴角速度
 	short GyroZ;												//Z轴角速度
+	short GyroRawZ;											//Z轴角速度原始值
+	float GyroZDps;												//Z轴角速度 deg/s
+	float GyroZOffset;											//Z轴零偏 deg/s
+	float YawDeg;												//相对航向角 deg
+	float CalibSum;												//零偏标定累计
+	uint16_t CalibCount;										//零偏标定计数
+	unsigned char Address;										//当前MPU6050 IIC写地址
+	unsigned char WhoAmI;										//WHO_AM_I寄存器
+	bool Calibrated;											//零偏标定完成
+	bool Present;												//IMU芯片在线
+	bool ReadOk;												//最近一次采样读寄存器成功
+	bool Valid;													//IMU数据有效
 }IMU_STA;
 
 

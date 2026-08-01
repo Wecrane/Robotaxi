@@ -26,3 +26,10 @@ JLinkSettings.ini
 # 临时文件
 *.bak
 *.tmp
+
+# 构建/烧录日志与临时产物（codex/KEIL/J-Link 调试生成）
+*.log
+build_output.txt
+*.jlink
+__pycache__/
+*.pyc

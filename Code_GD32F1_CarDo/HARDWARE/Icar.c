@@ -383,12 +383,21 @@ void ICAR_Selfcheck(void)
         case Selfcheck_ServoA:          //舵机测试
             motorStr.CloseLoop = false;
             icarStr.SpeedSet = 0.0f;
-            icarStr.timesSendStep = 0; 
             ICAR_ServoCheck();
-            if(icarStr.counterSelfcheck >= 2000 && icarStr.timesSendStep < 5)//超时
+            if(icarStr.counterSelfcheck >= 2000)//超时2s
             {
-                USB_Edgeboard_Selfcheck(Selfcheck_ServoA);
-                icarStr.timesSendStep++;
+                if(icarStr.timesSendStep < 5)
+                {
+                    USB_Edgeboard_Selfcheck(Selfcheck_ServoA);
+                    icarStr.timesSendStep++;
+                }
+                else
+                {
+                    icarStr.selfcheckStep = Selfcheck_Com;
+                    icarStr.timesSendStep = 0;
+                    icarStr.counterSelfcheck = 0;
+                    icarStr.counterModuleCheck = 0;
+                }
             }
             break;
             
@@ -400,25 +409,55 @@ void ICAR_Selfcheck(void)
         
         case Selfcheck_Buzzer:          //蜂鸣器测试
             ICAR_BuzzerCheck();
-            if(icarStr.counterSelfcheck >= 1000 && icarStr.timesSendStep < 5)//超时
+            if(icarStr.counterSelfcheck >= 1000)//超时1s
             {
-                USB_Edgeboard_Selfcheck(Selfcheck_Buzzer);
-                icarStr.timesSendStep++;
+                if(icarStr.timesSendStep < 5)
+                {
+                    USB_Edgeboard_Selfcheck(Selfcheck_Buzzer);
+                    icarStr.timesSendStep++;
+                }
+                else
+                {
+                    icarStr.selfcheckStep = Selfcheck_RgbLed;
+                    icarStr.timesSendStep = 0;
+                    icarStr.counterSelfcheck = 0;
+                    icarStr.counterModuleCheck = 0;
+                }
             }
             break;
         case Selfcheck_RgbLed:          //灯效测试
             ICAR_RgbCheck();
-            if(icarStr.counterSelfcheck >= 1000 && icarStr.timesSendStep < 5)//超时
+            if(icarStr.counterSelfcheck >= 1000)//超时1s
             {
-                USB_Edgeboard_Selfcheck(Selfcheck_RgbLed);
-                icarStr.timesSendStep++;
+                if(icarStr.timesSendStep < 5)
+                {
+                    USB_Edgeboard_Selfcheck(Selfcheck_RgbLed);
+                    icarStr.timesSendStep++;
+                }
+                else
+                {
+                    icarStr.selfcheckStep = Selfcheck_Key;
+                    icarStr.timesSendStep = 0;
+                    icarStr.counterSelfcheck = 0;
+                    icarStr.counterModuleCheck = 0;
+                }
             }
             break;
         case Selfcheck_Key:             //按键测试
-            if(icarStr.counterSelfcheck >= 1000 && icarStr.timesSendStep < 5)//超时
+            if(icarStr.counterSelfcheck >= 1000)//超时1s
             {
-                USB_Edgeboard_Selfcheck(Selfcheck_Key);
-                icarStr.timesSendStep++;
+                if(icarStr.timesSendStep < 5)
+                {
+                    USB_Edgeboard_Selfcheck(Selfcheck_Key);
+                    icarStr.timesSendStep++;
+                }
+                else
+                {
+                    icarStr.selfcheckStep = Selfcheck_Finish;
+                    icarStr.timesSendStep = 0;
+                    icarStr.counterSelfcheck = 0;
+                    icarStr.counterModuleCheck = 0;
+                }
             }
             break;
         case Selfcheck_Finish:          //测试完成

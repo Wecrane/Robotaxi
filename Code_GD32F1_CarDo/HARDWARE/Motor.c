@@ -92,6 +92,12 @@ void MOTOR_Init(void)
     motorStr.EncoderValue = 0;
     motorStr.DiameterWheel = 0.064f;//68cm					//轮子直径:m
     motorStr.CloseLoop = true;                              //默认闭环模式
+    motorStr.PwmOutput = 0;
+    motorStr.FaultCnt = 0;
+    motorStr.FaultLatched = false;
+    motorStr.FaultRecoverRequested = false;
+    motorStr.FaultRecoverCnt = 0;
+    motorStr.FaultRecoverOkCnt = 0;
 }
 
 
@@ -135,15 +141,91 @@ void MOTOR_SetPwmValue(signed int pwm)
 * @note         
 **/
 void MOTOR_ControlLoop(float speed)
-{	
+{
+    signed int pwm;
+    uint8_t zeroSpeedCommand = 0;
+
     if(speed > MOTOR_SPEED_MAX)
         speed = MOTOR_SPEED_MAX;
     else if(speed < -MOTOR_SPEED_MAX)
         speed = -MOTOR_SPEED_MAX;
+
+    if(speed > -0.001f && speed < 0.001f)
+        zeroSpeedCommand = 1;
     
     pidStr.vi_Ref = (float)(speed*MOTOR_CONTROL_CYCLE / motorStr.DiameterWheel / PI * motorStr.EncoderLine * 4.0f * motorStr.ReductionRatio);
-    
-    MOTOR_SetPwmValue(PID_MoveCalculate(&pidStr));
+
+    pwm = PID_MoveCalculate(&pidStr);
+    if(zeroSpeedCommand)
+    {
+        if(pwm > MOTOR_ZERO_BRAKE_PWM_LIMIT)
+            pwm = MOTOR_ZERO_BRAKE_PWM_LIMIT;
+        else if(pwm < -MOTOR_ZERO_BRAKE_PWM_LIMIT)
+            pwm = -MOTOR_ZERO_BRAKE_PWM_LIMIT;
+    }
+
+    MOTOR_SetPwmValue(pwm);
+}
+
+
+/**
+* @brief        清除编码器故障锁存
+* @param
+* @ref
+* @author       Codex
+* @note         仅在恢复探测确认编码器有脉冲后调用
+**/
+void MOTOR_ClearEncoderFault(void)
+{
+    MOTOR_SetPwmValue(0);
+    icarStr.SpeedSet = 0.0f;
+    icarStr.errorCode &= ~(1 << 4);
+
+    motorStr.FaultLatched = false;
+    motorStr.FaultCnt = 0;
+    motorStr.FaultRecoverRequested = false;
+    motorStr.FaultRecoverCnt = 0;
+    motorStr.FaultRecoverOkCnt = 0;
+    pidStr.vi_Ref = 0.0f;
+    pidStr.vi_FeedBack = 0.0f;
+    pidStr.vi_PreError = 0.0f;
+    pidStr.vi_PreDerror = 0.0f;
+    pidStr.vl_PreU = 0.0f;
+    TIM3->CNT = 0;
+}
+
+
+/**
+* @brief        请求编码器故障恢复探测
+* @param
+* @ref
+* @author       Codex
+* @note         由USB 0x0C命令触发；未锁存时只清计数和错误位
+**/
+void MOTOR_RequestEncoderFaultRecovery(void)
+{
+    icarStr.SpeedSet = 0.0f;
+    MOTOR_SetPwmValue(0);
+
+    motorStr.FaultRecoverCnt = 0;
+    motorStr.FaultRecoverOkCnt = 0;
+    TIM3->CNT = 0;
+
+    pidStr.vi_Ref = 0.0f;
+    pidStr.vi_FeedBack = 0.0f;
+    pidStr.vi_PreError = 0.0f;
+    pidStr.vi_PreDerror = 0.0f;
+    pidStr.vl_PreU = 0.0f;
+
+    if(motorStr.FaultLatched)
+    {
+        motorStr.FaultRecoverRequested = true;
+    }
+    else
+    {
+        motorStr.FaultCnt = 0;
+        icarStr.errorCode &= ~(1 << 4);
+    }
 }
 
 
@@ -159,15 +241,17 @@ void MOTOR_Timer(void)
     motorStr.Counter++;
     if(motorStr.Counter >= 10)							    //速控:10ms
     {
+        signed int pwmAbs;
         ENCODER_RevSample();								//编码器采样
 
-        //[P0-3] 编码器断线故障检测：EncoderValue==0且PWM>100连续20周期→紧急停车
+        //[P0-3] 编码器断线故障检测：EncoderValue==0且PWM持续较大→紧急停车
+        pwmAbs = motorStr.PwmOutput >= 0 ? motorStr.PwmOutput : -motorStr.PwmOutput;
         if(!motorStr.FaultLatched) //[审查修复] 锁存后不再重复检测，保留FaultCnt证据
         {
-            if(motorStr.EncoderValue == 0 && motorStr.PwmOutput > 100)
+            if(motorStr.EncoderValue == 0 && pwmAbs > MOTOR_ENCODER_FAULT_PWM_THRESHOLD)
             {
                 motorStr.FaultCnt++;
-                if(motorStr.FaultCnt >= 20) //200ms连续故障
+                if(motorStr.FaultCnt >= MOTOR_ENCODER_FAULT_CYCLES) //连续1.5s无编码器反馈
                 {
                     motorStr.FaultLatched = true;
                     icarStr.errorCode |= 0x10; //bit4:编码器断线
@@ -179,10 +263,40 @@ void MOTOR_Timer(void)
             }
         }
 
-        //[P0-3] 故障锁存：一旦触发，每周期强制停车直至系统复位
+        //[P0-3] 故障锁存：默认强制停车；收到恢复请求后短时低PWM探测编码器
         if(motorStr.FaultLatched)
         {
-            MOTOR_SetPwmValue(0);
+            if(motorStr.FaultRecoverRequested)
+            {
+                if(motorStr.FaultRecoverCnt > 0 && motorStr.EncoderValue != 0)
+                    motorStr.FaultRecoverOkCnt++;
+                else if(motorStr.FaultRecoverCnt > 0)
+                    motorStr.FaultRecoverOkCnt = 0;
+
+                if(motorStr.FaultRecoverOkCnt >= MOTOR_ENCODER_RECOVER_OK_CYCLES)
+                {
+                    MOTOR_ClearEncoderFault();
+                    motorStr.Counter = 0;
+                    return;
+                }
+
+                if(motorStr.FaultRecoverCnt < MOTOR_ENCODER_RECOVER_PROBE_CYCLES)
+                {
+                    motorStr.FaultRecoverCnt++;
+                    MOTOR_SetPwmValue(MOTOR_ENCODER_RECOVER_PROBE_PWM);
+                }
+                else
+                {
+                    motorStr.FaultRecoverRequested = false;
+                    motorStr.FaultRecoverCnt = 0;
+                    motorStr.FaultRecoverOkCnt = 0;
+                    MOTOR_SetPwmValue(0);
+                }
+            }
+            else
+            {
+                MOTOR_SetPwmValue(0);
+            }
             motorStr.Counter = 0;
             return;
         }
