@@ -100,6 +100,7 @@ struct Config
     float turnP = 3.5;                                  // 比例系数：转弯控制量
     float turnD = 1.5;                                  // 微分系数：转弯控制量 [P1-2] 3.5→1.5 降低舵机抖动
     bool debug = false;                                 // 调试模式使能
+    bool showCamera = false;                            // 生产模式摄像头预览（X11转发）
     bool saveImg = false;                               // 存图使能
     bool saveIpm = false;                               // 存储IPM图像
     uint16_t rowCutUp = 10;                             // 图像顶部切行
@@ -161,7 +162,7 @@ struct Config
     bool obstacle = true; // 障碍物避障使能（锥桶/行人）
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Config, velLow, velHigh, velSlow, velPark, velCurve, velBusy, velStop, velCross, velYfork,
-                                   runP1, runP2, turnP, turnD, debug, saveImg, saveIpm, rowCutUp, rowCutBottom,
+                                   runP1, runP2, turnP, turnD, debug, showCamera, saveImg, saveIpm, rowCutUp, rowCutBottom,
                                    overlap, score, binary, model, video, alertTarget, totalLaps, fork, fine, park, spot, curve, busy, slow, stop, cross, yfork, station);
 };
 
@@ -205,6 +206,7 @@ public:
             config.turnP = configs["通用配置参数"]["turnP"];
             config.turnD = configs["通用配置参数"]["turnD"];
             config.debug = configs["通用配置参数"]["debug"];
+            config.showCamera = configs["通用配置参数"].value("showCamera", false);
             config.saveImg = configs["通用配置参数"]["saveImg"];
             config.saveIpm = configs["通用配置参数"]["saveIpm"];
             config.rowCutUp = configs["通用配置参数"]["rowCutUp"];

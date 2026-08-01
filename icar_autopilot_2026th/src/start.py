@@ -43,13 +43,13 @@ def run_speech_flow():
         if lap["park"]:
             if lap.get("parkSpot") == 0:
                 return "停车场(穿过)"
-            return f"停车场(停车位 {lap['parkSpot']})"
+            return "停车场(停车位 {})".format(lap['parkSpot'])
         if lap["busy"]:
             pos = "中间" if lap["busyStopPoint"] == 1 else "出口"
-            return f"施工区({pos})"
+            return "施工区({})".format(pos)
         if lap.get("fork") or lap.get("yfork"):
             side = "左侧" if lap.get("yforkLeft") else "右侧"
-            return f"岔路口({side})"
+            return "岔路口({})".format(side)
         return "未知"
 
     llm = LLM()
@@ -59,27 +59,27 @@ def run_speech_flow():
         if not instruction:
             continue
 
-        print(f"\n原始指令: {instruction}\n")
+        print("\n原始指令: {}\n".format(instruction))
 
         result = llm.parseInstruction(instruction)
         if not result:
-            print(f"{COUT_RED}解析失败！请检查 API Key 是否有效{COUT_REST}")
+            print("{}解析失败！请检查 API Key 是否有效{}".format(COUT_RED, COUT_REST))
             continue
 
-        print(f"LLM 解析结果: {json.dumps(result, ensure_ascii=False)}\n")
+        print("LLM 解析结果: {}\n".format(json.dumps(result, ensure_ascii=False)))
 
         normalizeTasks(result)
-        print(f"修正后: {json.dumps(result, ensure_ascii=False)}\n")
+        print("修正后: {}\n".format(json.dumps(result, ensure_ascii=False)))
 
         lapConfig = parsedToLapConfig(result)
         totalLaps = len(result["tasks"])
         print("映射为每圈配置:")
         print(json.dumps(lapConfig, ensure_ascii=False, indent=2))
-        print(f"  总圈数: {totalLaps}")
+        print("  总圈数: {}".format(totalLaps))
         for lapNum in sorted(lapConfig.keys()):
             lap = lapConfig[lapNum]
             info = _describe_lap(lap)
-            print(f"  {lapNum} → {info}")
+            print("  {} → {}".format(lapNum, info))
 
         confirm = input("\n解析结果是否正确？(y/n): ").strip().lower()
         if confirm == "y":
@@ -97,7 +97,7 @@ def run_visual_flow(vllm):
 
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
-        print(f"{COUT_RED}[摄像头] 无法打开摄像头{COUT_REST}")
+        print("{}[摄像头] 无法打开摄像头{}".format(COUT_RED, COUT_REST))
         return None
     time.sleep(0.5)
 
@@ -107,60 +107,80 @@ def run_visual_flow(vllm):
             cap.grab()
         ret, frame = cap.read()
         if not ret:
-            print(f"{COUT_RED}[摄像头] 读取画面失败，尝试重新拍摄...{COUT_REST}")
+            print("{}[摄像头] 读取画面失败，尝试重新拍摄...{}".format(COUT_RED, COUT_REST))
             continue
 
         with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
             temp_path = tmp.name
         cv2.imwrite(temp_path, frame)
 
-        print(f"\n{COUT_YELLOW}[摄像头] 正在识别...{COUT_REST}")
+        print("\n{}[摄像头] 正在识别...{}".format(COUT_YELLOW, COUT_REST))
         label = vllm.recognize(temp_path)
         os.remove(temp_path)
 
         if label:
             name = LABEL_DICT.get(label, label)
-            print(f"{COUT_GREEN}[摄像头] 识别结果: {label} ({name}){COUT_REST}")
+            print("{}[摄像头] 识别结果: {} ({}){}".format(COUT_GREEN, label, name, COUT_REST))
         else:
-            print(f"{COUT_RED}[摄像头] 识别失败{COUT_REST}")
+            print("{}[摄像头] 识别失败{}".format(COUT_RED, COUT_REST))
 
         confirm = input("\n是否将此识别结果写入配置文件？(y/n): ").strip().lower()
         if confirm == "y":
             if label:
                 update_alert_target(label, CONFIG_PATH)
-                print(f"{COUT_GREEN}已写入配置{COUT_REST}")
+                print("{}已写入配置{}".format(COUT_GREEN, COUT_REST))
             break
         print("已取消，重新拍摄识别...")
 
     cap.release()
-    print(f"{COUT_GREEN}[摄像头] 已释放{COUT_REST}")
+    print("{}[摄像头] 已释放{}".format(COUT_GREEN, COUT_REST))
     return label
 
 
 def start_car_program():
-    """启动小车程序"""
+    """启动小车程序（继承当前 SSH 会话的 DISPLAY，支持 X11 转发）"""
     if not os.path.exists(ICAR_PATH):
-        print(f"{COUT_RED}\n未找到小车程序: {ICAR_PATH}{COUT_REST}")
+        print("{}\n未找到小车程序: {}{}".format(COUT_RED, ICAR_PATH, COUT_REST))
         return False
+
+    # 检查 DISPLAY 环境变量（X11 转发需要）
+    display = os.environ.get("DISPLAY", "")
+    if display:
+        print("{}[X11] DISPLAY={} — 摄像头画面将通过 X11 转发{}".format(COUT_GREEN, display, COUT_REST))
+    else:
+        print("{}[X11] 未检测到 DISPLAY，摄像头窗口可能无法显示{}".format(COUT_YELLOW, COUT_REST))
+        print("{}        请使用 ssh -X root@192.168.137.199 重新连接{}".format(COUT_YELLOW, COUT_REST))
 
     boot_needed = input("\n是否需要先启动boot？(y/n): ").strip().lower()
     if boot_needed == "y":
-        boot_cmd = [
-            "gnome-terminal", "--", "export", "DISPLAY=:0.0",
-            "--working-directory", BUILD_DIR, "--", "./boot"
-        ]
-        subprocess.Popen(boot_cmd, cwd=BUILD_DIR)
-        print("已启动 boot，等待 3 秒...")
-        time.sleep(3)
+        # 直接在后台启动 boot（不依赖 gnome-terminal）
+        boot_path = os.path.join(BUILD_DIR, "boot")
+        if os.path.exists(boot_path):
+            subprocess.Popen(
+                [boot_path],
+                cwd=BUILD_DIR,
+                start_new_session=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            print("已启动 boot，等待 3 秒...")
+            time.sleep(3)
+        else:
+            print("{}未找到 boot: {}{}".format(COUT_RED, boot_path, COUT_REST))
 
-    print(f"\n正在启动小车程序: {ICAR_PATH}")
-    subprocess.Popen(
-        ["nohup", "./icar"],
-        cwd=BUILD_DIR,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-    print(f"{COUT_GREEN}小车程序已启动{COUT_REST}")
+    print("\n正在启动小车程序: {}".format(ICAR_PATH))
+    print("{}摄像头画面请查看 X11 弹窗（若无可检查 ssh -X）{}".format(COUT_GREEN, COUT_REST))
+    print("{}按 Ctrl+C 停止小车{}\n".format(COUT_YELLOW, COUT_REST))
+
+    # 前台运行 icar（阻塞），X11 画面通过 SSH 转发到 Windows
+    try:
+        subprocess.run(
+            [ICAR_PATH],
+            cwd=BUILD_DIR,
+        )
+    except KeyboardInterrupt:
+        print("\n{}小车程序已停止{}".format(COUT_YELLOW, COUT_REST))
+
     return True
 
 
@@ -170,26 +190,26 @@ def main():
     print("=" * 60)
 
     # ========== 1. 语音指令解析 ==========
-    print(f"\n{COUT_YELLOW}>>> 第一步：语音指令解析{COUT_REST}")
+    print("\n{}>>> 第一步：语音指令解析{}".format(COUT_YELLOW, COUT_REST))
     result = run_speech_flow()
     if result is None:
         sys.exit(1)
     lapConfig, totalLaps = result
 
     # ========== 2. 摄像头视觉识别 ==========
-    print(f"\n{COUT_YELLOW}>>> 第二步：拍照识别场景{COUT_REST}")
+    print("\n{}>>> 第二步：拍照识别场景{}".format(COUT_YELLOW, COUT_REST))
     vllm = VisualLLM()
     label = run_visual_flow(vllm)
     if label:
-        print(f"最终识别标签: {label}")
+        print("最终识别标签: {}".format(label))
 
     # ========== 3. 写入圈数配置 ==========
-    print(f"\n{COUT_YELLOW}>>> 第三步：写入圈数配置{COUT_REST}")
+    print("\n{}>>> 第三步：写入圈数配置{}".format(COUT_YELLOW, COUT_REST))
     from speech.speech import updateConfigJson
     updateConfigJson(lapConfig, totalLaps, CONFIG_PATH)
 
     # ========== 4. 启动小车 ==========
-    print(f"\n{COUT_YELLOW}>>> 第四步：启动小车程序{COUT_REST}")
+    print("\n{}>>> 第四步：启动小车程序{}".format(COUT_YELLOW, COUT_REST))
     start_car_program()
 
 

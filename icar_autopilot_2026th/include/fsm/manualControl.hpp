@@ -23,14 +23,12 @@
 
 #include <thread>
 #include <mutex>
-#include <condition_variable>
 #include <atomic>
+#include <cstdint>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
-#include <vector>
-#include <opencv2/opencv.hpp>
 
 /**
  * @brief 手动接管控制线程
@@ -39,23 +37,22 @@ class ManualControlThread
 {
 private:
     std::thread thread;
-    std::mutex mtxImg, mtxState;
-    std::condition_variable cvImg;
+    std::mutex mtxState;
     std::atomic<bool> running{false};
     std::atomic<bool> connected{false};
 
     // Network
     int serverSocket;
-    int clientSocket;
+    std::atomic<int> clientSocket{-1};
     struct sockaddr_in serverAddr, clientAddr;
     socklen_t addrSize;
 
     // Vehicle state
     struct VehicleState
     {
-        float speed;
-        float steering;
-        bool emergency;
+        float speed = 0.0f;
+        float steering = 0.0f;
+        bool emergency = false;
     } vehicleState;
 
     // Manual control
@@ -69,12 +66,8 @@ private:
         std::atomic<bool> returnAuto{false};
     } manualControl;
 
-    // Image data
-    cv::Mat image;
-    std::atomic<bool> hasImage{false};
-
     // Last contact time
-    std::chrono::steady_clock::time_point lastContact;
+    std::atomic<int64_t> lastContactMs{0};
 
 public:
     std::atomic<bool> controlChanged{false};  // 控制状态变化标志（参考2025手柄：事件驱动发送）
@@ -83,7 +76,6 @@ public:
 
     void start();
     void stop();
-    void sendImage(cv::Mat &img);
     void updateVehicleState(float speed, float steering);
     bool isManualControl();
     void applyManualControl(float *speed, uint16_t *steering);
@@ -97,5 +89,7 @@ private:
     void receiveCommands();
     void checkTimeout();
     void emergencyStop();
+    void clearManualControl(bool emergency);
+    bool sendAll(const void *data, size_t length);
     void processCommand(const std::string &cmd);
 };

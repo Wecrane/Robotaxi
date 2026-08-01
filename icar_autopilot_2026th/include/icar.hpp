@@ -75,6 +75,10 @@ private:
     shared_ptr<Motion> motion;            // 运动控制器
 
     int lastLap = 0; // 上一圈号（检测圈变更时复位FSM）
+    std::chrono::steady_clock::time_point lastStallWarn =
+        std::chrono::steady_clock::time_point::min();
+    std::chrono::steady_clock::time_point lastEncoderFaultWarn =
+        std::chrono::steady_clock::time_point::min();
 
     // 全局共享数据链
     cv::Mat imgShare;
@@ -184,7 +188,6 @@ private:
         params->manualTakeover = fsmFactory.busy->isInManualTakeover();
         if (params->manualTakeover)
         {
-            cout << "[Icar] Manual takeover active." << endl;
             fsmFactory.manual->updateVehicleState(params->ctrl.speed, params->ctrl.servo);
 
             // 检查是否返回自动模式
@@ -412,7 +415,7 @@ public:
         if (params->config.debug)
             capture = make_shared<cv::VideoCapture>(params->config.video); // 打开本地视频
         else
-            capture = make_shared<cv::VideoCapture>("/dev/video0"); // 打开摄像头
+            capture = make_shared<cv::VideoCapture>(0, cv::CAP_V4L2); // 指定V4L2，避免GStreamer误探测
         if (!capture->isOpened())
         {
             printf("[Error]: Can not open video device!!!\n");
@@ -428,6 +431,11 @@ public:
             show->frameMax = capture->get(cv::CAP_PROP_FRAME_COUNT) - 1;
             cv::createTrackbar("Frame", "ICAR", &show->index, show->frameMax, [](int, void *) {}); // 创建Opencv图像滑条控件
             cv::setMouseCallback("ICAR", this->callbackMouse);                                     // 创建鼠标键盘快捷键事件
+        }
+        else if (params->config.showCamera)
+        {
+            // 实车模式复用调试合成器，但不启用视频帧滑条/暂停控制。
+            show = make_shared<Show>(4, "ICAR Live", true);
         }
 
         // FSM有限状态机初始化
@@ -483,12 +491,27 @@ public:
                        params->ctrl.batteryPercent, params->ctrl.batteryVoltage);
             // 编码器断线故障
             if (params->ctrl.errorCode & 0x10)
-                printf("[ERROR] Encoder fault detected! errorCode=0x%04X\n",
-                       params->ctrl.errorCode);
+            {
+                params->ctrl.speed = 0.0f;
+                auto now = std::chrono::steady_clock::now();
+                if (now - lastEncoderFaultWarn >= std::chrono::seconds(1))
+                {
+                    printf("[ERROR] Encoder fault detected! errorCode=0x%04X\n",
+                           params->ctrl.errorCode);
+                    lastEncoderFaultWarn = now;
+                }
+            }
             // 失速检测：目标速度>0.3m/s但反馈为0
             if (params->ctrl.speed > 0.3f && params->ctrl.speedFeedback <= 0.01f)
-                printf("[WARN] Stall detected! target=%.2f feedback=%.2f\n",
-                       params->ctrl.speed, params->ctrl.speedFeedback);
+            {
+                auto now = std::chrono::steady_clock::now();
+                if (now - lastStallWarn >= std::chrono::seconds(1))
+                {
+                    printf("[WARN] Stall detected! target=%.2f feedback=%.2f\n",
+                           params->ctrl.speed, params->ctrl.speedFeedback);
+                    lastStallWarn = now;
+                }
+            }
         }
 
         //[01] 视频源读取
@@ -526,6 +549,7 @@ public:
         //[03] 图像预处理
         cv::Mat imgBin;
         predeal->correction(img); // 图像矫正
+        cv::Mat imgOriginal = img.clone();
         /*---------------子线程共享数据，避免浅拷贝-----------------*/
         std::lock_guard<std::mutex> lock(mtxImg);
         imgShare = img.clone();
@@ -534,9 +558,21 @@ public:
         /*-------------------------------------------------------*/
         imgBin = predeal->binaryzation(img); // 图像二值化
 
+        if (params->config.showCamera && !params->config.debug)
+        {
+            show->setNewWindow(1, "Original", imgOriginal);
+            show->setNewWindow(2, "Binary", imgBin);
+        }
+
         //[04] 赛道识别（手动接管时跳过）
         if (!fsmFactory.busy->isInManualTakeover())
             params->track->handle(imgBin);
+        if (params->config.showCamera && !params->config.debug)
+        {
+            cv::Mat imgTrack = imgOriginal.clone();
+            params->track->drawImage(imgTrack);
+            show->setNewWindow(3, "Track", imgTrack);
+        }
         if (params->config.debug)
         {
             show->setNewWindow(1, "Bin", imgBin);
@@ -557,10 +593,6 @@ public:
 
         // 同步手动接管状态（runFsm中endManualTakeover可能改变了状态，但params->manualTakeover未更新）
         params->manualTakeover = fsmFactory.busy->isInManualTakeover();
-
-        // 手动接管期间发送彩色图像
-        if (params->manualTakeover && fsmFactory.manual->isConnected())
-            fsmFactory.manual->sendImage(img);
 
         //[06] 控制中心计算（手动接管时跳过）
         if (!params->manualTakeover)
@@ -596,7 +628,20 @@ public:
         else // 实车控制
         {
             // 无论手动/自动模式，每帧发送控制指令（MCU需要持续PWM更新）
+            if (params->ctrl.errorCode & 0x10)
+                params->ctrl.speed = 0.0f;
             client->carControl(params->ctrl.speed, params->ctrl.servo);
+
+            if (params->config.showCamera)
+            {
+                cv::Mat imgControl = imgOriginal.clone();
+                params->track->drawImage(imgControl);
+                detection->drawBox(imgControl);
+                center->drawImage(params, imgControl);
+                motion->drawImage(params, imgControl);
+                show->setNewWindow(4, "Control", imgControl);
+                show->show();
+            }
         }
     }
 };

@@ -118,8 +118,8 @@ void Track::handle(bool isResearch, uint16_t rowStart)
                 endBlock[counterBlock++] = COLSIMAGE - 1;
         }
 
-        int widthBlocks = endBlock[0] - startBlock[0]; // 色块宽度临时变量
-        int indexWidestBlock = 0;                      // 最宽色块的序号
+        int widthBlocks = 0;      // 色块宽度临时变量
+        int indexStartBlock = 0;  // 起始色块的序号
         if (flagStartBlock)                            // 起始行做特殊处理
         {
             if (row < ROWSIMAGE / 3)
@@ -128,28 +128,43 @@ void Track::handle(bool isResearch, uint16_t rowStart)
             {
                 continue;
             }
-            for (int i = 1; i < counterBlock; i++) // 搜索最宽色块
+
+            int centerImage = COLSIMAGE / 2;
+            int distanceToCenter = COLSIMAGE;
+            for (int i = 0; i < counterBlock; i++) // 优先选择包含/靠近图像中心的色块
             {
                 int tmp_width = endBlock[i] - startBlock[i];
-                if (tmp_width > widthBlocks)
+                int blockCenter = (startBlock[i] + endBlock[i]) / 2;
+                int tmpDistance = 0;
+                if (centerImage < startBlock[i])
+                    tmpDistance = startBlock[i] - centerImage;
+                else if (centerImage > endBlock[i])
+                    tmpDistance = centerImage - endBlock[i];
+
+                if (tmpDistance < distanceToCenter ||
+                    (tmpDistance == distanceToCenter && tmp_width > widthBlocks))
                 {
+                    distanceToCenter = tmpDistance;
                     widthBlocks = tmp_width;
-                    indexWidestBlock = i;
+                    indexStartBlock = i;
                 }
             }
 
-            int limitWidthBlock = (COLSIMAGE - (ROWSIMAGE - row)) * 0.65; // 首行色块宽度限制（不能太小）
+            int minStartBlockWidth = COLSIMAGE / 8;
+            int limitWidthBlock = (COLSIMAGE - (ROWSIMAGE - row)) * 0.35; // 首行色块宽度限制，适配弯道/斑马线碎块
             if (row < ROWSIMAGE * 0.75)
-                limitWidthBlock = COLSIMAGE * 0.5; // 首行色块宽度限制（不能太小）
+                limitWidthBlock = COLSIMAGE * 0.25;
+            if (limitWidthBlock < minStartBlockWidth)
+                limitWidthBlock = minStartBlockWidth;
 
             if (widthBlocks > limitWidthBlock) // 满足首行宽度要求
             {
                 flagStartBlock = false;
-                PointX pointTmp(row, startBlock[indexWidestBlock]);
+                PointX pointTmp(row, startBlock[indexStartBlock]);
                 pointsEdgeLeft.push_back(pointTmp);
-                pointTmp.y = endBlock[indexWidestBlock];
+                pointTmp.y = endBlock[indexStartBlock];
                 pointsEdgeRight.push_back(pointTmp);
-                widthBlock.emplace_back(row, endBlock[indexWidestBlock] - startBlock[indexWidestBlock]);
+                widthBlock.emplace_back(row, endBlock[indexStartBlock] - startBlock[indexStartBlock]);
                 counterSearchRows++;
             }
             spurroadEnable = false;

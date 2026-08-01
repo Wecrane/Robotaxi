@@ -37,6 +37,8 @@ private:
     int sizeWindow = 1;    // 窗口数量
     cv::Mat imgShow;       // 窗口图像
     bool realShow = false; // 实时更新画面
+    bool liveMode = false; // 实车实时预览，不启用调试帧控制
+    string windowName = "ICAR";
 public:
     int index = 0;      // 图像序号
     int indexLast = -1; // 图像序号
@@ -48,13 +50,18 @@ public:
      *
      * @param size 窗口数量(1~7)
      */
-    Show(const int size)
+    Show(const int size, const string &name = "ICAR", bool live = false)
     {
         if (size <= 0 || size > 7)
             return;
 
-        cv::namedWindow("ICAR", WINDOW_NORMAL);     // 图像名称
-        cv::resizeWindow("ICAR", 480 * 2, 320 * 2); // 分辨率
+        windowName = name;
+        liveMode = live;
+        cv::namedWindow(windowName, WINDOW_NORMAL);     // 图像名称
+        if (liveMode)
+            cv::resizeWindow(windowName, 960, 720);
+        else
+            cv::resizeWindow(windowName, 480 * 2, 320 * 2);
 
         imgShow = cv::Mat::zeros(ROWSIMAGE * 2, COLSIMAGE * 2, CV_8UC3);
         enable = true;
@@ -86,12 +93,7 @@ public:
         // 图像缩放
         if (imgDraw.cols != COLSIMAGE || imgDraw.rows != ROWSIMAGE)
         {
-            float fx = COLSIMAGE / imgDraw.cols;
-            float fy = ROWSIMAGE / imgDraw.rows;
-            if (fx <= fy)
-                resize(imgDraw, imgDraw, Size(COLSIMAGE, ROWSIMAGE), fx, fx);
-            else
-                resize(imgDraw, imgDraw, Size(COLSIMAGE, ROWSIMAGE), fy, fy);
+            resize(imgDraw, imgDraw, Size(COLSIMAGE, ROWSIMAGE));
         }
 
         // 限制图片标题长度
@@ -127,16 +129,17 @@ public:
     {
         if (enable)
         {
-            putText(imgShow, "Frame:" + to_string(index), Point(COLSIMAGE / 2 - 50, ROWSIMAGE * 2 - 20), cv::FONT_HERSHEY_TRIPLEX, 0.5, cv::Scalar(0, 255, 0), 0.5);
-            imshow("ICAR", imgShow);
+            if (!liveMode)
+                putText(imgShow, "Frame:" + to_string(index), Point(COLSIMAGE / 2 - 50, ROWSIMAGE * 2 - 20), cv::FONT_HERSHEY_TRIPLEX, 0.5, cv::Scalar(0, 255, 0), 0.5);
+            imshow(windowName, imgShow);
 
             char key = waitKey(1);
-            if (key != -1)
+            if (!liveMode && key != -1)
             {
                 if (key == 32) // 空格
                     realShow = !realShow;
             }
-            if (realShow)
+            if (!liveMode && realShow)
             {
                 index++;
                 if (index < 0)

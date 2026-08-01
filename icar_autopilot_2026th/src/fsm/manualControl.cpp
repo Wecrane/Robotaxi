@@ -23,6 +23,17 @@
 #include "fsm/manualControl.hpp"
 #include "utils/tools.hpp"
 #include <unistd.h>
+#include <cerrno>
+
+namespace
+{
+int64_t monotonicMs()
+{
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+               std::chrono::steady_clock::now().time_since_epoch())
+        .count();
+}
+}
 
 ManualControlThread::ManualControlThread() {
     serverSocket = -1;
@@ -37,7 +48,7 @@ ManualControlThread::~ManualControlThread() {
 
 void ManualControlThread::start() {
     running = true;
-    lastContact = std::chrono::steady_clock::now();
+    lastContactMs = monotonicMs();
 
     // Create server socket
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -82,11 +93,13 @@ void ManualControlThread::start() {
 
 void ManualControlThread::stop() {
     running = false;
+    connected = false;
+    clearManualControl(true);
 
-    // Close sockets
-    if (clientSocket >= 0) {
-        close(clientSocket);
-        clientSocket = -1;
+    // shutdown 负责唤醒阻塞中的 recv；连接线程拥有并关闭 clientSocket。
+    int fd = clientSocket.load();
+    if (fd >= 0) {
+        shutdown(fd, SHUT_RDWR);
     }
     if (serverSocket >= 0) {
         close(serverSocket);
@@ -96,16 +109,6 @@ void ManualControlThread::stop() {
     // Wait for thread to finish
     if (thread.joinable()) {
         thread.join();
-    }
-}
-
-void ManualControlThread::sendImage(cv::Mat &img) {
-    if (!img.empty()) {
-        cout << "[Manual] Received image to send: size=" << img.cols << "x" << img.rows << endl;
-        std::lock_guard<std::mutex> lock(mtxImg);
-        image = img.clone();
-        hasImage = true;
-        cvImg.notify_one();
     }
 }
 
@@ -122,11 +125,6 @@ bool ManualControlThread::isManualControl() {
 }
 
 void ManualControlThread::applyManualControl(float *speed, uint16_t *steering) {
-    cout << "[Manual] Applying manual control - Forward:" << manualControl.forward
-         << ", Backward:" << manualControl.backward
-         << ", Left:" << manualControl.left
-         << ", Right:" << manualControl.right << endl;
-
     if (manualControl.emergencyStop) {
         *speed = 0;
         *steering = PWMSERVOMID; // 中间位置
@@ -144,9 +142,9 @@ void ManualControlThread::applyManualControl(float *speed, uint16_t *steering) {
 
     // Steering control
     if (manualControl.left) {
-        *steering = PWMSERVOMID - 300; // 左转
+        *steering = PWMSERVOMAX; // 左转：使用标定左极限，保证短按也有明显响应
     } else if (manualControl.right) {
-        *steering = PWMSERVOMID + 300; // 右转
+        *steering = PWMSERVOMIN; // 右转：使用标定右极限，保证短按也有明显响应
     } else {
         *steering = PWMSERVOMID;  // 直行
     }
@@ -161,11 +159,11 @@ bool ManualControlThread::checkForReturnKey() {
 }
 
 void ManualControlThread::disconnectClient() {
-    if (clientSocket >= 0) {
-        close(clientSocket);
-        clientSocket = -1;
-    }
+    clearManualControl(true);
     connected = false;
+    int fd = clientSocket.load();
+    if (fd >= 0)
+        shutdown(fd, SHUT_RDWR);
 }
 
 void ManualControlThread::run() {
@@ -178,97 +176,66 @@ void ManualControlThread::run() {
 
         // Wait for client connection
         addrSize = sizeof(clientAddr);
-        clientSocket = accept(serverSocket, (struct sockaddr*)&clientAddr, &addrSize);
+        int acceptedSocket = accept(serverSocket, (struct sockaddr*)&clientAddr, &addrSize);
 
-        if (clientSocket < 0) {
+        if (acceptedSocket < 0) {
             continue;
         }
 
+        clientSocket = acceptedSocket;
         connected = true;
-        lastContact = std::chrono::steady_clock::now();  // 重置超时计时（防止旧连接的lastContact导致立即超时）
+        lastContactMs = monotonicMs();
         // 禁用Nagle算法，降低控制延迟
         int flag = 1;
-        setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(flag));
+        setsockopt(acceptedSocket, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(flag));
         printf("[Manual] Remote control connected\n");
 
         // Handle client connection
         handleClientConnection();
 
         connected = false;
-        if (clientSocket >= 0) {
-            close(clientSocket);
-            clientSocket = -1;
-        }
+        shutdown(acceptedSocket, SHUT_RDWR);
+        close(acceptedSocket);
+        clientSocket = -1;
     }
 }
 
 void ManualControlThread::handleClientConnection() {
-    // Reset manual control
-    manualControl.forward = false;
-    manualControl.backward = false;
-    manualControl.left = false;
-    manualControl.right = false;
-    manualControl.emergencyStop = false;
+    clearManualControl(false);
     manualControl.returnAuto = false;
 
-    // Start receiving commands thread
+    // 每个连接只拥有一个可回收的接收线程，禁止跨连接访问复用的描述符。
     std::thread cmdThread(&ManualControlThread::receiveCommands, this);
-    cmdThread.detach();
-
-    // Start timeout check thread
-    std::thread timeoutThread([this]() {
-        while (running && connected) {
-            checkTimeout();
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
-    });
-    timeoutThread.detach();
 
     // Send images and state
     while (running && connected) {
-        // Send vehicle state (higher frequency for state)
-        std::lock_guard<std::mutex> lock(mtxState);
-        std::string state = "STATE:" + std::to_string(vehicleState.speed) +
-                          "," + std::to_string(vehicleState.steering) + "\n";
+        checkTimeout();
+        if (!connected)
+            break;
 
-        // 发送状态数据（带错误检查）
-        int stateSent = send(clientSocket, state.c_str(), state.length(), 0);
-        if (stateSent < 0) {
+        // Send vehicle state (higher frequency for state)
+        std::string state;
+        {
+            std::lock_guard<std::mutex> lock(mtxState);
+            state = "STATE:" + std::to_string(vehicleState.speed) +
+                    "," + std::to_string(vehicleState.steering) + "\n";
+        }
+
+        if (!sendAll(state.data(), state.size())) {
             cerr << "[Manual] Error sending state data" << endl;
             break;
         }
 
-        // Send image if available (every frame)
-        if (hasImage) {
-            std::lock_guard<std::mutex> imgLock(mtxImg);
-            if (!image.empty()) {
-                try {
-                    // 提高JPEG质量
-                    std::vector<uchar> buf;
-                    std::vector<int> params = {cv::IMWRITE_JPEG_QUALITY, 30};  // 30%质量
-                    cv::imencode(".jpg", image, buf, params);
-
-                    // 限制图像大小（如果太大，压缩质量会自动降低）
-                    if (buf.size() > 50000) {  // 50KB限制
-                        buf.resize(50000);
-                    }
-
-                    std::string header = "IMAGE:" + std::to_string(buf.size()) + "\n";
-                    cout << "[Manual] Sending image: size=" << buf.size() << endl;
-
-                    // 发送图像头
-                    send(clientSocket, header.c_str(), header.length(), 0);
-                    // 发送图像数据
-                    send(clientSocket, buf.data(), buf.size(), 0);
-                } catch (const cv::Exception& e) {
-                    cerr << "[Manual] Image encode error: " << e.what() << endl;
-                }
-            }
-            hasImage = false;
-        }
-
         std::this_thread::sleep_for(std::chrono::milliseconds(16));  // 约60Hz
     }
+
+    connected = false;
+    clearManualControl(true);
+    int fd = clientSocket.load();
+    if (fd >= 0)
+        shutdown(fd, SHUT_RDWR);
+    if (cmdThread.joinable())
+        cmdThread.join();
 }
 
 void ManualControlThread::receiveCommands() {
@@ -277,6 +244,8 @@ void ManualControlThread::receiveCommands() {
     while (running && connected) {
         int bytes = recv(clientSocket, rawBuf, 1023, 0);
         if (bytes <= 0) {
+            clearManualControl(true);
+            connected = false;
             break;
         }
 
@@ -284,7 +253,7 @@ void ManualControlThread::receiveCommands() {
         lineBuf += std::string(rawBuf);
 
         // Update contact time
-        lastContact = std::chrono::steady_clock::now();
+        lastContactMs = monotonicMs();
 
         // 按换行符分割处理（解决TCP粘包）
         size_t pos;
@@ -300,7 +269,6 @@ void ManualControlThread::receiveCommands() {
             }
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 done:
     lineBuf.clear();
@@ -315,11 +283,7 @@ void ManualControlThread::processCommand(const std::string &cmd) {
         return;
     }
     if (cmd == "STOP\n") {
-        manualControl.forward = false;
-        manualControl.backward = false;
-        manualControl.left = false;
-        manualControl.right = false;
-        manualControl.emergencyStop = true;
+        clearManualControl(true);
         manualControl.returnAuto = false;
         controlChanged = true;
         printf("[Manual] Stop command received\n");
@@ -347,21 +311,47 @@ void ManualControlThread::processCommand(const std::string &cmd) {
 
 void ManualControlThread::checkTimeout() {
     if (connected) {
-        auto now = std::chrono::steady_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-            now - lastContact).count();
+        int64_t elapsed = monotonicMs() - lastContactMs.load();
 
-        if (elapsed > 30000) { // 30 seconds timeout
-            printf("[Manual] Connection timeout, returning to auto mode\n");
-            emergencyStop();
+        if (elapsed > 300) {
+            printf("[Manual] Command timeout, stopping vehicle\n");
+            clearManualControl(true);
             connected = false;
         }
     }
 }
 
 void ManualControlThread::emergencyStop() {
+    clearManualControl(true);
+}
+
+void ManualControlThread::clearManualControl(bool emergency) {
+    manualControl.forward = false;
+    manualControl.backward = false;
+    manualControl.left = false;
+    manualControl.right = false;
+    manualControl.emergencyStop = emergency;
+    controlChanged = true;
+
     std::lock_guard<std::mutex> lock(mtxState);
     vehicleState.speed = 0;
-    vehicleState.steering = 0;
-    vehicleState.emergency = true;
+    vehicleState.steering = PWMSERVOMID;
+    vehicleState.emergency = emergency;
+}
+
+bool ManualControlThread::sendAll(const void *data, size_t length) {
+    const char *bytes = static_cast<const char *>(data);
+    size_t sent = 0;
+    int fd = clientSocket.load();
+    while (sent < length && running && connected) {
+        ssize_t count = send(fd, bytes + sent, length - sent, MSG_NOSIGNAL);
+        if (count > 0) {
+            sent += static_cast<size_t>(count);
+            continue;
+        }
+        if (count < 0 && errno == EINTR)
+            continue;
+        return false;
+    }
+    return sent == length;
 }
