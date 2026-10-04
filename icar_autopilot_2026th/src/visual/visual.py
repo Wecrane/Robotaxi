@@ -17,7 +17,7 @@ import requests
 
 # ===== 配置 =====
 VISUAL_API_URL = "https://yijian-next.cloud.baidu.com/api/skills/v1/ep-wshsfmgv-7aejy4pt/run"
-VISUAL_API_KEY = "YOUR_BAIDU_API_KEY"
+VISUAL_API_KEY = os.environ.get("BAIDU_API_KEY", "")
 # =================
 
 # 终端颜色（兼容 Windows）

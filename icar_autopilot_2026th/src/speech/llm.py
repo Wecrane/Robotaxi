@@ -10,6 +10,7 @@
 """
 
 import json
+import os
 import re
 import time
 import threading
@@ -231,7 +232,7 @@ LLM_CONFIG = {
     "role": "你是一个智能小车任务分析助手, 你叫小赛, 现在任务分成好几圈，你需要将任务分析成多个子任务, 并根据子任务的优先级和依赖关系, 生成一个任务执行计划。",
     "providers": {
         "qianfan": {
-            "api_key": "YOUR_BAIDU_API_KEY",
+            "api_key": os.environ.get("BAIDU_API_KEY", ""),
             "base_url": "https://qianfan.baidubce.com/v2",
             "model": "ernie-4.5-turbo-128k",
             "temperature": 0.7,
